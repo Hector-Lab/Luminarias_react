@@ -1,5 +1,7 @@
-import { StyleSheet } from 'react-native';
-import {SuinpacRed} from "./Color";
+import { Dimensions, StyleSheet } from 'react-native';
+import { color } from 'react-native-elements/dist/helpers';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import {SuinpacRed, BackgrounBlue} from "./Color";
 
 const Styles = StyleSheet.create({
     container: {
@@ -60,6 +62,17 @@ const Styles = StyleSheet.create({
         flex: 1, 
         justifyContent: 'center', 
         alignItems: 'center' 
+    },
+    mapContainer: {
+        width: Dimensions.get("window").width,
+        height: Dimensions.get("window").height
+    },
+    backgroundPage: {
+        backgroundColor: BackgrounBlue
+    },
+    backgroundimage: {
+        flex: 1,
+        justifyContent:"center"
     }
 });
 
