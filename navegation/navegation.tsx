@@ -9,7 +9,7 @@ const Stack = createStackNavigator();
 
 function Nav() {
     return(
-        <NavigationContainer>
+        <NavigationContainer independent = {true}>
             <Stack.Navigator>
                 <Stack.Screen name='Bienvenido!'>
                     {props => <Home {...props} ></Home>}
