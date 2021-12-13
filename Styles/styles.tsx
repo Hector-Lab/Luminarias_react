@@ -73,6 +73,18 @@ const Styles = StyleSheet.create({
     backgroundimage: {
         flex: 1,
         justifyContent:"center"
+    },
+    MenuLuminaria: {
+        flex:1,
+        flexDirection: "row",
+        justifyContent:"center",
+        alignItems:"center",
+    },
+    btnMenuSali: {
+        flex:1,
+        flexDirection: "row",
+        justifyContent:"center",
+        alignItems:"baseline"    
     }
 });
 

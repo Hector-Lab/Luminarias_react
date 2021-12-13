@@ -1,7 +1,7 @@
 import React,{} from "react";
 import { View } from "react-native";
 import { Text } from 'react-native-elements'
-import Styles from "../../Styles/styles";
+import Styles from "../../../Styles/styles";
 
 export default function Luminarias(props:any ){
     return(

@@ -8,7 +8,7 @@ import { Input } from "react-native-elements/dist/input/Input";
 
 export default function Log(props: any) {
     const login = ()=>{
-        props.navigation.navigate("Luminarias");
+        props.navigation.navigate("Menu");
     }
 
     return (

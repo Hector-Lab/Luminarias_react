@@ -1,18 +1,65 @@
 import React,{} from "react";
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Luminarias from "./Luminarias";
-import LuminariasEstados from "./estado-luminarias";
-import CustomMap from './map';
-export default function LuminariasHome(props:any ){
-    const Tabs = createBottomTabNavigator();
-    return (
-        <NavigationContainer independent = {true}>
-            <Tabs.Navigator>
-                <Tabs.Screen name="Home" component={CustomMap} />
-                <Tabs.Screen name="Luminaria" component={Luminarias}/>
-                <Tabs.Screen name="Estado" component={LuminariasEstados}/>
-            </Tabs.Navigator>
-    </  NavigationContainer>
-    )
+import { View, ImageBackground } from "react-native";
+import { Text, Card,Icon } from 'react-native-elements'
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { SuinpacRed } from '../../Styles/Color';
+import IconAnt from 'react-native-vector-icons/AntDesign' 
+import Styles from "../../Styles/styles";
+
+
+export default function MenuLuminarias(props:any ){
+    const image = require("../../resources/suinpac.png");
+
+    const handleLuminariaPress = ()=>{
+        props.navigation.navigate("Luminarias");
+    }
+    const handleLogount = ()=>{
+        props.navigation.pop();
+    }
+    return(
+        <View style = {[Styles.container]}>
+            <ImageBackground source={image} resizeMode="center" style = {Styles.backgroundimage} imageStyle = {{opacity:.06}} >
+                <View style = {[Styles.MenuLuminaria]} >
+                    <TouchableOpacity onPress = {handleLuminariaPress}>
+                        <Card>
+                            <Card.Title> Luminarias</Card.Title>
+                            <Icon
+                                type = {"font-awesome-5"}
+                                tvParallaxProperties
+                                name ={"lightbulb"}
+                                size = {50}
+                                color = {SuinpacRed}
+                            />
+                        </Card>
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Card>
+                                <Card.Title>Medidores</Card.Title>
+                                <Icon
+                                    type = {"font-awesome-5"}
+                                    tvParallaxProperties
+                                    name ={"tachometer-alt"}
+                                    size = {50}
+                                    color = {SuinpacRed}
+                                />
+                        </Card>
+                    </TouchableOpacity>
+                </View>
+                <View style = {[Styles.btnMenuSali]} >
+                <TouchableOpacity onPress = {handleLogount}>
+                        <Card  >
+                            <Card.Title> Salir</Card.Title>
+                            <Icon
+                                style = {{marginLeft:15, marginRight:15}}
+                                tvParallaxProperties
+                                name ={"logout"}
+                                size = {50}
+                                color = {SuinpacRed}
+                            />
+                        </Card>
+                    </TouchableOpacity>
+                </View>
+            </ImageBackground>
+        </View>
+    );
 }

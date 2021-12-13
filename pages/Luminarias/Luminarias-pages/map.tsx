@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, Text,ImageBackground } from "react-native";
-import Styles from "../../Styles/styles";
-import MyLocation from '../components/map-request';
+import Styles from "../../../Styles/styles";
+import MyLocation from '../../components/map-request';
 import  * as Location from 'expo-location';
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { PermissionResponse } from "expo-camera";
@@ -9,7 +9,7 @@ export default function CustomMap(props:any){
     const [enableLocation, setLocationEnable ] = useState(false);
     const [location,setLocation] = useState(null);
     const [region,setRegion] = useState(null);
-     const image = require("../../resources/suinpac.png");
+    const image = require("../../../resources/suinpac.png");
     useEffect(() => {
         (async () => {
           let { status } = await Location.requestForegroundPermissionsAsync();
