@@ -55,6 +55,11 @@ const Styles = StyleSheet.create({
     FooterText: {
         color: SuinpacRed,
         fontSize: 23
+    },
+    TabContainer :{
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center' 
     }
 });
 
