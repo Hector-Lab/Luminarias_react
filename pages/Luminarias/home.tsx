@@ -1,4 +1,4 @@
-import React,{} from "react";
+import React,{ useState } from "react";
 import { View, ImageBackground } from "react-native";
 import { Text, Card,Icon } from 'react-native-elements'
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -9,7 +9,7 @@ import Styles from "../../Styles/styles";
 
 export default function MenuLuminarias(props:any ){
     const image = require("../../resources/suinpac.png");
-
+    const [canUpload,setCantUpload] = useState(false);
     const handleLuminariaPress = ()=>{
         props.navigation.navigate("Luminarias");
     }
@@ -44,6 +44,25 @@ export default function MenuLuminarias(props:any ){
                                 />
                         </Card>
                     </TouchableOpacity>
+                    {
+                        //REVIEW: Este Boton se activa cuando haya datos en guardados que no enviaron en la captura
+                        canUpload ? 
+                        <TouchableOpacity>
+                            <Card>
+                                    <Card.Title>Cargar</Card.Title>
+                                    <Icon
+                                        style = {{marginLeft:15, marginRight:15}}
+                                        type = {"font-awesome-5"}
+                                        tvParallaxProperties
+                                        name ={"upload"}
+                                        size = {50}
+                                        color = {SuinpacRed}
+                                    />
+                            </Card>
+                        </TouchableOpacity>
+                        :
+                        <></>
+                    }
                 </View>
                 <View style = {[Styles.btnMenuSali]} >
                 <TouchableOpacity onPress = {handleLogount}>
