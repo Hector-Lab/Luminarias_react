@@ -11,6 +11,7 @@ export default function MainLuminaria(props:any ){
     return (
         <NavigationContainer independent = {true}>
             <Tabs.Navigator
+            
                 screenOptions = {({route})=>({
                     tabBarIcon:({ focused, color, size }) =>{
                         let iconName;
