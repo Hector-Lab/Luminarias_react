@@ -1,11 +1,11 @@
 import React,{ useState, useEffect, useRef } from "react";
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Image } from "react-native";
-import { Text,Icon } from 'react-native-elements'
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Image, Dimensions } from "react-native";
+import { Text,Icon, Card } from 'react-native-elements'
 import Styles from "../../../Styles/styles";
 import { Input } from "react-native-elements/dist/input/Input";
 import { Picker } from '@react-native-picker/picker';
 import { TouchableOpacity } from "react-native-gesture-handler";
-import Carousel from 'react-native-snap-carousel';
+import Carousel, {Pagination} from 'react-native-snap-carousel';
 import { Camera } from 'expo-camera';
 import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
 export default function Luminarias(props:any ){
@@ -14,7 +14,11 @@ export default function Luminarias(props:any ){
     const [arrayImageEncode, setArrayImageEncode ] = useState([]);
     const [flashOn, setFlashOn] = useState(false);
     const [onCamera, setOnCamera] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(0);
     const caorusel = React.useRef(null);
+    const SLIDER_WIDTH = Dimensions.get("window").width;
+    const ITEM_WIDTH = Math.round(SLIDER_WIDTH * .8 );
+    const ITEM_HEIGHT = Math.round(ITEM_WIDTH * 3 / 4);
     let camera: Camera;
     useEffect(()=>{
         (async () => {
@@ -64,14 +68,37 @@ export default function Luminarias(props:any ){
     const _renderItem = ({item, index}) => {
         console.log(item.uri);
         return (
-            <View style = {{backgroundColor:"red", justifyContent:"center", alignItems:"center", marginTop:20}}>
-                <Image
-                    source = {{uri:item.uri}}
-                    style = {{width:200,height:300}} 
-                />
+            <View style = {{ justifyContent:"center", alignItems:"center", marginTop:20}}>
+                <Card>
+                    <Image
+                        source = {{uri:item.uri}}
+                        style = {{width:200,height:300}} 
+                    />
+                </Card>
             </View>
         );
     }
+    
+    const pagination = ()=> {
+        
+        return (
+            <Pagination
+        activeDotIndex = {activeIndex}
+        dotsLength={arrayImageEncode.length}
+        containerStyle={{}}
+        dotStyle={{
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            marginHorizontal: 8,
+            backgroundColor: SuinpacRed
+        }}
+        inactiveDotOpacity={0.4}
+        inactiveDotScale={0.6}
+      />
+        );
+    }
+
     return(
         <View style = {Styles.TabContainer}>
             {
@@ -128,16 +155,16 @@ export default function Luminarias(props:any ){
                                 <Text>Tomar Fotografia</Text>
                             </TouchableOpacity>
                             <Carousel
-                                
                                 ref={caorusel}
                                 data = {arrayImageEncode}
                                 renderItem = {_renderItem}
-                                sliderWidth={300}
-                                itemWidth={300}
+                                sliderWidth={ITEM_WIDTH}
+                                itemWidth={ITEM_HEIGHT}
                                 useScrollView={true}
+                                onSnapToItem={(index) => setActiveIndex(index)}
                             >
-
                             </Carousel>
+                            {pagination()}
                         </ScrollView>
                     </KeyboardAvoidingView>
                 </View>
