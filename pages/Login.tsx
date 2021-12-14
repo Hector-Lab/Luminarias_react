@@ -1,4 +1,4 @@
-import { TouchableOpacity, View, StyleSheet } from "react-native";
+import { KeyboardAvoidingView, Platform, TouchableOpacity, View, ScrollView} from "react-native";
 import React from "react";
 import { Text } from "react-native-elements";
 import { StatusBar } from "expo-status-bar";
@@ -11,8 +11,12 @@ export default function Log(props: any) {
         props.navigation.navigate("Menu");
     }
 
-    return (
-        <View style={Styles.container}>
+    return (    
+        <KeyboardAvoidingView
+        style={Styles.container}
+         >
+            <ScrollView>
+            <View style={Styles.container}>
             <StatusBar style="auto" />
             <View style={Styles.avatarView}>
                 <View style={Styles.avatarElement}>
@@ -25,6 +29,7 @@ export default function Log(props: any) {
                 </View>
             </View>
             <View style = {Styles.inputButtons} >
+
                 <Input 
                     placeholder = "Nombre de usuario"
                     onChangeText = {text => ("")}
@@ -38,9 +43,8 @@ export default function Log(props: any) {
                     <Text style = {Styles.btnTexto} >Acceder</Text>
                 </TouchableOpacity>
             </View>
-            <View style = {Styles.FooterConteiner}>
-                <Text style = {Styles.FooterText} >SUINPAC</Text>
-            </View>
         </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
       );
 }

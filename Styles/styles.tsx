@@ -4,6 +4,9 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import {SuinpacRed, BackgrounBlue} from "./Color";
 
 const Styles = StyleSheet.create({
+    containerKeyboard: {
+        flex:1
+    },
     container: {
         flex: 1,
         backgroundColor: '#ffffff',
@@ -26,7 +29,7 @@ const Styles = StyleSheet.create({
         alignItems: 'center'
       },
     avatarView: {
-    flex: 2,
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     },
@@ -62,7 +65,10 @@ const Styles = StyleSheet.create({
         flex: 1, 
         flexDirection:'row',
         justifyContent: 'center', 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
     },
     mapContainer: {
         width: Dimensions.get("window").width,
