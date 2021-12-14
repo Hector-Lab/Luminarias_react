@@ -15,7 +15,6 @@ export default function Luminarias(props:any ){
     const [flashOn, setFlashOn] = useState(false);
     const [onCamera, setOnCamera] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
-    const [refresCarousel,setRefresCarousel] = useState(false);
     const caorusel = React.useRef(null);
     const SLIDER_WIDTH = Dimensions.get("window").width;
     const ITEM_WIDTH = Math.round(SLIDER_WIDTH * .8 );
@@ -27,10 +26,7 @@ export default function Luminarias(props:any ){
             setCameraPermision(status === 'granted');
           })();
     })
-    
-    useEffect(()=>{
-        setRefresCarousel(false);
-    },[refresCarousel])
+
     const luminariaList = [
         {
             "id": 1,
@@ -88,8 +84,12 @@ export default function Luminarias(props:any ){
     const deleteImage = ()=>{
         let item = arrayImageEncode[activeIndex]; //INDEV:Aqui se borra de la lista 
         Vibration.vibrate(200);
-        arrayImageEncode.splice(activeIndex,1);
-        setRefresCarousel(true);
+        //let newarray = array.filter(item => item !== "hello");
+        if(arrayImageEncode.length == 1){
+            setArrayImageEncode([]);
+        }else{
+            setArrayImageEncode(arrayImageEncode.filter(item => item.uri !== arrayImageEncode[activeIndex].uri ));
+        }
     }
     const pagination = ()=> {
         
@@ -167,8 +167,6 @@ export default function Luminarias(props:any ){
                                 <Icon tvParallaxProperties type = "feather" name ="camera" size ={15} ></Icon>
                                     {"  Tomar Fotografia"}</Text>
                             </TouchableOpacity>
-                            {
-                                !refresCarousel ?
                                 <Carousel
                                 ref={caorusel}
                                 data = {arrayImageEncode}
@@ -178,9 +176,7 @@ export default function Luminarias(props:any ){
                                 useScrollView={true}
                                 onSnapToItem={(index) => setActiveIndex(index)}
                                     >
-                                </Carousel> :<></>
-                            }
-
+                                </Carousel>
                             <TouchableOpacity style = {Styles.btnButton} onPress = {()=>{}} >
                                 <Text >
                                     <Icon tvParallaxProperties type = "feather" name ="save" size ={15} ></Icon>
