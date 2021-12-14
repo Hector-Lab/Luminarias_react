@@ -1,14 +1,19 @@
 import { KeyboardAvoidingView, Platform, TouchableOpacity, View, ScrollView} from "react-native";
-import React from "react";
-import { Text } from "react-native-elements";
+import React, { useState } from "react";
+import { Text, Input} from "react-native-elements";
 import { StatusBar } from "expo-status-bar";
 import Styles from "../Styles/styles";
 import { Avatar } from "react-native-elements/dist/avatar/Avatar";
-import { Input } from "react-native-elements/dist/input/Input";
-
+import { Auth } from './controller/api-controller';
+import Loading from './components/modal-loading';
 export default function Log(props: any) {
-    const login = ()=>{
-        props.navigation.navigate("Menu");
+    const [user,setUser] = useState(String);
+    const [password,setPassword] = useState(String);
+    const [loading,setLoading] = useState(false);
+    const login = async ()=>{
+        setLoading(true);
+        await Auth(user,password);
+        //props.navigation.navigate("Menu");
     }
 
     return (    
@@ -31,11 +36,13 @@ export default function Log(props: any) {
             <View style = {Styles.inputButtons} >
 
                 <Input 
+                    autoCompleteType = {"username"}
                     placeholder = "Nombre de usuario"
                     onChangeText = {text => ("")}
                     leftIcon = {{type:'font-awesome', name: 'user'}}
                 />
                 <Input 
+                    autoCompleteType = {"password"}
                     placeholder = "Contraseña"
                     onChangeText = {pass =>("")}
                     leftIcon = {{type:'font-awesome', name: 'lock'}}/>
@@ -45,6 +52,12 @@ export default function Log(props: any) {
             </View>
         </View>
             </ScrollView>
+            <Loading 
+          transparent = {true}
+          loading = {loading}
+          loadinColor = {"#0000ff"}
+          onCancelLoad = {()=>{}}
+         />
         </KeyboardAvoidingView>
       );
 }
