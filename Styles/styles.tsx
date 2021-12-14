@@ -60,8 +60,9 @@ const Styles = StyleSheet.create({
     },
     TabContainer :{
         flex: 1, 
+        flexDirection:'row',
         justifyContent: 'center', 
-        alignItems: 'center' 
+
     },
     mapContainer: {
         width: Dimensions.get("window").width,
@@ -85,7 +86,24 @@ const Styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent:"center",
         alignItems:"baseline"    
+    },
+    textFormularios:{
+        paddingLeft:10,
+        fontWeight:'bold',
+        fontSize:17
+        
+    },
+    textArea:{
+        height: 100,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+    },
+    btnFoto:{
+    justifyContent:'center',
+    
     }
+   
 });
 
 export default Styles;
