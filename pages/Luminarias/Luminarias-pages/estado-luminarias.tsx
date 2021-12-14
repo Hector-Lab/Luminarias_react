@@ -1,11 +1,11 @@
 import React,{ useState, useEffect, useRef } from "react";
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Image,TextInput } from "react-native";
-import { Text,Button,Icon  } from 'react-native-elements'
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Image,TextInput,Dimensions, Alert } from "react-native";
+import { Text,Button,Icon,Card  } from 'react-native-elements'
 import Styles from "../../../Styles/styles";
 import { Input } from "react-native-elements/dist/input/Input";
 import { Picker } from '@react-native-picker/picker';
 import { TouchableOpacity } from "react-native-gesture-handler";
-import Carousel from 'react-native-snap-carousel';
+import Carousel,{Pagination} from 'react-native-snap-carousel';
 import { Camera } from 'expo-camera';
 
 
@@ -17,7 +17,12 @@ export default function LuminariasEstados(props:any ){
     const [arrayImageEncode, setArrayImageEncode ] = useState([]);
     const [flashOn, setFlashOn] = useState(false);
     const [onCamera, setOnCamera] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(0);
+
     const caorusel = React.useRef(null);
+    const SLIDER_WIDTH = Dimensions.get("window").width;
+    const ITEM_WIDTH = Math.round(SLIDER_WIDTH * .8 );
+    const ITEM_HEIGHT = Math.round(ITEM_WIDTH * 3 / 4);
     let camera: Camera;
     useEffect(()=>{
         (async () => {
@@ -50,10 +55,33 @@ export default function LuminariasEstados(props:any ){
             "lavel": "malo"
         }
     ];
+
+    const validarNumeroDeFotos=()=>{
+        console.log(arrayImageEncode.length)
+        if(arrayImageEncode.length < 3){
+            setOnCamera(true)
+        }else{
+            Alert.alert(  
+                'INFO',  
+                'El número maximo de fotos a registrar es tres.',  
+                [  
+                    
+                    {text: 'Aceptar', onPress: () => console.log('OK Pressed')},  
+                ]  
+            ); 
+        }
+        
+        
+    }
     const __takePicture = async ()=>{
+
+
+        
         if(arrayImageEncode.length <= 2){
             if(cameraPermissions){
+                
                 if(!camera) return;
+        
                 const photo =  await camera.takePictureAsync({base64:true,quality:.4});
                 photo.uri
                 setArrayImageEncode(arrayImageEncode => [...arrayImageEncode,photo]);
@@ -67,12 +95,34 @@ export default function LuminariasEstados(props:any ){
     const _renderItem = ({item, index}) => {
         console.log(item.uri);
         return (
-            <View style = {{backgroundColor:"red", justifyContent:"center", alignItems:"center", marginTop:20}}>
-                <Image
-                    source = {{uri:item.uri}}
-                    style = {{width:200,height:300}} 
-                />
+            <View style = {{ justifyContent:"center", alignItems:"center", marginTop:20}}>
+                <Card>
+                    <Image
+                        source = {{uri:item.uri}}
+                        style = {{width:200,height:300}} 
+                    />
+                </Card>
             </View>
+        );
+    }
+        
+    const pagination = ()=> {
+        
+        return (
+            <Pagination
+        activeDotIndex = {activeIndex}
+        dotsLength={arrayImageEncode.length}
+        containerStyle={{}}
+        dotStyle={{
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            marginHorizontal: 8,
+            backgroundColor: SuinpacRed
+        }}
+        inactiveDotOpacity={0.4}
+        inactiveDotScale={0.6}
+      />
         );
     }
     return(
@@ -128,21 +178,30 @@ export default function LuminariasEstados(props:any ){
                             <TextInput style={Styles.textArea} placeholder="Observaciones Del Medidor"/>
 
                             <Carousel
-                                
                                 ref={caorusel}
                                 data = {arrayImageEncode}
                                 renderItem = {_renderItem}
-                                sliderWidth={300}
-                                itemWidth={300}
+                                sliderWidth={ITEM_WIDTH}
+                                itemWidth={ITEM_HEIGHT}
                                 useScrollView={true}
+                                onSnapToItem={(index) => setActiveIndex(index)}
                             >
-
                             </Carousel>
-                            <Button style={Styles.btnFoto}  onPress = {()=>{setOnCamera(true)}} icon={ <Icon name="camera" size={25} color="white"/>} title="  Tomar Foto" />
-
-                            <Text></Text>
-                            <Button style={Styles.btnFoto}  onPress = {()=>{setOnCamera(true)}} icon={ <Icon name="save" size={25} color="white"/>} title="  Guardar" />
-
+                            
+                            {pagination()}
+                            
+                            
+                            <TouchableOpacity style = {Styles.btnButton} onPress = {validarNumeroDeFotos} >
+                                <Text>
+                                <Icon tvParallaxProperties type = "feather" name ="camera" size ={15} ></Icon>
+                                    {"  Tomar Fotografia"}</Text>
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity style = {Styles.btnButton} onPress = {()=>{}} >
+                                <Text >
+                                    <Icon tvParallaxProperties type = "feather" name ="save" size ={15} ></Icon>
+                                    {"  Guardar"}</Text>
+                            </TouchableOpacity>
                         </ScrollView>
                     </KeyboardAvoidingView>
                 </View>
@@ -150,4 +209,6 @@ export default function LuminariasEstados(props:any ){
         </View>
     );
 }
+
+ 
 
