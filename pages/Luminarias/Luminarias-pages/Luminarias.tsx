@@ -1,5 +1,5 @@
 import React,{ useState, useEffect, useRef } from "react";
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Image, Dimensions } from "react-native";
+import { View, ScrollView, KeyboardAvoidingView, Image, Dimensions, Vibration } from "react-native";
 import { Text,Icon, Card } from 'react-native-elements'
 import Styles from "../../../Styles/styles";
 import { Input } from "react-native-elements/dist/input/Input";
@@ -26,7 +26,6 @@ export default function Luminarias(props:any ){
             setCameraPermision(status === 'granted');
           })();
     })
-
     const luminariaList = [
         {
             "id": 1,
@@ -56,7 +55,6 @@ export default function Luminarias(props:any ){
             if(cameraPermissions){
                 if(!camera) return;
                 const photo =  await camera.takePictureAsync({base64:true,quality:.4});
-                photo.uri
                 setArrayImageEncode(arrayImageEncode => [...arrayImageEncode,photo]);
                 setOnCamera(false);
             }else{
@@ -68,17 +66,24 @@ export default function Luminarias(props:any ){
     const _renderItem = ({item, index}) => {
         console.log(item.uri);
         return (
-            <View style = {{ justifyContent:"center", alignItems:"center", marginTop:20}}>
-                <Card>
-                    <Image
-                        source = {{uri:item.uri}}
-                        style = {{width:200,height:300}} 
-                    />
-                </Card>
+            <View 
+            style = {{ justifyContent:"center", alignItems:"center", marginTop:20}}>
+                <TouchableOpacity onLongPress = {deleteImage} >
+                    <Card >
+                        <Image
+                            
+                            source = {{uri:item.uri}}
+                            style = {{width:200,height:300}} 
+                        />
+                    </Card>
+                </TouchableOpacity>
             </View>
         );
     }
-    
+    const deleteImage = ()=>{
+        let item = arrayImageEncode[activeIndex]; //INDEV:Aqui se borra de la lista 
+        Vibration.vibrate(200);
+    }
     const pagination = ()=> {
         
         return (
@@ -98,7 +103,6 @@ export default function Luminarias(props:any ){
       />
         );
     }
-
     return(
         <View style = {Styles.TabContainer}>
             {
@@ -152,7 +156,9 @@ export default function Luminarias(props:any ){
                                 }
                             </Picker>
                             <TouchableOpacity style = {Styles.btnButton} onPress = {()=>{setOnCamera(true)}} >
-                                <Text>Tomar Fotografia</Text>
+                                <Text>
+                                <Icon tvParallaxProperties type = "feather" name ="camera" size ={15} ></Icon>
+                                    {"  Tomar Fotografia"}</Text>
                             </TouchableOpacity>
                             <Carousel
                                 ref={caorusel}
@@ -165,6 +171,11 @@ export default function Luminarias(props:any ){
                             >
                             </Carousel>
                             {pagination()}
+                            <TouchableOpacity style = {Styles.btnButton} onPress = {()=>{}} >
+                                <Text >
+                                    <Icon tvParallaxProperties type = "feather" name ="save" size ={15} ></Icon>
+                                    {"  Guardar"}</Text>
+                            </TouchableOpacity>
                         </ScrollView>
                     </KeyboardAvoidingView>
                 </View>
