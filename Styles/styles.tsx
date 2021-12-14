@@ -3,6 +3,11 @@ import { color } from 'react-native-elements/dist/helpers';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import {SuinpacRed, BackgrounBlue} from "./Color";
 
+
+const SLIDER_WIDTH = Dimensions.get('window').width;
+
+const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.7);
+const ITEM_HEIGHT = Math.round(ITEM_WIDTH * 3 / 4);
 const Styles = StyleSheet.create({
     containerKeyboard: {
         flex:1
@@ -65,10 +70,6 @@ const Styles = StyleSheet.create({
         flex: 1, 
         flexDirection:'row',
         justifyContent: 'center', 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
     },
     mapContainer: {
         width: Dimensions.get("window").width,
@@ -108,7 +109,27 @@ const Styles = StyleSheet.create({
     btnFoto:{
     justifyContent:'center',
     
-    }
+    },
+    carouselContainer: {
+        marginTop: 50
+      },
+      itemContainer: {
+        width: ITEM_WIDTH,
+        height: ITEM_HEIGHT,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'dodgerblue'
+      },
+      itemLabel: {
+        color: 'white',
+        fontSize: 24
+      },
+      counter: {
+        marginTop: 25,
+        fontSize: 30,
+        fontWeight: 'bold',
+        textAlign: 'center'
+      }
    
 });
 
