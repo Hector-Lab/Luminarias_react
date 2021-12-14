@@ -7,8 +7,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input } from "react-native-elements/dist/input/Input";
 import { Picker } from "@react-native-picker/picker";
 import { Camera } from 'expo-camera';
-
-
 export default function LuminariasEstados(props:any ){
     const [previewVisible, setPreviewVisible] = useState(false)
     const [capturedImage, setCapturedImage] = useState<any>(null)
@@ -70,18 +68,18 @@ export default function LuminariasEstados(props:any ){
             camera = r
           }}
         >
-            <TouchableOpacity
+            <View >
+            <TouchableOpacity 
             onPress={__takePicture}
             style={{
             width: 70,
-            height: 70,
-            top:500,
-            left:150,
-            
+            height: 70,            
             borderRadius: 50,
-            backgroundColor: 'red'
-            }}
-            />
+            backgroundColor: 'red',
+
+            }}/>    
+            </View>
+             
         </Camera>)
         
         
@@ -102,13 +100,11 @@ export default function LuminariasEstados(props:any ){
                     <TextInput style={Styles.textArea} placeholder="Observaciones Del Medidor"
                     
                 />
-                <Carousel
-                
-                />
+                <Carousel />
            
-                <Button style={Styles.btnFoto}   onPress={__startCamera} icon={<Icon name="camera" size={25} color="white"/>} title="  Tomar Foto" />
+                <Button style={Styles.btnFoto}   onPress={__startCamera} icon={<Icon name="camera" size={15} color="white"/>} title="  Tomar Foto" />
                 <Text></Text>
-                <Button  icon={<Icon name="save" size={25} color="white"/>} title="  GUARDAR" />
+                <Button  icon={<Icon name="save" size={15} color="white"/>} title="  GUARDAR" />
             </ScrollView>
             </View>)}
   
