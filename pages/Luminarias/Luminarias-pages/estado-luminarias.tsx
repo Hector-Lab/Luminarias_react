@@ -1,120 +1,153 @@
-import React,{ useState, useEffect} from "react";
-import { View,TextInput,ScrollView,Alert,TouchableOpacity,ImageBackground } from "react-native";
-import { Text,Button } from 'react-native-elements';
+import React,{ useState, useEffect, useRef } from "react";
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Image,TextInput } from "react-native";
+import { Text,Button,Icon  } from 'react-native-elements'
 import Styles from "../../../Styles/styles";
-import Carousel from 'react-native-snap-carousel';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input } from "react-native-elements/dist/input/Input";
-import { Picker } from "@react-native-picker/picker";
+import { Picker } from '@react-native-picker/picker';
+import { TouchableOpacity } from "react-native-gesture-handler";
+import Carousel from 'react-native-snap-carousel';
 import { Camera } from 'expo-camera';
+
+
+import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
 export default function LuminariasEstados(props:any ){
-    const [previewVisible, setPreviewVisible] = useState(false)
-    const [capturedImage, setCapturedImage] = useState<any>(null)
-    const [startCamera,setStartCamera] = React.useState(false)
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const [cameraPermissions, setCameraPermision] = useState(false);
+    const [arrayImageLinks,setArrayImageLinks] = useState([]);
+    const [arrayImageEncode, setArrayImageEncode ] = useState([]);
+    const [flashOn, setFlashOn] = useState(false);
+    const [onCamera, setOnCamera] = useState(false);
+    const caorusel = React.useRef(null);
     let camera: Camera;
-    const __retakePicture = () => {
-        setCapturedImage(null)
-        setPreviewVisible(false)
-        __startCamera()
-      }
-    const CameraPreview = ({photo}: any) => {
-        console.log('sdsfds', photo)
-        return (
-          <View
-            style={{
-              backgroundColor: 'transparent',
-              flex: 1,
-              width: '100%',
-              height: '100%'
-            }}
-          >
-            <ImageBackground
-              source={{uri: photo && photo.uri}}
-              style={{
-                flex: 1
-              }}
-            />
-          </View>
-        )
-      }
-    const __takePicture = async () => {
-        if (!camera) return
-        const photo = await camera.takePictureAsync()
-        console.log(photo)
- 
-        setPreviewVisible(true)
-        setCapturedImage(photo)
-      }
-    const __startCamera = async () => {
-        const {status} = await Camera.requestMicrophonePermissionsAsync()
-        if (status === 'granted') {
-          // start the camera
-          setStartCamera(true)
-        } else {
-          Alert.alert('Acceso Denegado A La Camara')
+    useEffect(()=>{
+        (async () => {
+            let { status } =  await Camera.requestCameraPermissionsAsync();
+            setCameraPermision(status === 'granted');
+          })();
+    })
+
+    const luminariaList = [
+        {
+            "id": 1,
+            "lavel": "Semaforo",
+        },
+        {
+            "id": "2",
+            "lavel": "Luminaria"
         }
-      }
-
-    return(
-        
-        <View style = {Styles.TabContainer}> 
-                {startCamera ? (
-          
-          (previewVisible && capturedImage) ? (
-<CameraPreview photo={capturedImage}  retakePicture={__retakePicture} />
-          ) : ( <Camera
-          style={{flex: 1,width:"100%"}}
-          ref={(r) => {
-            camera = r
-          }}
-        >
-            <View >
-            <TouchableOpacity 
-            onPress={__takePicture}
-            style={{
-            width: 70,
-            height: 70,            
-            borderRadius: 50,
-            backgroundColor: 'red',
-
-            }}/>    
+    ];
+    const estados = [
+        {
+            "id": "4",
+            "lavel": "Bueno",
+        },
+        {
+            "id": "6",
+            "lavel": "Regular"
+        },
+        {
+            "id": "6",
+            "lavel": "malo"
+        }
+    ];
+    const __takePicture = async ()=>{
+        if(arrayImageEncode.length <= 2){
+            if(cameraPermissions){
+                if(!camera) return;
+                const photo =  await camera.takePictureAsync({base64:true,quality:.4});
+                photo.uri
+                setArrayImageEncode(arrayImageEncode => [...arrayImageEncode,photo]);
+                setOnCamera(false);
+            }else{
+                let { status } =  await Camera.requestCameraPermissionsAsync();
+                setCameraPermision(status === 'granted');
+            }
+        }   
+    }
+    const _renderItem = ({item, index}) => {
+        console.log(item.uri);
+        return (
+            <View style = {{backgroundColor:"red", justifyContent:"center", alignItems:"center", marginTop:20}}>
+                <Image
+                    source = {{uri:item.uri}}
+                    style = {{width:200,height:300}} 
+                />
             </View>
-             
-        </Camera>)
-        
-        
-      ) : (
-              <View  style={Styles.inputButtons} >              
-                
-             <ScrollView>
+        );
+    }
+    return(
+        <View style = {Styles.TabContainer}>
+            {
+                onCamera ? 
+                <View style = {{flex:1}}>
+                    <Camera 
+                        ref={(r) => {
+                        camera = r
+                        }}
+                        style = {{flex:1}} autoFocus = {true} flashMode = {flashOn ? Camera.Constants.FlashMode.torch : Camera.Constants.FlashMode.off }  >  
+                        <View style = {{flex:20, marginTop: 10, flexDirection:"row-reverse", marginLeft:20}}>
+                            <TouchableOpacity style = {{justifyContent:"center",backgroundColor:SuinpacRed, opacity:.5, height:40, width:40, borderRadius:50}}
+                                onPress = { ()=>{setOnCamera(false);} }>
+                                <Icon tvParallaxProperties name = "cancel" color = {iconColorBlue}></Icon>
+                            </TouchableOpacity>
+                        </View>
+                        <View style = {{flex:2, marginTop: 10, flexDirection:"row", marginLeft:20}}>
+                            <TouchableOpacity style = {{justifyContent:"center",backgroundColor:torchButton, opacity:.5, height:40, width:40, borderRadius:50}}
+                                onPress = { ()=>{setFlashOn(!flashOn)} }>
+                                <Icon type = "feather" tvParallaxProperties name = {flashOn ? "zap" : "zap-off"} color = {iconColorBlue}></Icon>
+                            </TouchableOpacity>
+                        </View>
+                        <View style = {{alignItems:"center", marginBottom:10}} >
+                            <TouchableOpacity style = {{justifyContent:"center",backgroundColor:'white', opacity:.5, height:60, width:60, borderRadius:50}}
+                                onPress = {__takePicture}>
+                                <Icon tvParallaxProperties name = "camera" color = {SuinpacRed}></Icon>
+                            </TouchableOpacity>
+                        </View>
+                    </Camera>
+                </View> : 
+                <View style = {Styles.inputButtons}>
+                    <KeyboardAvoidingView>
+                        <ScrollView>
+                        
                 <Input placeholder="Clave Padrón"    rightIcon={{ type: 'font-awesome', name: 'search' }} />                                
                 <Input placeholder="Lectura Anterior" label="Lectura Anterior" />
                 <Input placeholder="Lectura Actual" label="Lectura Actual" />
                 <Input placeholder="Consumo" label="Consumo" />
+
                 <Text style={Styles.textFormularios}>Estado</Text>
-                <Picker>
-                    <Picker.Item label="Anomalia 8" value="8" />
-                    <Picker.Item label="Anomalia 9" value="9" />
-                    </Picker >  
-                    <Text style={Styles.textFormularios}>Observaciones</Text>
-                    <TextInput style={Styles.textArea} placeholder="Observaciones Del Medidor"
-                    
-                />
-                <Carousel />
-           
-                <Button style={Styles.btnFoto}   onPress={__startCamera} icon={<Icon name="camera" size={15} color="white"/>} title="  Tomar Foto" />
-                <Text></Text>
-                <Button  icon={<Icon name="save" size={15} color="white"/>} title="  GUARDAR" />
-            </ScrollView>
-            </View>)}
-  
-            
-        </View>           
+
         
-            
-            
-            
-        
+                            <Picker >
+                                {
+                                    estados.map((item)=>{
+                                    return  <Picker.Item label = {item.lavel} value = {item.id} key = {item.id} ></Picker.Item>
+                                    })
+                                }
+                            </Picker>
+                            <Text style={Styles.textFormularios}>Observaciones</Text>
+                            <TextInput style={Styles.textArea} placeholder="Observaciones Del Medidor"/>
+
+                            <Carousel
+                                
+                                ref={caorusel}
+                                data = {arrayImageEncode}
+                                renderItem = {_renderItem}
+                                sliderWidth={300}
+                                itemWidth={300}
+                                useScrollView={true}
+                            >
+
+                            </Carousel>
+                            <Button style={Styles.btnFoto}  onPress = {()=>{setOnCamera(true)}} icon={ <Icon name="camera" size={25} color="white"/>} title="  Tomar Foto" />
+
+                            <Text></Text>
+                            <Button style={Styles.btnFoto}  onPress = {()=>{setOnCamera(true)}} icon={ <Icon name="save" size={25} color="white"/>} title="  Guardar" />
+
+                        </ScrollView>
+                    </KeyboardAvoidingView>
+                </View>
+            }
+        </View>
     );
 }
 
