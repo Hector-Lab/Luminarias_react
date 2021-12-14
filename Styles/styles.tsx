@@ -65,10 +65,6 @@ const Styles = StyleSheet.create({
         flex: 1, 
         flexDirection:'row',
         justifyContent: 'center', 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
     },
     mapContainer: {
         width: Dimensions.get("window").width,

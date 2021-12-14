@@ -1,12 +1,25 @@
-import React,{} from "react";
+import React,{ useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView } from "react-native";
 import { Text } from 'react-native-elements'
 import Styles from "../../../Styles/styles";
 import { Input } from "react-native-elements/dist/input/Input";
 import { Picker } from '@react-native-picker/picker';
 import { TouchableOpacity } from "react-native-gesture-handler";
-
+import Carousel from 'react-native-snap-carousel';
+import { Camera } from 'expo-camera';
 export default function Luminarias(props:any ){
+    const [cameraPermissions, setCameraPermision] = useState(false);
+    const [arrayImageLinks,setArrayImageLinks] = useState([]);
+    const [arrayImageEncode, setArrayImageEncode ] = useState([]);
+    const [onCamera, setOnCamera] = useState(false);
+
+    useEffect(()=>{
+        (async () => {
+            let { status } =  await Camera.requestCameraPermissionsAsync();
+            setCameraPermision(status === 'granted');
+          })();
+    })
+
     const luminariaList = [
         {
             "id": 1,
@@ -30,7 +43,13 @@ export default function Luminarias(props:any ){
             "id": "6",
             "lavel": "malo"
         }
-    ]
+    ];
+
+    const verificarPermisos = async () =>{
+
+    }
+
+
     return(
         <View style = {Styles.TabContainer}>
             <View style = {Styles.inputButtons}>
@@ -58,6 +77,7 @@ export default function Luminarias(props:any ){
                     <TouchableOpacity style = {Styles.btnButton} >
                         <Text>Tomar Fotografia</Text>
                     </TouchableOpacity>
+                    
                 </ScrollView>
             </KeyboardAvoidingView>
                 
