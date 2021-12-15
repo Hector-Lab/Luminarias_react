@@ -7,7 +7,7 @@ import {
   Image,
   TextInput,
   Dimensions,
-  Vibration,
+  Vibration,Platform,
   Alert,
 } from "react-native";
 import { Text, Button, Icon, Card } from "react-native-elements";
@@ -18,6 +18,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Camera } from "expo-camera";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
+import * as Location from 'expo-location';
 
 export default function BachesRegistry(props: any) {
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -34,6 +35,38 @@ export default function BachesRegistry(props: any) {
   const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
 
   let camera: Camera;
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  let direccionObtenidaCorrectamente=false;
+  
+
+const getLocation=async ()=>{
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+    setErrorMsg('Permission to access location was denied');
+    
+  }else{
+    let location = await Location.getCurrentPositionAsync({});
+    setLocation(location);
+    let text = '';
+    if (errorMsg) {
+      text = errorMsg;
+    } else if (location) {
+      text = JSON.stringify(location);
+      direccionObtenidaCorrectamente=true;
+      console.log(text);
+    }
+  }
+
+  
+  
+}
+
+
+
+
+
+
 
   useEffect(() => {
     (async () => {
@@ -52,12 +85,15 @@ export default function BachesRegistry(props: any) {
 
           //let newarray = array.filter(item => item !== "hello");
           if (arrayImageEncode.length == 1) {
+            Vibration.vibrate(100);
             setArrayImageEncode([]);
           } else {
+            Vibration.vibrate(100);
             setArrayImageEncode(
               arrayImageEncode.filter(
                 (item) => item.uri !== arrayImageEncode[activeIndex].uri
               )
+              
             );
           }
           setShowBox(false);
@@ -66,27 +102,18 @@ export default function BachesRegistry(props: any) {
 
       {
         text: "NO",
+        onPress:()=>{
+          Vibration.vibrate(100);
+          setShowBox(false);
+        }
       },
     ]);
   };
 
-  const estados = [
-    {
-      id: "4",
-      lavel: "Bueno",
-    },
-    {
-      id: "6",
-      lavel: "Regular",
-    },
-    {
-      id: "8",
-      lavel: "malo",
-    },
-  ];
 
   const validarNumeroDeFotos = () => {
     //    console.log(arrayImageEncode.length);
+    getLocation();
     if (arrayImageEncode.length < 3) {
       setOnCamera(true);
     } else {
@@ -95,7 +122,7 @@ export default function BachesRegistry(props: any) {
       ]);
     }
   };
-  const __takePicture = async () => {
+  const __takePicture = async () => {    
     if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
         if (!camera) return;
@@ -251,31 +278,18 @@ export default function BachesRegistry(props: any) {
         <View style={Styles.inputButtons}>
           <KeyboardAvoidingView>
             <ScrollView>
-              <Input
-                placeholder="Clave Padrón"
-                rightIcon={{ type: "font-awesome", name: "search" }}
-              />
-              <Input placeholder="Lectura Anterior" label="Lectura Anterior" />
-              <Input placeholder="Lectura Actual" label="Lectura Actual" />
-              <Input placeholder="Consumo" label="Consumo" />
+          
+              <Input placeholder="Direccióm Principal" label="Calle Principal" />
+              <Text style={Styles.textFormularios} >Entre las calles</Text>
+              <Input placeholder="Calle 1"  />
+              <Input placeholder="Calle 2"  />
 
-              <Text style={Styles.textFormularios}>Estado</Text>
+              
 
-              <Picker>
-                {estados.map((item) => {
-                  return (
-                    <Picker.Item
-                      label={item.lavel}
-                      value={item.id}
-                      key={item.id}
-                    ></Picker.Item>
-                  );
-                })}
-              </Picker>
-              <Text style={Styles.textFormularios}>Observaciones</Text>
+              <Text style={Styles.textFormularios}>Descripción</Text>
               <TextInput
                 style={Styles.textArea}
-                placeholder="Observaciones Del Medidor"
+                placeholder="Descripción7"
               />
 
               <Carousel
@@ -286,7 +300,10 @@ export default function BachesRegistry(props: any) {
                 itemWidth={ITEM_HEIGHT}
                 useScrollView={true}
                 onSnapToItem={(index) => setActiveIndex(index)}
-              ></Carousel>
+              >
+               
+              </Carousel>
+              {pagination()}
               <TouchableOpacity
                 style={Styles.btnButton}
                 onPress={validarNumeroDeFotos}
@@ -301,6 +318,8 @@ export default function BachesRegistry(props: any) {
                   {"  Tomar Fotografia"}
                 </Text>
               </TouchableOpacity>
+
+
 
               <TouchableOpacity style={Styles.btnButton} onPress={() => {}}>
                 <Text>
