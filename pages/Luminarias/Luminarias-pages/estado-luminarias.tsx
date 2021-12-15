@@ -286,7 +286,10 @@ export default function LuminariasEstados(props: any) {
                 itemWidth={ITEM_HEIGHT}
                 useScrollView={true}
                 onSnapToItem={(index) => setActiveIndex(index)}
-              ></Carousel>
+              >
+                {pagination}
+              </Carousel>
+              
               <TouchableOpacity
                 style={Styles.btnButton}
                 onPress={validarNumeroDeFotos}

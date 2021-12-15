@@ -1,6 +1,4 @@
 import { Dimensions, StyleSheet } from 'react-native';
-import { color } from 'react-native-elements/dist/helpers';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import {SuinpacRed, BackgrounBlue} from "./Color";
 
 
