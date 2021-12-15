@@ -177,6 +177,7 @@ export default function Luminarias(props:any ){
                                 onSnapToItem={(index) => setActiveIndex(index)}
                                     >
                                 </Carousel>
+                                {pagination()}
                             <TouchableOpacity style = {Styles.btnButton} onPress = {()=>{}} >
                                 <Text >
                                     <Icon tvParallaxProperties type = "feather" name ="save" size ={15} ></Icon>

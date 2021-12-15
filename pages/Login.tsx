@@ -1,51 +1,62 @@
 import { KeyboardAvoidingView, Platform, TouchableOpacity, View, ScrollView} from "react-native";
-import React, { useState } from "react";
 import { Text, Input} from "react-native-elements";
+import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import Styles from "../Styles/styles";
 import { Avatar } from "react-native-elements/dist/avatar/Avatar";
 import { Auth } from './controller/api-controller';
 import Loading from './components/modal-loading';
 import Message from './components/modal-message';
-import { SuinpacRed } from "../Styles/Color";
+import { BackgrounBlue, iconColorBlue, SuinpacRed } from "../Styles/Color";
 
 export default function Log(props: any) {
     const [user,setUser] = useState(String);
     const [password,setPassword] = useState(String);
     const [loading,setLoading] = useState(false);
+    //NOTE: manejador del modal de avisos
     const [showMessage, setShowMessage] = useState(false);
     const [message,setMessage] = useState(String);
     const [tittle,setTittle] = useState(String);
+    const [ iconMessega, setIconMessega] = useState("info");
+    const [ color, setColor ] = useState(String);
     const login = async ()=>{
-       /* let validDatos = true;
-        if( user == "" ){
-            setTittle("Mensaje");
-            setMessage("Favor de ingresar su nombre de usuario");
+        setLoading(true);
+       let validDatos = true;
+       if(user == "" || password == ""){
             validDatos = false;
-        }
-        if (password == ""){
+            setLoading(false);
+            setMessage("Favor de ingresar sus credenciales");
+            setColor(BackgrounBlue);
+            setIconMessega("info");
             setTittle("Mensaje");
-            setMessage("Favor de ingresar su contraseña");
-            validDatos = false;
-        }
+       }
         setShowMessage(!validDatos);
-        console.log("Valid datos" + validDatos);
         if(validDatos){
             await Auth(user,password)
             .then((result)=>{
-                console.log(result);
+                if (result){
+                    setLoading(false);
+                    props.navigation.navigate("Menu");
+                }else{
+                    setColor(iconColorBlue);
+                    setMessage("No se encontro el usuario");
+                    setIconMessega("user-x");
+                    setTittle("Mensaje");
+                    setLoading(false);
+                }
             })
-            .catch(()=>{
-                console.log("Error");
+            .catch((error)=>{
+                setLoading(false);
+                let message = error.message+"";
+                setShowMessage(true);
+                setColor(SuinpacRed);
+                setMessage(message);
+                setIconMessega(message.includes("Usuario o Contraseña Incorrectos") ? "user-x" : "wifi-off");
+                setTittle("Mensaje");
                 //NOTE: manejo de errores
             })
-        }*/
-        //setLoading(true);
-        
-        props.navigation.navigate("Menu");
-
+        }
     }
-
     return (    
         <KeyboardAvoidingView
         style={Styles.container}
@@ -93,12 +104,12 @@ export default function Log(props: any) {
             transparent = {true}
             loading = {showMessage}
             onCancelLoad = {()=>{ setShowMessage(false) }}
-            color = {SuinpacRed}
-            icon = {"alert-triangle"}
+            color = {color}
+            icon = {iconMessega}
             iconsource = "feather"
             loadinColor = {SuinpacRed}
-            message = {"Campos Vacios!!"}
-            tittle = {"Mensaje"}
+            message = {message}
+            tittle = {tittle}
             buttonText = {"Aceptar"}
          />
         </KeyboardAvoidingView>

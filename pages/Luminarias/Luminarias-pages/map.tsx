@@ -15,7 +15,7 @@ export default function CustomMap(props:any){
           let { status } = await Location.requestForegroundPermissionsAsync();
           setLocationEnable(status == "granted");
     
-          let location = await Location.getCurrentPositionAsync({});
+          let location = await Location.getCurrentPositionAsync();
           setLocation(location);
           let region = {
             latitude: location.coords.latitude,
