@@ -5,7 +5,7 @@ import { Icon } from 'react-native-elements'
 import { Card} from 'react-native-elements'
 import { Button } from 'react-native-elements/dist/buttons/Button';
 
-export default class Loading extends React.Component<
+export default class Message extends React.Component<
 {   
     transparent:boolean,
     loading: boolean,
@@ -13,7 +13,10 @@ export default class Loading extends React.Component<
     onCancelLoad: any
     icon: string,
     iconsource: string,
-    color:string
+    color:string,
+    message: string,
+    tittle: string,
+    buttonText: string
 }>{
     render(){
         return(
@@ -29,24 +32,23 @@ export default class Loading extends React.Component<
                     <View style = {styles.modalBodyConteiner}>
                         <Card containerStyle = {styles.cardConteiner} >
                             <Card.Title>
-                                Verificando Credenciales
+                                {this.props.tittle}
                             </Card.Title>
                             <Card.Divider/>
                             <Icon
                             tvParallaxProperties
                                 type = {this.props.iconsource}
                                 name = {this.props.icon}
+                                color = {this.props.loadinColor}
                             />
                             <View style = {styles.mensajeConteiner}>
-                                <Text >Cargando...</Text>
+                            <Text >{this.props.message}</Text>
                             </View>
                             <TouchableOpacity 
                                 style={styles.btnButton}
-                                onPress = {this.props.onCancelLoad}
-                            >
-                                <Text style = {{color: "white"}}  >Cancelar</Text>
+                                onPress = {this.props.onCancelLoad} >
+                                    <Text style = {{color: "white"}}  >{this.props.buttonText}</Text>
                             </TouchableOpacity>
-                            
                         </Card>
                     </View>
                     <View style = {styles.modalFooterConainer}>
@@ -97,5 +99,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#B20115',
         //backgroundColor: 'red'
       },
+      btnContainer: {
+          flex:1,
+          justifyContent:"center",
+          alignItems:"center"
+      }
 
 })
