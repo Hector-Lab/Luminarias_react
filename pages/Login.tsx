@@ -34,9 +34,14 @@ export default function Log(props: any) {
         if(validDatos){
             await Auth(user,password)
             .then((result)=>{
-                if (result){
+                console.log(result);
+                if(result == 0){
                     setLoading(false);
                     props.navigation.navigate("Menu");
+                }else if(result = 1){
+                    //NOTE: al menu de baches
+                    console.log("Es para el menu de baches");
+                    setLoading(false);
                 }else{
                     setColor(iconColorBlue);
                     setMessage("No se encontro el usuario");
