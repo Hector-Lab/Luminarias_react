@@ -5,7 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Home from '../pages/Login';
 import BachesHome from '../pages/Baches/home';
 import MenuLuminarias from '../pages/Luminarias/home';
-import MainLuminaria from '../pages/Luminarias/Luminarias-pages/home'
+import MainLuminaria from '../pages/Luminarias/Luminarias-pages/home';
+import HomeBaches from '../pages/Baches/home';
 const Stack = createStackNavigator();
 
 function Nav() {
@@ -24,6 +25,7 @@ function Nav() {
                 <Stack.Screen name='Luminarias'>
                     {props => <MainLuminaria {...props} ></MainLuminaria>}
                 </Stack.Screen> 
+        
             </Stack.Navigator>
         </NavigationContainer>
     )
