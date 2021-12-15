@@ -40,7 +40,7 @@ export default function Log(props: any) {
                     props.navigation.navigate("Menu");
                 }else if(result = 1){
                     //NOTE: al menu de baches
-                    console.log("Es para el menu de baches");
+                    props.navigation.navigate("Reportes");
                     setLoading(false);
                 }else{
                     setColor(iconColorBlue);
