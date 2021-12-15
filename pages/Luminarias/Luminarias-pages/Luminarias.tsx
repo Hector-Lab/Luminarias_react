@@ -82,14 +82,14 @@ export default function Luminarias(props:any ){
         );
     }
     const deleteImage = ()=>{
-        let item = arrayImageEncode[activeIndex]; //INDEV:Aqui se borra de la lista 
-        Vibration.vibrate(200);
+       Vibration.vibrate(200);
         //let newarray = array.filter(item => item !== "hello");
         if(arrayImageEncode.length == 1){
             setArrayImageEncode([]);
         }else{
             setArrayImageEncode(arrayImageEncode.filter(item => item.uri !== arrayImageEncode[activeIndex].uri ));
-        }
+        }     let item = arrayImageEncode[activeIndex]; //INDEV:Aqui se borra de la lista 
+    
     }
     const pagination = ()=> {
         
@@ -171,6 +171,7 @@ export default function Luminarias(props:any ){
                                 ref={caorusel}
                                 data = {arrayImageEncode}
                                 renderItem = {_renderItem}
+                                
                                 sliderWidth={ITEM_WIDTH}
                                 itemWidth={ITEM_HEIGHT}
                                 useScrollView={true}

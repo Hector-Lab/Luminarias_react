@@ -42,7 +42,7 @@ export default function Log(props: any) {
         }*/
         //setLoading(true);
         
-        props.navigation.navigate("Menu");
+        props.navigation.navigate("Reportes");
 
     }
 
