@@ -8,9 +8,8 @@ export async function CordenadasActuales () {
         longitude : String(data.coords.longitude)
     };
     return coords;
-}
-
- export async function checkConnection (){
+} 
+export async function checkConnection (){
     return new Promise((resolve,reject)=>{
         NetInfo.fetch()
         .then((estado)=>{
@@ -20,4 +19,7 @@ export async function CordenadasActuales () {
             reject(error);
         })
     });
+}
+export async function ObtenerDireccionActual(latitude: string, longitude:string){
+    //let data = await Location.reverseGeocodeAsync({latitude:latitude,longitude:longitude});
 }

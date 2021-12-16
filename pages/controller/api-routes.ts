@@ -55,4 +55,19 @@ export class APIServices {
         });
 
     }
+    insertarLuminaria (data:any, token:string){
+        let jsonData = JSON.stringify(data);
+        return fetch("https://api.servicioenlinea.mx/api-movil/GuardarLuminaria",
+        {
+            method:'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization':"Bearer " + token
+            },
+            body:jsonData
+        }
+        );
+
+    }
 }

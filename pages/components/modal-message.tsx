@@ -40,6 +40,7 @@ export default class Message extends React.Component<
                                 type = {this.props.iconsource}
                                 name = {this.props.icon}
                                 color = {this.props.loadinColor}
+                                size = {50}
                             />
                             <View style = {styles.mensajeConteiner}>
                             <Text >{this.props.message}</Text>

@@ -11,6 +11,9 @@ import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
 import { StorageService } from '../../controller/storage-controller';
 import { CordenadasActuales, checkConnection } from '../../../utilities/utilities';
 import ModalLoading from '../../components/modal-loading';
+import ModalMessage from '../../components/modal-message';
+import { GuardarLuminaria } from '../../controller/api-controller';
+import { useSafeArea } from "react-native-safe-area-context";
 
 export default function Luminarias(props:any ){
     const storage = new StorageService();
@@ -26,8 +29,22 @@ export default function Luminarias(props:any ){
     const [tipoLuminaria, setTipoLuminaria] = useState([]);
     const [ tipoEstadoFisico, setTipoEstadoFisico ] = useState([]);
     const [laoding, setLoading] = useState(false);
+    const date =  Date.now();
     //Variables para el envio del registros
     const [ coords, setCoords ] = useState(null);
+    const [contrato, setContrato] = useState(String);
+    const [clave, setClave ] = useState(String);
+    const [clasificacion, setClasificacion] = useState(String);
+    const [voltaje, setVoltaje] = useState(String);
+    const [selectLuminaria, setSelectLuminaria] =  useState(String);
+    const [selectEstadoFisico, setSelectEstadoFisico]= useState(String);
+    //NOTE: manejador de errores
+    const [handleError, setHandleError] = useState(String);
+    const [ tituloError, setTituloError ] =  useState(String);
+    const [ mensajeError, setMensajeError ] = useState(String);
+    const [iconColor, setIconColot] = useState(String);
+    const [icon,setIcon] = useState(String); 
+    const [showErrorMessage,setShowErrorMessage] = useState(false);
     let camera: Camera;
     useEffect(()=>{
         (async () => {
@@ -49,6 +66,7 @@ export default function Luminarias(props:any ){
             if(cameraPermissions){
                 if(!camera) return;
                 const photo =  await camera.takePictureAsync({base64:true,quality:.4});
+                photo.base64
                 setArrayImageEncode(arrayImageEncode => [...arrayImageEncode,photo]);
                 setOnCamera(false);
                 setCoords( await CordenadasActuales());
@@ -123,14 +141,70 @@ export default function Luminarias(props:any ){
                     "Estado" => "required|string",
     */
     const EnviarLuminaria = async () =>{
+        setLoading(true);
         try{
+            let evidencia = new Array();
             let online = await checkConnection();
-            
+            if(online){
+                //NOTE: Se envian los base64
+                arrayImageEncode.map((item,index)=>{
+                    evidencia.push("data:image/jpeg;base64," +item.base64);    
+                });
+            }else{
+                //NOTE: se guardan las rutas
+                arrayImageEncode.map((item,index)=>{
+                    evidencia.push(item.uri);    
+                });
+            }
+            let data = {
+                Contrato: contrato,
+                Clave: clave,
+                Municipio: "12038",
+                Localidad: "2",
+                Cliente: await storage.getItem("Cliente"),
+                Latitud: coords.latitude,
+                Longitud: coords.longitude,
+                Voltaje : voltaje,
+                Calsificacion: clasificacion,
+                Tipo: selectLuminaria,
+                Fecha: date.toLocaleString(),
+                Usuario: await storage.getItem("User"),
+                LecturaActual:"0",
+                LecturaAnterior:'0',
+                Consumo: '0',
+                Estado: selectEstadoFisico,
+                Evidencia: evidencia,
+                TipoPadron: "1"
+            }
+            await GuardarLuminaria(data, online)
+            .then((result)=>{
+                console.log(JSON.stringify(result));
+            })
+            .catch((error)=>{
+                let mensaje = String(error.message);
+                if(mensaje.includes(",")){
+                    setMensajeError("Favor de rellenar los campos vacios");
+                    setTituloError("Mensaje");
+                    setIcon("info");
+                    setIconColot(iconColorBlue);
+                    setShowErrorMessage(true);
+                }
+                setHandleError(error.message);
+                console.log(JSON.stringify(error));
+            }).finally(()=>{
+                setLoading(false);
+            })
         }catch(error){
-
+            
         }
     }
-
+    const inputStyles = (active)=>{
+        if(active){
+            return Styles.inputError
+        }else{
+            return Styles.inputData
+        }
+    }
     return(
         <View style = {Styles.TabContainer}>
             {
@@ -164,11 +238,11 @@ export default function Luminarias(props:any ){
                 <View style = {Styles.inputButtons}>
                     <KeyboardAvoidingView>
                         <ScrollView>
-                            <Input placeholder = "Contrato" label = "Contrato" ></Input>
-                            <Input placeholder = "Clave de indentificacion" label = "Clave" ></Input>
-                            <Input placeholder = "Ejemplo: Luz L.E.D" label = "Clasificacion" ></Input>
-                            <Input placeholder = "Voltaje" label = "Voltaje" ></Input>
-                            <Picker>
+                            <Input placeholder = "Contrato" label = "Contrato" onChangeText = {(text)=>{setContrato(text)}} ></Input>
+                            <Input style = {inputStyles(handleError.includes("C,"))} placeholder = "Clave de indentificacion" label = "Clave" onChangeText = {(text)=>{setClave(text)}} ></Input>
+                            <Input style = {inputStyles(handleError.includes("CL,"))} placeholder = "Ejemplo: Luz L.E.D" label = "Clasificacion" onChangeText = {(text)=>{setClasificacion(text)}} ></Input>
+                            <Input style = {inputStyles(handleError.includes("V,"))} placeholder = "Voltaje" label = "Voltaje" onChangeText = {(text)=>{setVoltaje(text)}} ></Input>
+                            <Picker onValueChange = {(itemValue, itemIndex)=>{setSelectLuminaria(String(itemValue))}}>
                                 {
                                     tipoLuminaria == null ? 
                                         <Picker.Item label = {"Cargando.."} value = {-1} key = {"-1"} ></Picker.Item> :
@@ -178,7 +252,7 @@ export default function Luminarias(props:any ){
                                 }
                             </Picker>
         
-                            <Picker >
+                            <Picker onValueChange = {(itemValue, itemIndex)=>{setSelectEstadoFisico(String(itemValue))}} >
                                 {
                                     tipoEstadoFisico == null ?
                                     <Picker.Item label = {"Cargando.."} value = {-1} key = {"-1"} ></Picker.Item> :
@@ -212,10 +286,24 @@ export default function Luminarias(props:any ){
                         </ScrollView>
                     </KeyboardAvoidingView>
                     <ModalLoading
-                    loadinColor = {SuinpacRed} 
-                    loading = {laoding}
-                    transparent = {true}
-                    onCancelLoad = {()=>{}}
+                        loadinColor = {SuinpacRed} 
+                        loading = {laoding}
+                        transparent = {true}
+                        onCancelLoad = {()=>{}}
+                        tittle = {"Mensaje"}
+                        message = {"Mensaje"}
+                    />
+                    <ModalMessage
+                        transparent = {true}
+                        loading = {showErrorMessage}
+                        loadinColor = {iconColor}
+                        icon = {icon}
+                        iconsource = {""}
+                        color = {iconColor}
+                        message = {mensajeError}
+                        tittle = {tituloError}
+                        buttonText = {"Aceptar"}                
+                        onCancelLoad = {()=>{setShowErrorMessage(false)}}
                     />
                 </View>
             }

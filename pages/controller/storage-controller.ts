@@ -151,8 +151,20 @@ export class StorageService{
             },(error)=>{reject(error.message)});
         })
     }
+    insertarLuminaria(data:any){
+        return new Promise((resolve,reject)=>{
+            db.transaction((command)=>{
+                /*command.executeSql(`INSERT INTO Luminaria (id,Clave,Ubicacion,Cliente,Tipo,Latitud,Longitud,FechaTupla,ContratoVigente) 
+                VALUES(NULL,
+                    ${data.Clave},
+                    ${},
+                    )`);*/
+            })
+        });
+    }
+    insertarHistoriaLuminaria(){
 
-
+    }
 
         //NOTE: metodos para guardar datos basicos de ,
         public async setUser(user:string, name:string, token: string,cliente:string ){

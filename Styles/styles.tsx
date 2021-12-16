@@ -149,6 +149,12 @@ const Styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
   },
+  inputError: {
+    borderWidth: 1,
+    padding: 5,
+    borderRadius: 5,
+    borderColor: 'red',
+  }
 });
 
 export default Styles;

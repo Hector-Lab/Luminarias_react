@@ -7,7 +7,6 @@ const networkError = new Error("Favor de verificar la conexion a internet");
 const userNotFound = new Error("Usuario o Contraseña Incorrectos");
 export async function Auth(user:string,pass:string){
     //Creamos la base de datos
-    console.log("Prueba");
     storage.createOpenDB();
     storage.createTables();
     storage.borrarDatos("EstadoFisico");
@@ -19,7 +18,6 @@ export async function Auth(user:string,pass:string){
     try{
         let data = await service.login(cliente);
         let jsonData =  await data.json();
-        console.log(jsonData);
         if(jsonData != null || jsonData != undefined){
             if(!jsonData['Status']){
                 throw userNotFound;
@@ -45,7 +43,6 @@ export async function Auth(user:string,pass:string){
 export async function CatalogoLuminarias() {
     let token = await storage.getItem("Token");
     let cliente = await storage.getItem("Cliente");
-    console.log(token);
     if( token != null ){
         let data = {
             Cliente : cliente
@@ -57,12 +54,26 @@ export async function CatalogoLuminarias() {
         console.log("El token es nulo");
     }
 }
+export async function GuardarLuminaria(data:any, connection: any ){
+    if(connection){ //NOTE: Se envia directo al API
+        let valid = VerificarDatosLuminaria(data);
+        if(valid != ""){
+            throw new Error(valid);
+        }
+        let token = await storage.getItem("Token");
+        console.log(token);
+        let encodeResult = await service.insertarLuminaria(data,String(token));
+        let decodeResult = await encodeResult.json();
+        return decodeResult;
 
+    }else{ //NOTE: Se Envia a la base de datos
+
+    }
+}
 
 //NOTE: metodo internos
 function verificarErrores(error:Error) {
     let message = error.message;
-    console.log(message);
     if(message.includes("Usuario")){
         return userNotFound;
     }
@@ -87,4 +98,37 @@ async function  verificamosRoles(usuario:{Usuario:string, Cliente:string},token:
         userBaches['Mensaje'][0]['Estatus'] == "1" ? type = 1 : type = -1;
     }
     return type;
+}
+
+function VerificarDatosLuminaria(data:any){
+    let errores = "";
+    /*
+                    "Clave" => "required|string",
+                    "Cliente" => "required",
+                    "Latitud" => "required|string",
+                    "Longitud" => "required|string",
+                    "Voltaje" => "required|string",
+                    "Calsificacion" => "required|string",
+                    "Tipo" => "required|string",
+                    #"Evidencia" =>"required|string",  //Arreglo de fotos
+                    "Fecha" => "required|string",
+                    "Usuario" => "required|string",
+                    "LecturaActual" => "required|string",
+                    "LecturaAnterior" => "required|string",
+                    "Consumo" => "required|string",
+                    "Estado" => "required|string",
+    */
+   if(String(data.Clave) == ""){
+        errores += "C,";
+   }
+   if(String(data.Voltaje) == ""){
+       errores += "V,";
+   }
+   if(String(data.Calsificacion) == ""){
+       errores += "CL,";
+   }
+   if(String(data.Tipo) == ""){
+       errores += "T,"
+   }
+   return errores;
 }

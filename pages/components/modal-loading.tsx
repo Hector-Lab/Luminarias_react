@@ -10,6 +10,9 @@ export default class Loading extends React.Component<
     loading: boolean,
     loadinColor: string,
     onCancelLoad: any
+    tittle:string,
+    message:string
+
 }>{
     render(){
         return(
@@ -25,7 +28,7 @@ export default class Loading extends React.Component<
                     <View style = {styles.modalBodyConteiner}>
                         <Card containerStyle = {styles.cardConteiner} >
                             <Card.Title>
-                                Verificando Credenciales
+                                {this.props.tittle == "" ? "Verificando Credenciales" : this.props.tittle == ""}
                             </Card.Title>
                             <Card.Divider/>
                             <ActivityIndicator size = "large" color = "#B20115" />

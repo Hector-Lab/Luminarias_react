@@ -104,6 +104,8 @@ export default function Log(props: any) {
                 loading = {loading}
                 loadinColor = {"#0000ff"}
                 onCancelLoad = {()=>{}}
+                message = {""}
+                tittle = {""}
             />
          <Message
             transparent = {true}
