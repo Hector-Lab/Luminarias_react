@@ -43,12 +43,11 @@ const Styles = StyleSheet.create({
     padding: 10,
     backgroundColor: SuinpacRed,
     borderWidth: 2,
-    
     borderColor: SuinpacRed,
     //backgroundColor: 'red'
   },
   btnTexto: {
-    color: SuinpacRed,
+    color: "white",
     fontWeight: "bold",
   },
   FooterConteiner: {

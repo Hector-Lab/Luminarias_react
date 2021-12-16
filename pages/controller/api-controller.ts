@@ -58,7 +58,8 @@ export async function CatalogoLuminarias() {
     }
 }
 
-//NOTE: utilidades 
+
+//NOTE: metodo internos
 function verificarErrores(error:Error) {
     let message = error.message;
     console.log(message);

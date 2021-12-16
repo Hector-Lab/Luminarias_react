@@ -1,5 +1,5 @@
 import React,{ useState, useEffect, useRef } from "react";
-import { View, ScrollView, KeyboardAvoidingView, Image, Dimensions, Vibration, RefreshControlComponent, ImagePropTypes } from "react-native";
+import { View, ScrollView, KeyboardAvoidingView, Image, Dimensions, Vibration} from "react-native";
 import { Text,Icon, Card } from 'react-native-elements'
 import Styles from "../../../Styles/styles";
 import { Input } from "react-native-elements/dist/input/Input";
@@ -7,9 +7,11 @@ import { Picker } from '@react-native-picker/picker';
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 import { Camera } from 'expo-camera';
-import NetInfo from '@react-native-community/netinfo';
 import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
 import { StorageService } from '../../controller/storage-controller';
+import { CordenadasActuales, checkConnection } from '../../../utilities/utilities';
+import ModalLoading from '../../components/modal-loading';
+
 export default function Luminarias(props:any ){
     const storage = new StorageService();
     const [cameraPermissions, setCameraPermision] = useState(false);
@@ -23,6 +25,9 @@ export default function Luminarias(props:any ){
     const ITEM_HEIGHT = Math.round(ITEM_WIDTH * 3 / 4);
     const [tipoLuminaria, setTipoLuminaria] = useState([]);
     const [ tipoEstadoFisico, setTipoEstadoFisico ] = useState([]);
+    const [laoding, setLoading] = useState(false);
+    //Variables para el envio del registros
+    const [ coords, setCoords ] = useState(null);
     let camera: Camera;
     useEffect(()=>{
         (async () => {
@@ -46,6 +51,7 @@ export default function Luminarias(props:any ){
                 const photo =  await camera.takePictureAsync({base64:true,quality:.4});
                 setArrayImageEncode(arrayImageEncode => [...arrayImageEncode,photo]);
                 setOnCamera(false);
+                setCoords( await CordenadasActuales());
             }else{
                 let { status } =  await Camera.requestCameraPermissionsAsync();
                 setCameraPermision(status === 'granted');
@@ -53,7 +59,6 @@ export default function Luminarias(props:any ){
         }   
     }
     const _renderItem = ({item, index}) => {
-        console.log(item.uri);
         return (
             <View 
             style = {{ justifyContent:"center", alignItems:"center", marginTop:20}}>
@@ -70,6 +75,7 @@ export default function Luminarias(props:any ){
         );
     }
     const deleteImage = ()=>{
+    
        Vibration.vibrate(200);
         //let newarray = array.filter(item => item !== "hello");
         if(arrayImageEncode.length == 1){
@@ -77,7 +83,6 @@ export default function Luminarias(props:any ){
         }else{
             setArrayImageEncode(arrayImageEncode.filter(item => item.uri !== arrayImageEncode[activeIndex].uri ));
         }     let item = arrayImageEncode[activeIndex]; //INDEV:Aqui se borra de la lista 
-    
     }
     const pagination = ()=> {
         
@@ -98,12 +103,34 @@ export default function Luminarias(props:any ){
                 />
         );
     }
-    const checkConnection = () =>{
-        NetInfo.fetch().then((estado)=>{
-            console.log("Tipo de conexion: " + estado.type);
-            console.log("conectado a internet: " + estado.isInternetReachable);
-        })
+    //NOTE: Datos que necesita el API
+    /*
+                    "Clave" => "required|string",
+                    "Municipio" => "required|string",
+                    "Localidad" => "required|string",
+                    "Cliente" => "required",
+                    "Latitud" => "required|string",
+                    "Longitud" => "required|string",
+                    "Voltaje" => "required|string",
+                    "Calsificacion" => "required|string",
+                    "Tipo" => "required|string",
+                    #"Evidencia" =>"required|string",  //Arreglo de fotos
+                    "Fecha" => "required|string",
+                    "Usuario" => "required|string",
+                    "LecturaActual" => "required|string",
+                    "LecturaAnterior" => "required|string",
+                    "Consumo" => "required|string",
+                    "Estado" => "required|string",
+    */
+    const EnviarLuminaria = async () =>{
+        try{
+            let online = await checkConnection();
+            
+        }catch(error){
+
+        }
     }
+
     return(
         <View style = {Styles.TabContainer}>
             {
@@ -128,7 +155,7 @@ export default function Luminarias(props:any ){
                         </View>
                         <View style = {{alignItems:"center", marginBottom:10}} >
                             <TouchableOpacity style = {{justifyContent:"center",backgroundColor:'white', opacity:.5, height:60, width:60, borderRadius:50}}
-                                onPress = {__takePicture}>
+                                onPress = {__takePicture}  >
                                 <Icon tvParallaxProperties name = "camera" color = {SuinpacRed}></Icon>
                             </TouchableOpacity>
                         </View>
@@ -160,12 +187,7 @@ export default function Luminarias(props:any ){
                                     })
                                 }
                             </Picker>
-                            <TouchableOpacity style = {Styles.btnButton} onPress = {()=>{setOnCamera(true)}} >
-                                <Text>
-                                <Icon tvParallaxProperties type = "feather" name ="camera" size ={15} ></Icon>
-                                    {"  Tomar Fotografia"}</Text>
-                            </TouchableOpacity>
-                                <Carousel
+                            <Carousel
                                 ref={caorusel}
                                 data = {arrayImageEncode}
                                 renderItem = {_renderItem}
@@ -177,13 +199,24 @@ export default function Luminarias(props:any ){
                                     >
                                 </Carousel>
                                 {pagination()}
-                            <TouchableOpacity style = {Styles.btnButton} onPress = {checkConnection} >
-                                <Text >
-                                    <Icon tvParallaxProperties type = "feather" name ="save" size ={15} ></Icon>
+                            <TouchableOpacity style = {Styles.btnButton} onPress = {()=>{setOnCamera(true)}} >
+                                <Text style = {Styles.btnTexto} >
+                                <Icon tvParallaxProperties type = "feather" name ="camera" size ={15} color = {"white"} ></Icon>
+                                    {"  Tomar Fotografia"}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style = {Styles.btnButton} onPress = {EnviarLuminaria} >
+                                <Text style = {Styles.btnTexto} >
+                                    <Icon tvParallaxProperties type = "feather" name ="save" size ={15} color = {"white"} ></Icon>
                                     {"  Guardar"}</Text>
                             </TouchableOpacity>
                         </ScrollView>
                     </KeyboardAvoidingView>
+                    <ModalLoading
+                    loadinColor = {SuinpacRed} 
+                    loading = {laoding}
+                    transparent = {true}
+                    onCancelLoad = {()=>{}}
+                    />
                 </View>
             }
         </View>
