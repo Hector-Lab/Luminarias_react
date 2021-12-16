@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import Styles from "../Styles/styles";
 import { Avatar } from "react-native-elements/dist/avatar/Avatar";
-import { Auth } from './controller/api-controller';
+import { Auth, CatalogoLuminarias } from './controller/api-controller';
 import Loading from './components/modal-loading';
 import Message from './components/modal-message';
 import { BackgrounBlue, iconColorBlue, SuinpacRed } from "../Styles/Color";
@@ -33,15 +33,15 @@ export default function Log(props: any) {
         setShowMessage(!validDatos);
         if(validDatos){
             await Auth(user,password)
-            .then((result)=>{
-                console.log(result);
-                if(result == 0){
+            .then( async (result)=>{
+                if(result == 0){ 
+                    await CatalogoLuminarias();
                     setLoading(false);
                     props.navigation.navigate("Menu");
                 }else if(result = 1){
                     //NOTE: al menu de baches
-                    props.navigation.navigate("Reportes");
                     setLoading(false);
+                    props.navigation.navigate("Reportes");
                 }else{
                     setColor(iconColorBlue);
                     setMessage("No se encontro el usuario");
