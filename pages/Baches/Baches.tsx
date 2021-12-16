@@ -7,7 +7,8 @@ import {
   Image,
   TextInput,
   Dimensions,
-  Vibration,Platform,
+  Vibration,
+  Platform,
   Alert,
 } from "react-native";
 import { Text, Button, Icon, Card } from "react-native-elements";
@@ -18,7 +19,9 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Camera } from "expo-camera";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
+import { StorageService } from "../controller/storage-controller";
+const storage = new StorageService();
 
 export default function BachesRegistry(props: any) {
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -33,41 +36,58 @@ export default function BachesRegistry(props: any) {
   const SLIDER_WIDTH = Dimensions.get("window").width;
   const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
   const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
+  const fecha = new Date();
+  const user = storage.getItem("UserName");
+  let [nameUser, setNameUser] = useState("");
 
   let camera: Camera;
   const [location, setLocation] = useState(null);
+  const [direccion, setDireccion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  let direccionObtenidaCorrectamente=false;
-  
+  let direccionObtenidaCorrectamente = false;
 
-const getLocation=async ()=>{
-  let { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-    setErrorMsg('Permission to access location was denied');
-    
-  }else{
-    let location = await Location.getCurrentPositionAsync({});
-    setLocation(location);
-    let text = '';
-    if (errorMsg) {
-      text = errorMsg;
-    } else if (location) {
-      text = JSON.stringify(location);
-      direccionObtenidaCorrectamente=true;
-      console.log(text);
+  user
+    .then((response) => {
+      setNameUser(response);
+    })
+    .catch((error) => {
+      console.log("Error al obtener el nombre del usuario actual " + error);
+    });
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permisos  de ubicacion negados");
+    } else {
+      let location = await Location.getCurrentPositionAsync({});
+
+      let text = "";
+      if (errorMsg) {
+        text = errorMsg;
+      } else if (location) {
+        text = JSON.stringify(location);
+        setLocation(location);
+        direccionObtenidaCorrectamente = true;
+      }
     }
-  }
+  };
+  const getDireccion = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permisos  de ubicacion negados");
+    } else {
+      let location = await Location.getCurrentPositionAsync({});
+      if (!errorMsg && location) {
+        let direccion = await Location.reverseGeocodeAsync(location.coords);
 
-  
-  
-}
+        setDireccion(direccion[0]);
+      }
+    }
+  };
 
-
-
-
-
-
-
+  const clearDireccion = () => {
+    setDireccion(null);
+  };
   useEffect(() => {
     (async () => {
       let { status } = await Camera.requestCameraPermissionsAsync();
@@ -93,7 +113,6 @@ const getLocation=async ()=>{
               arrayImageEncode.filter(
                 (item) => item.uri !== arrayImageEncode[activeIndex].uri
               )
-              
             );
           }
           setShowBox(false);
@@ -102,18 +121,18 @@ const getLocation=async ()=>{
 
       {
         text: "NO",
-        onPress:()=>{
+        onPress: () => {
           Vibration.vibrate(100);
           setShowBox(false);
-        }
+        },
       },
     ]);
   };
 
-
   const validarNumeroDeFotos = () => {
     //    console.log(arrayImageEncode.length);
-    getLocation();
+    if (!direccionObtenidaCorrectamente) getLocation();
+
     if (arrayImageEncode.length < 3) {
       setOnCamera(true);
     } else {
@@ -122,7 +141,7 @@ const getLocation=async ()=>{
       ]);
     }
   };
-  const __takePicture = async () => {    
+  const __takePicture = async () => {
     if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
         if (!camera) return;
@@ -276,21 +295,123 @@ const getLocation=async ()=>{
         </View>
       ) : (
         <View style={Styles.inputButtons}>
-          <KeyboardAvoidingView>
+          <KeyboardAvoidingView style={{}}>
             <ScrollView>
-          
-              <Input placeholder="Direccióm Principal" label="Calle Principal" />
-              <Text style={Styles.textFormularios} >Entre las calles</Text>
-              <Input placeholder="Calle 1"  />
-              <Input placeholder="Calle 2"  />
+              <View style={Styles.box}>
+                <Text
+                  style={{
+                    justifyContent: "center",
+                    textAlign: "center",
+                    marginBottom: 20,
+                    fontStyle: "italic",
+                    fontSize: 22,
+                  }}
+                >
+                  {nameUser}
+                </Text>
 
-              
+                <Text
+                  style={{
+                    paddingLeft: 10,
+                    fontWeight: "bold",
+                    fontSize: 17,
+                    textAlign: "center",
+                  }}
+                >
+                  Fecha del Reporte {fecha.toLocaleDateString().toString()}
+                </Text>
 
-              <Text style={Styles.textFormularios}>Descripción</Text>
-              <TextInput
-                style={Styles.textArea}
-                placeholder="Descripción7"
+                <View style={Styles.btbSearch}>
+                  <TouchableOpacity
+                    style={Styles.btnShortButton}
+                    onPress={getDireccion}
+                  >
+                    <Text>
+                      <Icon
+                        tvParallaxProperties
+                        type="feather"
+                        name="search"
+                        size={15}
+                      ></Icon>
+                      {"  Obtener Dirección"}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={Styles.btnCancelSearch}
+                    onPress={clearDireccion}
+                  >
+                    <Text>
+                      <Icon
+                        tvParallaxProperties
+                        type="feather"
+                        name="trash"
+                        size={26}
+                      ></Icon>
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <Input
+                style={{
+                  borderWidth: 1,
+                  padding: 5,
+                  borderRadius: 5,
+                  fontWeight: "bold",
+                }}
+                editable={false}
+                placeholder="País"
+                value="México"
+                label="País"
               />
+              <Input
+                style={Styles.inputData}
+                placeholder="Localidad"
+                value={direccion != undefined ? direccion.city : ""}
+                label="Localidad"
+              />
+              <Input
+                style={Styles.inputData}
+                value={
+                  direccion != undefined && direccion != null
+                    ? direccion.street
+                    : ""
+                }
+                placeholder="Calle / Av."
+                label="Calle / Av."
+              />
+              <Input
+                style={Styles.inputData}
+                value={
+                  direccion != undefined && direccion != null
+                    ? direccion.district
+                    : ""
+                }
+                placeholder="Colonia / Delegación"
+                label="Colonia / Delegación"
+              />
+              <Input
+                style={Styles.inputData}
+                value={
+                  direccion != undefined && direccion != null
+                    ? direccion.postalCode
+                    : ""
+                }
+                placeholder="Código Postal"
+                label="Código Postal"
+              />
+              <Input
+                style={Styles.inputData}
+                value={
+                  direccion != undefined && direccion != null
+                    ? direccion.region
+                    : ""
+                }
+                placeholder="Estado"
+                label="Estado"
+              />
+              <Text style={Styles.textFormularios}>Descripción</Text>
+              <TextInput style={Styles.textArea} placeholder="Descripción" />
 
               <Carousel
                 ref={caorusel}
@@ -300,9 +421,7 @@ const getLocation=async ()=>{
                 itemWidth={ITEM_HEIGHT}
                 useScrollView={true}
                 onSnapToItem={(index) => setActiveIndex(index)}
-              >
-               
-              </Carousel>
+              ></Carousel>
               {pagination()}
               <TouchableOpacity
                 style={Styles.btnButton}
@@ -318,8 +437,6 @@ const getLocation=async ()=>{
                   {"  Tomar Fotografia"}
                 </Text>
               </TouchableOpacity>
-
-
 
               <TouchableOpacity style={Styles.btnButton} onPress={() => {}}>
                 <Text>
