@@ -41,8 +41,9 @@ const Styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     padding: 10,
-    backgroundColor: "white",
+    backgroundColor: SuinpacRed,
     borderWidth: 2,
+    
     borderColor: SuinpacRed,
     //backgroundColor: 'red'
   },
@@ -108,12 +109,12 @@ const Styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     padding: 10,
-    backgroundColor: "white",
+    backgroundColor:SuinpacRed,
     borderWidth: 1,
     borderColor: SuinpacRed,
-
     marginBottom: 10,
     marginTop: 20,
+    
     //backgroundColor: 'red'
   },
   btbSearch: {
@@ -124,8 +125,8 @@ const Styles = StyleSheet.create({
   btnCancelSearch: {
     borderRadius: 15,
     alignItems: "center",
-    padding: 4,
-    backgroundColor: "white",
+    padding: 2,
+    backgroundColor: SuinpacRed,
     borderWidth: 1,
     borderColor: SuinpacRed,
     marginLeft: 5,
@@ -137,11 +138,11 @@ const Styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "white",
     elevation: 5,
-    shadowColor: "#000",
+    shadowColor: "grey",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    borderRadius: 3,
+    borderRadius: 10,
     marginBottom: 10,
   },
   inputData: {

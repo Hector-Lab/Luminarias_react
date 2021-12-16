@@ -159,19 +159,19 @@ export default function BachesRegistry(props: any) {
       }
     }
   };
-  const _renderItem = ({ item, index }) => {
-    console.log(item.uri);
+  const _renderItem = ({ item, index }) => {    
     return (
       <View
         style={{
           justifyContent: "center",
           alignItems: "center",
-          marginTop: 20,
+          
         }}
       >
-        <TouchableOpacity onLongPress={showConfirmDialog}>
+        <TouchableOpacity  onLongPress={showConfirmDialog}>
           <Card>
             <Image
+            
               source={{ uri: item.uri }}
               style={{ width: 200, height: 300 }}
             />
@@ -326,12 +326,13 @@ export default function BachesRegistry(props: any) {
                     style={Styles.btnShortButton}
                     onPress={getDireccion}
                   >
-                    <Text>
+                    <Text style={{color:'white'}}>
                       <Icon
                         tvParallaxProperties
                         type="feather"
                         name="search"
                         size={15}
+                        color='white'
                       ></Icon>
                       {"  Obtener Dirección"}
                     </Text>
@@ -346,7 +347,8 @@ export default function BachesRegistry(props: any) {
                         tvParallaxProperties
                         type="feather"
                         name="trash"
-                        size={26}
+                        size={25}
+                        color='white'
                       ></Icon>
                     </Text>
                   </TouchableOpacity>
@@ -427,24 +429,26 @@ export default function BachesRegistry(props: any) {
                 style={Styles.btnButton}
                 onPress={validarNumeroDeFotos}
               >
-                <Text>
+                <Text style={{color:'white'}}>
                   <Icon
                     tvParallaxProperties
                     type="feather"
                     name="camera"
                     size={15}
+                    color="white"
                   ></Icon>
                   {"  Tomar Fotografia"}
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={Styles.btnButton} onPress={() => {}}>
-                <Text>
+                <Text style={{color:'white'}}>
                   <Icon
                     tvParallaxProperties
                     type="feather"
                     name="save"
                     size={15}
+                    color="white"
                   ></Icon>
                   {"  Guardar"}
                 </Text>
