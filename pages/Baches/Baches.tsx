@@ -14,7 +14,6 @@ import {
 import { Text, Button, Icon, Card } from "react-native-elements";
 import Styles from "../../Styles/styles";
 import { Input } from "react-native-elements/dist/input/Input";
-import { Picker } from "@react-native-picker/picker";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Camera } from "expo-camera";
@@ -32,6 +31,7 @@ export default function BachesRegistry(props: any) {
   const [onCamera, setOnCamera] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [showBox, setShowBox] = useState(true);
+  const [deleteDirection, setDeleteDirection] = useState(false);
   const caorusel = React.useRef(null);
   const SLIDER_WIDTH = Dimensions.get("window").width;
   const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
@@ -81,11 +81,13 @@ export default function BachesRegistry(props: any) {
         let direccion = await Location.reverseGeocodeAsync(location.coords);
 
         setDireccion(direccion[0]);
+        setDeleteDirection(true);
       }
     }
   };
 
   const clearDireccion = () => {
+    setDeleteDirection(false);
     setDireccion(null);
   };
   useEffect(() => {
@@ -169,7 +171,15 @@ export default function BachesRegistry(props: any) {
         }}
       >
         <TouchableOpacity  onLongPress={showConfirmDialog}>
-          <Card>
+          <Card containerStyle={{    
+              backgroundColor: "white",
+              elevation: 10,
+              shadowColor: 'grey',
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.1,
+              shadowRadius: 5,
+              borderRadius: 10,
+          }}>
             <Image
             
               source={{ uri: item.uri }}
@@ -338,22 +348,25 @@ export default function BachesRegistry(props: any) {
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
+                  {!deleteDirection? <View></View> :(<TouchableOpacity
                     style={Styles.btnCancelSearch}
                     onPress={clearDireccion}
+                    
                   >
                     <Text>
                       <Icon
                         tvParallaxProperties
-                        type="feather"
+                        type="font-awesome"
                         name="trash"
-                        size={25}
-                        color='white'
+                        size={30}
+                        color={SuinpacRed}
                       ></Icon>
                     </Text>
                   </TouchableOpacity>
+     ) }
+                  </View>
                 </View>
-              </View>
+              
               <Input
                 style={{
                   borderWidth: 1,

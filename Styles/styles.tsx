@@ -124,10 +124,10 @@ const Styles = StyleSheet.create({
   btnCancelSearch: {
     borderRadius: 15,
     alignItems: "center",
-    padding: 2,
-    backgroundColor: SuinpacRed,
+  
+    backgroundColor: 'white',
     borderWidth: 1,
-    borderColor: SuinpacRed,
+    borderColor: 'white',
     marginLeft: 5,
     marginBottom: 20,
     marginTop: 25,
