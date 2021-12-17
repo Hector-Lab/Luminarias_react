@@ -2,6 +2,7 @@ import * as SQLite from "expo-sqlite";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from "@react-navigation/native";
 import { registerCustomIconType } from "react-native-elements";
+import { RefreshControlComponent } from "react-native";
 let db: SQLite.WebSQLDatabase;
 const root = "@Storage:";
 export class StorageService{
@@ -153,17 +154,26 @@ export class StorageService{
     }
     insertarLuminaria(data:any){
         return new Promise((resolve,reject)=>{
+            let fecha = new Date();
             db.transaction((command)=>{
-                /*command.executeSql(`INSERT INTO Luminaria (id,Clave,Ubicacion,Cliente,Tipo,Latitud,Longitud,FechaTupla,ContratoVigente) 
+                command.executeSql(`INSERT INTO Luminaria (id,Clave,Ubicacion,Cliente,Tipo,Latitud,Longitud,FechaTupla,ContratoVigente) 
                 VALUES(NULL,
                     ${data.Clave},
-                    ${},
-                    )`);*/
-            })
+                    ${data.Ubicacion},
+                    ${data.Cliente},
+                    ${data.Tipo},
+                    ${data.Latitud},
+                    ${data.Longitud},
+                    ${fecha.toLocaleDateString()},
+                    ${data.Contrato}
+                    )`,[],()=>{resolve(true)});
+            },(error)=>{reject(error.message)});
         });
     }
     insertarHistoriaLuminaria(){
-
+        return new Promise((resolve,reject)=>{
+            
+        })
     }
 
         //NOTE: metodos para guardar datos basicos de ,

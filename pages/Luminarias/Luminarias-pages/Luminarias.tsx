@@ -45,6 +45,7 @@ export default function Luminarias(props:any ){
     const [iconColor, setIconColot] = useState(String);
     const [icon,setIcon] = useState(String); 
     const [showErrorMessage,setShowErrorMessage] = useState(false);
+    const [jsonLocation,setJsonLocation ] = useState(String); 
     let camera: Camera;
     useEffect(()=>{
         (async () => {
@@ -174,7 +175,8 @@ export default function Luminarias(props:any ){
                 Consumo: '0',
                 Estado: selectEstadoFisico,
                 Evidencia: evidencia,
-                TipoPadron: "1"
+                TipoPadron: "1",
+                Ubicacion: ""
             }
             await GuardarLuminaria(data, online)
             .then((result)=>{

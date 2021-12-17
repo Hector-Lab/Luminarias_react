@@ -7,6 +7,7 @@ import BachesHome from '../pages/Baches/home';
 import MenuLuminarias from '../pages/Luminarias/home';
 import MainLuminaria from '../pages/Luminarias/Luminarias-pages/home';
 import HomeBaches from '../pages/Baches/home';
+import MedidoresHome from '../pages/Luminarias/Medidores-pages/home';
 const Stack = createStackNavigator();
 
 function Nav() {
@@ -24,6 +25,9 @@ function Nav() {
                 </Stack.Screen> 
                 <Stack.Screen name='Luminarias'>
                     {props => <MainLuminaria {...props} ></MainLuminaria>}
+                </Stack.Screen> 
+                <Stack.Screen name='Medidores'>
+                    {props => <MedidoresHome {...props} ></MedidoresHome>}
                 </Stack.Screen> 
         
             </Stack.Navigator>

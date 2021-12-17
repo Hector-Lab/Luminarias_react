@@ -20,6 +20,7 @@ export async function checkConnection (){
         })
     });
 }
-export async function ObtenerDireccionActual(latitude: string, longitude:string){
-    //let data = await Location.reverseGeocodeAsync({latitude:latitude,longitude:longitude});
+export async function ObtenerDireccionActual(location:any){
+    let data = await Location.reverseGeocodeAsync(location);
+    return JSON.stringify(data[0]);
 }
