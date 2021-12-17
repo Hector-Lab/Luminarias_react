@@ -16,6 +16,9 @@ export default function MenuLuminarias(props:any ){
     const handleLogount = ()=>{
         props.navigation.pop();
     }
+    const handMedidoresPress = ()=>{
+        props.navigation.navigate("Medidores");
+    }
     return(
         <View style = {[Styles.container]}>
             <ImageBackground source={image} resizeMode="center" style = {Styles.backgroundimage} imageStyle = {{opacity:.06}} >
@@ -32,7 +35,7 @@ export default function MenuLuminarias(props:any ){
                             />
                         </Card>
                     </TouchableOpacity>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={handMedidoresPress}>
                         <Card>
                                 <Card.Title>Medidores</Card.Title>
                                 <Icon
