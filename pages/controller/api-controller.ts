@@ -55,19 +55,27 @@ export async function CatalogoLuminarias() {
     }
 }
 export async function GuardarLuminaria(data:any, connection: any ){
-    if(connection){ //NOTE: Se envia directo al API
-        let valid = VerificarDatosLuminaria(data);
-        if(valid != ""){
-            throw new Error(valid);
+    console.log("Guardando...");
+    let valid = VerificarDatosLuminaria(data);
+    if(valid != ""){
+        throw new Error(valid);
+    }
+    let token = await storage.getItem("Token");
+    try{
+        if(connection){ //NOTE: Se envia directo al API
+            let encodeResult = await service.insertarLuminaria(data,String(token));
+            let decodeResult = await encodeResult.json();
+            return decodeResult;
+    
+        }else{ //NOTE: Se Envia a la base de datos
+            console.log("Sin conexion");
+            let resultLumianria = await storage.insertarLuminaria(data);
+            if(resultLumianria){
+                let resultHistoria = await storage.insertarHistoriaLuminaria(data);
+            }
         }
-        let token = await storage.getItem("Token");
-        console.log(token);
-        let encodeResult = await service.insertarLuminaria(data,String(token));
-        let decodeResult = await encodeResult.json();
-        return decodeResult;
-
-    }else{ //NOTE: Se Envia a la base de datos
-
+    }catch(error){
+        console.log(error.message);
     }
 }
 

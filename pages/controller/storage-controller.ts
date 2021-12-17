@@ -2,6 +2,7 @@ import * as SQLite from "expo-sqlite";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from "@react-navigation/native";
 import { registerCustomIconType } from "react-native-elements";
+import { RefreshControlComponent } from "react-native";
 let db: SQLite.WebSQLDatabase;
 const root = "@Storage:";
 export class StorageService{
@@ -153,17 +154,49 @@ export class StorageService{
     }
     insertarLuminaria(data:any){
         return new Promise((resolve,reject)=>{
+            let fecha = new Date();
             db.transaction((command)=>{
-                /*command.executeSql(`INSERT INTO Luminaria (id,Clave,Ubicacion,Cliente,Tipo,Latitud,Longitud,FechaTupla,ContratoVigente) 
+                command.executeSql(`INSERT INTO Luminaria (id,Clave,Ubicacion,Cliente,Tipo,Latitud,Longitud,FechaTupla,ContratoVigente) 
                 VALUES(NULL,
                     ${data.Clave},
-                    ${},
-                    )`);*/
-            })
+                    ${data.Ubicacion},
+                    ${data.Cliente},
+                    ${data.Tipo},
+                    ${data.Latitud},
+                    ${data.Longitud},
+                    ${fecha.toLocaleDateString()},
+                    ${data.Contrato}
+                    )`,[data.Clave,data.Ubicacion,data.Cliente,data.Tipo,data.Latitud,data.Longitud,fecha.toLocaleDateString(),data.Contrato],()=>{resolve(true)});
+            },(error)=>{reject(error.message + "Al guardar la luminaria")});
         });
     }
-    insertarHistoriaLuminaria(){
-
+    insertarHistoriaLuminaria(data:any){
+        return new Promise((resolve,reject)=>{
+           let usuarios = this.getItem('User');
+           let fecha = new Date();
+            db.transaction((commad)=>{
+                commad.executeSql(`INSERT INTO (id,Padron,Estado,Voltaje,Calsificacion,Tipo,Observacion,Evidencia,Fecha,Usuario) VALUES 
+                (NULL,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?)`,
+                    ['-1',data.Estado,data.Voltaje,data.Calsificacion,data.Tipo,data.Observacion,data.Evidencia,fecha.toLocaleDateString(),usuarios],
+                    ()=>{resolve(true)});
+            },(error)=>{reject(error.message + "AL guardar la historia")});
+        })
+    }
+    leerDBLuminarias(){
+        db.transaction((command)=>{
+            command.executeSql("SELECT * FROM Luminaria",[],(_,{rows})=>{
+                console.log(rows);
+            });
+        });
     }
 
         //NOTE: metodos para guardar datos basicos de ,

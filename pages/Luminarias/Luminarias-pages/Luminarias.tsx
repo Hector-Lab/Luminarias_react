@@ -1,5 +1,5 @@
 import React,{ useState, useEffect, useRef } from "react";
-import { View, ScrollView, KeyboardAvoidingView, Image, Dimensions, Vibration} from "react-native";
+import { View, ScrollView, KeyboardAvoidingView, Image, Dimensions, Vibration, RefreshControlComponent} from "react-native";
 import { Text,Icon, Card } from 'react-native-elements'
 import Styles from "../../../Styles/styles";
 import { Input } from "react-native-elements/dist/input/Input";
@@ -45,6 +45,7 @@ export default function Luminarias(props:any ){
     const [iconColor, setIconColot] = useState(String);
     const [icon,setIcon] = useState(String); 
     const [showErrorMessage,setShowErrorMessage] = useState(false);
+    const [jsonLocation,setJsonLocation ] = useState(String); 
     let camera: Camera;
     useEffect(()=>{
         (async () => {
@@ -59,6 +60,7 @@ export default function Luminarias(props:any ){
             let estados = await storage.leerEstadoFisco();
             let arrayEstado = JSON.parse(String(estados));
             setTipoEstadoFisico(arrayEstado);
+            storage.leerDBLuminarias();
           })();
     },[]);
     const __takePicture = async ()=>{
@@ -145,10 +147,10 @@ export default function Luminarias(props:any ){
         try{
             let evidencia = new Array();
             let online = await checkConnection();
-            if(online){
+            if(!online){
                 //NOTE: Se envian los base64
                 arrayImageEncode.map((item,index)=>{
-                    evidencia.push("data:image/jpeg;base64," +item.base64);    
+                    evidencia.push("data:image/jpeg;base64," +item.base64);
                 });
             }else{
                 //NOTE: se guardan las rutas
@@ -174,10 +176,13 @@ export default function Luminarias(props:any ){
                 Consumo: '0',
                 Estado: selectEstadoFisico,
                 Evidencia: evidencia,
-                TipoPadron: "1"
+                TipoPadron: "1",
+                Ubicacion: jsonLocation,
+                Observacion:""
             }
             await GuardarLuminaria(data, online)
             .then((result)=>{
+
                 console.log(JSON.stringify(result));
             })
             .catch((error)=>{
@@ -238,10 +243,10 @@ export default function Luminarias(props:any ){
                 <View style = {Styles.inputButtons}>
                     <KeyboardAvoidingView>
                         <ScrollView>
-                            <Input placeholder = "Contrato" label = "Contrato" onChangeText = {(text)=>{setContrato(text)}} ></Input>
-                            <Input style = {inputStyles(handleError.includes("C,"))} placeholder = "Clave de indentificacion" label = "Clave" onChangeText = {(text)=>{setClave(text)}} ></Input>
-                            <Input style = {inputStyles(handleError.includes("CL,"))} placeholder = "Ejemplo: Luz L.E.D" label = "Clasificacion" onChangeText = {(text)=>{setClasificacion(text)}} ></Input>
-                            <Input style = {inputStyles(handleError.includes("V,"))} placeholder = "Voltaje" label = "Voltaje" onChangeText = {(text)=>{setVoltaje(text)}} ></Input>
+                            <Input value = {contrato}  placeholder = "Contrato" label = "Contrato" onChangeText = {(text)=>{setContrato(text)}} ></Input>
+                            <Input value = {clave} style = {inputStyles(handleError.includes("C,"))} placeholder = "Clave de indentificacion" label = "Clave" onChangeText = {(text)=>{setClave(text)}} ></Input>
+                            <Input value = {clasificacion} style = {inputStyles(handleError.includes("CL,"))} placeholder = "Ejemplo: Luz L.E.D" label = "Clasificacion" onChangeText = {(text)=>{setClasificacion(text)}} ></Input>
+                            <Input value = {voltaje} style = {inputStyles(handleError.includes("V,"))} placeholder = "Voltaje" label = "Voltaje" onChangeText = {(text)=>{setVoltaje(text)}} ></Input>
                             <Picker onValueChange = {(itemValue, itemIndex)=>{setSelectLuminaria(String(itemValue))}}>
                                 {
                                     tipoLuminaria == null ? 
