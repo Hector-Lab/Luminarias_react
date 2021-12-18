@@ -1,4 +1,5 @@
 import { CommonActions, ServerContainer } from '@react-navigation/native';
+import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageService } from '../controller/storage-controller';
 const service = new APIServices();
@@ -7,10 +8,6 @@ const networkError = new Error("Favor de verificar la conexion a internet");
 const userNotFound = new Error("Usuario o Contraseña Incorrectos");
 export async function Auth(user:string,pass:string){
     //Creamos la base de datos
-    storage.createOpenDB();
-    storage.createTables();
-    storage.borrarDatos("EstadoFisico");
-    storage.borrarDatos("TipoLuminaria");
     let cliente = {
         'usuario': user,
         'passwd': pass
@@ -55,7 +52,6 @@ export async function CatalogoLuminarias() {
     }
 }
 export async function GuardarLuminaria(data:any, connection: any ){
-    console.log("Guardando...");
     let valid = VerificarDatosLuminaria(data);
     if(valid != ""){
         throw new Error(valid);
@@ -70,24 +66,54 @@ export async function GuardarLuminaria(data:any, connection: any ){
         }else{ //NOTE: Se Envia a la base de datos
             console.log("Sin conexion");
             let resultLumianria = await storage.insertarLuminaria(data);
-            if(resultLumianria){
-                let resultHistoria = await storage.insertarHistoriaLuminaria(data);
-            }
+            let resultHistoria = await storage.insertarHistoriaLuminaria(data);
+            return resultLumianria && resultHistoria;
         }
     }catch(error){
         console.log(error.message);
     }
 }
-
+export async function ClavesLuminarias(){
+    storage.createOpenDB();
+    let cliente = await storage.getItem("Cliente");
+    let token = await storage.getItem("Token");
+    try{
+        let data = {
+            Cliente: String(cliente),
+        };
+        let rawData = await service.obtenerLuminarias(data,String(token));
+        let result = await rawData.json();
+        console.log("Datos del result: ");
+        console.log(result['result']);
+        storage.insertarClavesLuminaria(result['result']);
+    }catch(error){
+        return verificarErrores(error);
+    }
+}
+export async function ClavesMedidor() {
+    storage.createOpenDB();
+    let cliente = await storage.getItem("Cliente");
+    let token = await storage.getItem("Token");
+    try{
+        let data = {
+            Cliente:String(cliente)
+        };
+        let rawData = await service.obtenerMedidores(data,token);
+        let result = await rawData.json();
+        storage.insertClavesMedidores(result['result']);
+    }catch(error){
+        return verificarErrores(error);
+    }
+}
 //NOTE: metodo internos
 function verificarErrores(error:Error) {
     let message = error.message;
+    console.log(message);
     if(message.includes("Usuario")){
         return userNotFound;
     }
     return networkError;
 }
-
 async function  verificamosRoles(usuario:{Usuario:string, Cliente:string},token:string){
     let type = -1; //NOTE: -1: usuario no valido, 0: luminarias, 1:Baches
     //Esto para verificar el rol de luminarias
@@ -107,25 +133,8 @@ async function  verificamosRoles(usuario:{Usuario:string, Cliente:string},token:
     }
     return type;
 }
-
 function VerificarDatosLuminaria(data:any){
     let errores = "";
-    /*
-                    "Clave" => "required|string",
-                    "Cliente" => "required",
-                    "Latitud" => "required|string",
-                    "Longitud" => "required|string",
-                    "Voltaje" => "required|string",
-                    "Calsificacion" => "required|string",
-                    "Tipo" => "required|string",
-                    #"Evidencia" =>"required|string",  //Arreglo de fotos
-                    "Fecha" => "required|string",
-                    "Usuario" => "required|string",
-                    "LecturaActual" => "required|string",
-                    "LecturaAnterior" => "required|string",
-                    "Consumo" => "required|string",
-                    "Estado" => "required|string",
-    */
    if(String(data.Clave) == ""){
         errores += "C,";
    }

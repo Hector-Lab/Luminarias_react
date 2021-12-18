@@ -1,15 +1,38 @@
-import React,{ useState } from "react";
+import React,{ useEffect, useState } from "react";
 import { View, ImageBackground } from "react-native";
 import { Text, Card,Icon } from 'react-native-elements'
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { SuinpacRed } from '../../Styles/Color';
-import IconAnt from 'react-native-vector-icons/AntDesign' 
+import { iconColorBlue, SuinpacRed } from '../../Styles/Color';
 import Styles from "../../Styles/styles";
-
+import { StorageService } from '../controller/storage-controller';
+import ModalMessage from '../components/modal-message';
+import { color } from "react-native-elements/dist/helpers";
 
 export default function MenuLuminarias(props:any ){
     const image = require("../../resources/suinpac.png");
+    const [message,setMessage] = useState(String);
+    const [icon, setIcon] = useState(String);
+    const [iconColor, setIconColor ] = useState(String);
+    const [headerMessage, setHeaderMessage] = useState(String);
+    const [showMessage, setShowMessage] = useState(false);
+    let storage = new StorageService();    
     const [canUpload,setCantUpload] = useState(false);
+    useEffect(()=>{
+            async function fetchData (){
+                let result = await storageService();
+                if(result[0]['COUNT(id)'] >= 1){
+                    console.log(result[0]['COUNT(id)']);
+                    setShowMessage(true);
+                    setMessage("Existen registros guardados en el dispositivo");
+                    setIcon("info");
+                    setIconColor(iconColorBlue);
+                    setHeaderMessage("Mensaje");
+                    setCantUpload(true);
+                }
+            }
+            fetchData();
+    },[]);
+    
     const handleLuminariaPress = ()=>{
         props.navigation.navigate("Luminarias");
     }
@@ -18,6 +41,9 @@ export default function MenuLuminarias(props:any ){
     }
     const handMedidoresPress = ()=>{
         props.navigation.navigate("Medidores");
+    }
+    const storageService =  async() => {
+        return await storage.verificarDatos("Luminarias");
     }
     return(
         <View style = {[Styles.container]}>
@@ -81,6 +107,18 @@ export default function MenuLuminarias(props:any ){
                         </Card>
                     </TouchableOpacity>
                 </View>
+                <ModalMessage
+                    transparent = {true}
+                    loading = {showMessage}
+                    message = { message }
+                    tittle = {headerMessage}
+                    color = {color}
+                    icon = {icon}
+                    iconsource = { ""}
+                    loadinColor = {iconColor}
+                    buttonText = {"Aceptar"}
+                    onCancelLoad = {()=>{setShowMessage(false)}}
+                />
             </ImageBackground>
         </View>
     );

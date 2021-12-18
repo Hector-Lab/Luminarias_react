@@ -123,31 +123,13 @@ export default function Luminarias(props:any ){
                 />
         );
     }
-    //NOTE: Datos que necesita el API
-    /*
-                    "Clave" => "required|string",
-                    "Municipio" => "required|string",
-                    "Localidad" => "required|string",
-                    "Cliente" => "required",
-                    "Latitud" => "required|string",
-                    "Longitud" => "required|string",
-                    "Voltaje" => "required|string",
-                    "Calsificacion" => "required|string",
-                    "Tipo" => "required|string",
-                    #"Evidencia" =>"required|string",  //Arreglo de fotos
-                    "Fecha" => "required|string",
-                    "Usuario" => "required|string",
-                    "LecturaActual" => "required|string",
-                    "LecturaAnterior" => "required|string",
-                    "Consumo" => "required|string",
-                    "Estado" => "required|string",
-    */
     const EnviarLuminaria = async () =>{
         setLoading(true);
         try{
             let evidencia = new Array();
             let online = await checkConnection();
-            if(!online){
+            online = !online;
+            if(online){
                 //NOTE: Se envian los base64
                 arrayImageEncode.map((item,index)=>{
                     evidencia.push("data:image/jpeg;base64," +item.base64);
@@ -175,7 +157,7 @@ export default function Luminarias(props:any ){
                 LecturaAnterior:'0',
                 Consumo: '0',
                 Estado: selectEstadoFisico,
-                Evidencia: evidencia,
+                Evidencia: !online ? JSON.stringify(evidencia) : evidencia,
                 TipoPadron: "1",
                 Ubicacion: jsonLocation,
                 Observacion:""
@@ -209,6 +191,10 @@ export default function Luminarias(props:any ){
         }else{
             return Styles.inputData
         }
+    }
+    const borrarDatos = ()=>{
+        storage.borrarDatos("Luminaria");
+        storage.borrarDatos("HistorialLuminaria");
     }
     return(
         <View style = {Styles.TabContainer}>
@@ -283,7 +269,7 @@ export default function Luminarias(props:any ){
                                 <Icon tvParallaxProperties type = "feather" name ="camera" size ={15} color = {"white"} ></Icon>
                                     {"  Tomar Fotografia"}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style = {Styles.btnButton} onPress = {EnviarLuminaria} >
+                            <TouchableOpacity style = {Styles.btnButton} onPress = {EnviarLuminaria} onLongPress = {borrarDatos} >
                                 <Text style = {Styles.btnTexto} >
                                     <Icon tvParallaxProperties type = "feather" name ="save" size ={15} color = {"white"} ></Icon>
                                     {"  Guardar"}</Text>

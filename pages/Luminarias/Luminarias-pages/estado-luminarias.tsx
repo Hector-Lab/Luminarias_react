@@ -9,6 +9,7 @@ import {
   Dimensions,
   Vibration,
   Alert,
+  RefreshControlComponent,
 } from "react-native";
 import { Text, Button, Icon, Card } from "react-native-elements";
 import Styles from "../../../Styles/styles";
@@ -18,6 +19,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Camera } from "expo-camera";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
+import { StorageService } from '../../controller/storage-controller';
 
 export default function LuminariasEstados(props: any) {
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -28,17 +30,20 @@ export default function LuminariasEstados(props: any) {
   const [onCamera, setOnCamera] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [showBox, setShowBox] = useState(true);
+  const [ clavesLuminaria, setClaveLuminarias ] = useState([]);
   const caorusel = React.useRef(null);
   const SLIDER_WIDTH = Dimensions.get("window").width;
   const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
   const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
-
+  let storage = new StorageService();
   let camera: Camera;
 
   useEffect(() => {
     (async () => {
       let { status } = await Camera.requestCameraPermissionsAsync();
       setCameraPermision(status === "granted");
+       let result =  await storage.leerCatalogoLuminarias();
+       console.log(JSON.stringify(result));
     })();
   });
 

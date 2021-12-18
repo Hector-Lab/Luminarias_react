@@ -9,11 +9,9 @@ export class StorageService{
     createOpenDB () {
         db = SQLite.openDatabase("data.db");
     }
-     createTables (){
+    createTables (){
          //NOTE: tabla Luminaria
         db.transaction((command)=>{
-            //Ubicaci_on en json, ClaveLuminaria, Cliente,Estatus, Tipo, Latitud, Longitud, FechaTupla, ContratoVigente
-            //d_Padr_on, id_Estado, Voltaje, Clasificaci_on, Tipo, Observaci_on, Evidencia fotos json, Fecha, Usuario
             command.executeSql(`create table if not exists Luminaria
                                 (id integer primary key NOT NULL,
                                     Clave varchar,
@@ -27,7 +25,7 @@ export class StorageService{
                                     );`);
         },
         (error)=>{ console.log("Error al crear la base de datos: " + error.message )},
-        ()=>{console.log("Tabla luminaras creada")});
+        ()=>{});
         //NOTE: Tabla HistorialLuminarias
         db.transaction((command)=>{
             command.executeSql(`create table if not exists HistorialLuminaria 
@@ -45,7 +43,7 @@ export class StorageService{
                                 );`);
         },
         (error)=>{console.log("Error al crear la base de datos")},
-        ()=>{console.log("Tabla Historial luminarias creada")});
+        ()=>{});
         //NOTE: Tabla HistorialMedidores
         db.transaction((command)=>{
             command.executeSql(`create table if not exists HistorialMedidores
@@ -62,7 +60,7 @@ export class StorageService{
                                     Usuario integer
                                 );`);
         },(error)=>{console.log("Mensaje de error" + error.message)},
-        ()=>{console.log("Tabla Historial Medidores Creada")});
+        ()=>{});
         //NOTE: Tabla Estado Fisico
         db.transaction((commad)=>{
             commad.executeSql(`create table if not exists EstadoFisico
@@ -72,7 +70,7 @@ export class StorageService{
                                     Descripcion varchar
                                 )`);
         },(error)=>{console.log("Mensaje de error: " + error.message)},
-        ()=>{console.log("Tabla Estado fisico creada")});
+        ()=>{});
         //NOTE: Tabla Tipo de luminarias
         db.transaction((commad)=>{
             commad.executeSql(`create table if not exists TipoLuminaria 
@@ -82,8 +80,30 @@ export class StorageService{
                                     Descripcion varchar
                                 )`);
         },(error)=>{console.log("Mensaje de error: " +error.message)},
-        ()=>{console.log("Tabla Tipo Luminarias creada")});
-
+        ()=>{});
+        db.transaction((commad)=>{
+            commad.executeSql(`create table if not exists CatalogoLuminaria
+                                (
+                                    id integer primary key NOT NULL,
+                                    ClaveLuminaria varchar,
+                                    Contrato varchar,
+                                    Padron integer,
+                                    Tipo varchar,
+                                    Clasificacion varchar,
+                                    id_Tipo integer
+                                )`);
+        },(error)=>{console.log("Mensaje de error: "+ error.message)},()=>{});
+        db.transaction((commad)=>{
+            commad.executeSql(`create table if not exists CatalogoMedidores 
+                                (
+                                    id integer primary key NOT NULL,
+                                    ClaveLuminaria varchar,
+                                    Contrato varchar,
+                                    LecturaActual integer,
+                                    Padron integer
+                                )`);
+        },(error)=>{"Mensaje de error: " + error.message},
+        ()=>{});
     }
     insertarCatalogos( EstadoFisico: [], Luminaria: [] ){
         //NOTE: Insercion de catalogo estado fisico
@@ -115,10 +135,11 @@ export class StorageService{
         db.transaction((commad)=>{
             commad.executeSql("DELETE FROM " + tableName);
         },(error)=>{console.log("Error al elimnar la tabla" + error.message)},
-        ()=>{console.log("Tabla eliminada: " + tableName)});
+        ()=>{});
     }
     async leerLuminarias(){
         return new Promise((resolve,reject)=>{
+            this.createOpenDB();
             db.transaction((commad)=>{
                 commad.executeSql("SELECT * FROM TipoLuminaria",[],
                 (_,rows)=>{
@@ -158,24 +179,25 @@ export class StorageService{
             db.transaction((command)=>{
                 command.executeSql(`INSERT INTO Luminaria (id,Clave,Ubicacion,Cliente,Tipo,Latitud,Longitud,FechaTupla,ContratoVigente) 
                 VALUES(NULL,
-                    ${data.Clave},
-                    ${data.Ubicacion},
-                    ${data.Cliente},
-                    ${data.Tipo},
-                    ${data.Latitud},
-                    ${data.Longitud},
-                    ${fecha.toLocaleDateString()},
-                    ${data.Contrato}
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?
                     )`,[data.Clave,data.Ubicacion,data.Cliente,data.Tipo,data.Latitud,data.Longitud,fecha.toLocaleDateString(),data.Contrato],()=>{resolve(true)});
-            },(error)=>{reject(error.message + "Al guardar la luminaria")});
+            },(error)=>{
+                reject(error.message + "Al guardar la luminaria")});
         });
     }
-    insertarHistoriaLuminaria(data:any){
+    async insertarHistoriaLuminaria(data:any){
+        let usuarios = await this.getItem('User');
         return new Promise((resolve,reject)=>{
-           let usuarios = this.getItem('User');
            let fecha = new Date();
             db.transaction((commad)=>{
-                commad.executeSql(`INSERT INTO (id,Padron,Estado,Voltaje,Calsificacion,Tipo,Observacion,Evidencia,Fecha,Usuario) VALUES 
+                commad.executeSql(`INSERT INTO HistorialLuminaria (id,Padron,Estado,Voltaje,Calsificacion,Tipo,Observacion,Evidencia,Fecha,Usuario) VALUES 
                 (NULL,
                     ?,
                     ?,
@@ -186,28 +208,57 @@ export class StorageService{
                     ?,
                     ?,
                     ?)`,
-                    ['-1',data.Estado,data.Voltaje,data.Calsificacion,data.Tipo,data.Observacion,data.Evidencia,fecha.toLocaleDateString(),usuarios],
+                    [data.Clave,String(data.Estado),String(data.Voltaje),String(data.Calsificacion),data.Tipo,data.Observacion,data.Evidencia,String(fecha.toLocaleDateString()),usuarios],//NOTE: usao la clave para ver en a quien pertenece
                     ()=>{resolve(true)});
-            },(error)=>{reject(error.message + "AL guardar la historia")});
+            },(error)=>{ console.log(error.message + "Error"); reject(error.message + "AL guardar la historia")});
+        })
+    }
+    verificarDatos(table:string){
+        return new Promise((resolve,reject)=>{
+            db.transaction((commad)=>{
+                commad.executeSql("SELECT COUNT(id) FROM Luminaria",[],(_,{rows})=>{resolve(rows._array)});
+            },(error)=>{reject(error.message)});
         })
     }
     leerDBLuminarias(){
         db.transaction((command)=>{
-            command.executeSql("SELECT * FROM Luminaria",[],(_,{rows})=>{
+            command.executeSql("SELECT * FROM HistorialLuminaria",[],(_,{rows})=>{
                 console.log(rows);
             });
         });
     }
-
-        //NOTE: metodos para guardar datos basicos de ,
-        public async setUser(user:string, name:string, token: string,cliente:string ){
-            await AsyncStorage.setItem(root+"User",user);
-            await AsyncStorage.setItem(root+"UserName",name);
-            await AsyncStorage.setItem(root+"Token",token);
-            await AsyncStorage.setItem(root+"Cliente",cliente);
-        }
-        public async getItem(key:string){
-            return await AsyncStorage.getItem(root+key);
-        }
+    insertarClavesLuminaria(Luminaria:[]){
+        db.transaction((commad)=>{
+            Luminaria.map((item:{ClaveLuminaria:string,Contrato:string,Padron:string,Tipo:string,clasificacion:string,id_Tipo:string},value)=>{
+                commad.executeSql("INSERT INTO CatalogoLuminaria (id,ClaveLuminaria,Contrato,Padron,Tipo,Clasificacion,id_Tipo) VALUES (NULL,?,?,?,?,?,?)",
+                [item.ClaveLuminaria,item.Contrato,item.Padron,item.Tipo,item.clasificacion,item.id_Tipo]);
+            });
+        },(error)=>{console.log(error.message)},()=>{console.log("Catalogo insertado")});
+    }
+    insertClavesMedidores(Medidor:[]){
+        db.transaction((commad)=>{
+            Medidor.map((item:{ClaveLuminaria:string,Contrato:string,LecturaActual:string,Padron:string},index)=>{
+                commad.executeSql("INSERT INTO CatalogoMedidores (id,ClaveLuminaria,Contrato,LecturaActual,Padron) VALUES (null,?,?,?,?)",
+                [item.ClaveLuminaria,item.Contrato,item.LecturaActual,item.Padron]);
+            });
+        },(erro)=>{console.log(`Mensaje de error: ${erro.message}`)},()=>{});
+    }
+    leerCatalogoLuminarias(){
+        return new Promise((resolve,reject)=>{
+            db.transaction((commad)=>{
+                commad.executeSql("SELECT * FROM CatalogoLuminaria",[],(_,{rows})=>{ console.log(JSON.stringify(rows)); resolve(rows._array)})
+            },(error)=>{reject(error.message)});
+        })
+    }
+    //NOTE: metodos para guardar datos basicos de ,
+    public async setUser(user:string, name:string, token: string,cliente:string ){
+        await AsyncStorage.setItem(root+"User",user);
+        await AsyncStorage.setItem(root+"UserName",name);
+        await AsyncStorage.setItem(root+"Token",token);
+        await AsyncStorage.setItem(root+"Cliente",cliente);
+    }
+    public async getItem(key:string){
+        return await AsyncStorage.getItem(root+key);
+    }
 }
 

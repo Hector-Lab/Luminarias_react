@@ -1,3 +1,5 @@
+import { readAsStringAsync } from "expo-file-system";
+
 export class APIServices {
     
     login (data: any){
@@ -68,6 +70,31 @@ export class APIServices {
             body:jsonData
         }
         );
+
+    }
+    obtenerLuminarias (data:any, token:string){
+        let jsonData = JSON.stringify(data);
+        return fetch("https://api.servicioenlinea.mx/api-movil/CargarHistorialLuminaria",{
+            method:'POST',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization':"Bearer " + token
+            },
+            body:jsonData
+        })
+    }
+    obtenerMedidores(data:any,token:string){
+        let jsonData = JSON.stringify(data);
+        return fetch("https://api.servicioenlinea.mx/api-movil/CargarHistorialMedidor",{
+            method: 'POST',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization':"Bearer " + token
+            },
+            body:jsonData
+        });
 
     }
 }

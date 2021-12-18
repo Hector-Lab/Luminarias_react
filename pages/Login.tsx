@@ -1,14 +1,14 @@
 import { KeyboardAvoidingView, Platform, TouchableOpacity, View, ScrollView} from "react-native";
 import { Text, Input} from "react-native-elements";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import Styles from "../Styles/styles";
 import { Avatar } from "react-native-elements/dist/avatar/Avatar";
-import { Auth, CatalogoLuminarias } from './controller/api-controller';
+import { Auth, CatalogoLuminarias, ClavesLuminarias, ClavesMedidor } from './controller/api-controller';
 import Loading from './components/modal-loading';
 import Message from './components/modal-message';
 import { BackgrounBlue, iconColorBlue, SuinpacRed } from "../Styles/Color";
-
+import { StorageService } from './controller/storage-controller';
 export default function Log(props: any) {
     const [user,setUser] = useState(String);
     const [password,setPassword] = useState(String);
@@ -19,6 +19,15 @@ export default function Log(props: any) {
     const [tittle,setTittle] = useState(String);
     const [ iconMessega, setIconMessega] = useState("info");
     const [ color, setColor ] = useState(String);
+    let storage = new StorageService();
+    useEffect(()=>{
+        storage.createOpenDB();
+        storage.createTables();
+        storage.borrarDatos("EstadoFisico");
+        storage.borrarDatos("TipoLuminaria");
+        storage.borrarDatos("CatalogoLuminaria");
+        storage.borrarDatos("CatalogoMedidores");
+    })
     const login = async ()=>{
         setLoading(true);
        let validDatos = true;
@@ -36,6 +45,8 @@ export default function Log(props: any) {
             .then( async (result)=>{
                 if(result == 0){ 
                     await CatalogoLuminarias();
+                    await ClavesLuminarias();
+                    await ClavesMedidor();
                     setLoading(false);
                     props.navigation.navigate("Menu");
                 }else if(result = 1){
