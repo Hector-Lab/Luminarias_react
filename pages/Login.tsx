@@ -23,10 +23,10 @@ export default function Log(props: any) {
     useEffect(()=>{
         storage.createOpenDB();
         storage.createTables();
-        storage.borrarDatos("EstadoFisico");
-        storage.borrarDatos("TipoLuminaria");
-        storage.borrarDatos("CatalogoLuminaria");
-        storage.borrarDatos("CatalogoMedidores");
+        //storage.borrarDatos("EstadoFisico");
+        //storage.borrarDatos("TipoLuminaria");
+        //storage.borrarDatos("CatalogoLuminaria");
+        //storage.borrarDatos("CatalogoMedidores");
     })
     const login = async ()=>{
         setLoading(true);

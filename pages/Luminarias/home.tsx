@@ -36,7 +36,9 @@ export default function MenuLuminarias(props:any ){
     const handleLuminariaPress = ()=>{
         props.navigation.navigate("Luminarias");
     }
-    const handleLogount = ()=>{
+    const handleLogount = async () =>{
+        let borrado = await storage.clearUser();
+        console.log(`Datos Eliminados : ${borrado}`);
         props.navigation.pop();
     }
     const handMedidoresPress = ()=>{

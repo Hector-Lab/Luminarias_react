@@ -11,7 +11,8 @@ import {
   Alert,
   RefreshControlComponent,
 } from "react-native";
-import { Text, Button, Icon, Card } from "react-native-elements";
+import { Text, Button, Icon, Card, ListItem } from "react-native-elements";
+import { FlatList } from 'react-native';
 import Styles from "../../../Styles/styles";
 import { Input } from "react-native-elements/dist/input/Input";
 import { Picker } from "@react-native-picker/picker";
@@ -20,6 +21,8 @@ import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Camera } from "expo-camera";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
 import { StorageService } from '../../controller/storage-controller';
+import { List, Searchbar } from 'react-native-paper';
+import { Item } from "react-native-paper/lib/typescript/components/List/List";
 
 export default function LuminariasEstados(props: any) {
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -30,7 +33,11 @@ export default function LuminariasEstados(props: any) {
   const [onCamera, setOnCamera] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [showBox, setShowBox] = useState(true);
-  const [ clavesLuminaria, setClaveLuminarias ] = useState([]);
+  const [ clavesLuminaria , setClaveLuminarias ] = useState([]);
+  const [ catalogoEstadoFisico, setCatalodoEstadoFisico ] = useState([]);
+  const [ selectEstadoFisico , setSelectEstadoFisico ] = useState(String);
+  const [serchKey, setSerchKey ] =  useState();
+  const [visibleList, setvisibleList ] = useState(true);
   const caorusel = React.useRef(null);
   const SLIDER_WIDTH = Dimensions.get("window").width;
   const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
@@ -42,10 +49,11 @@ export default function LuminariasEstados(props: any) {
     (async () => {
       let { status } = await Camera.requestCameraPermissionsAsync();
       setCameraPermision(status === "granted");
-       let result =  await storage.leerCatalogoLuminarias();
-       console.log(JSON.stringify(result));
+      let estados = await storage.leerEstadoFisco();
+      let arrayEstado = JSON.parse(String(estados));
+      setCatalodoEstadoFisico(arrayEstado);
     })();
-  });
+  },[]);
 
   const showConfirmDialog = () => {
     Vibration.vibrate(200);
@@ -158,6 +166,13 @@ export default function LuminariasEstados(props: any) {
       />
     );
   };
+  const onChangeSearch = query => {
+    setSerchKey(query);
+  }
+  const serchLuminarias = async () =>{
+    let serchData = await storage.buscarLuminariaClave(serchKey);
+    setClaveLuminarias(JSON.parse(String(serchData)));
+  }
   return (
     <View style={Styles.TabContainer}>
       {onCamera ? (
@@ -254,75 +269,97 @@ export default function LuminariasEstados(props: any) {
         </View>
       ) : (
         <View style={Styles.inputButtons}>
-          <KeyboardAvoidingView>
-            <ScrollView>
-              <Input
-                placeholder="Clave Padrón"
-                rightIcon={{ type: "font-awesome", name: "search" }}
-              />
-              <Input placeholder="Lectura Anterior" label="Lectura Anterior" />
-              <Input placeholder="Lectura Actual" label="Lectura Actual" />
-              <Input placeholder="Consumo" label="Consumo" />
+          {
+            visibleList ? (<View style = {{flex:1}}>
+                <Searchbar
+                  value = {serchKey}
+                  onChangeText = {onChangeSearch}
+                  placeholder="Clave Padrón"
+                  onSubmitEditing = {serchLuminarias}
+                />
+                <Text></Text>
+                <FlatList 
+                  style = {{ borderWidth : 1, borderRadius :10,borderColor:iconColorBlue}}
+                  data = { clavesLuminaria }
+                  renderItem = {({item})=>(
+                    <TouchableOpacity style = {{margin:10}} >
+                    <ListItem tvParallaxProperties hasTVPreferredFocus bottomDivider  style = {{padding: 2 }}>
+                      <ListItem.Content>
+                        <ListItem.Title > {`Clave: ${item.ClaveLuminaria} - ${ item.Contrato == "" ? "Sin contrato":`Contrato:  ${item.Contrato}` }`} </ListItem.Title>
+                        <ListItem.Subtitle>{ `Tipo: ${item.Tipo} - Clasificación: ${item.Clasificacion}`  }</ListItem.Subtitle>
+                      </ListItem.Content>
+                    </ListItem>
+                    </TouchableOpacity>
+                  )}
+                  
+                />
+            </View>) : (<>
+                  <KeyboardAvoidingView>
+                  <ScrollView>
+                  <Input placeholder="Lectura Anterior" label="Lectura Anterior" />
+                  <Input placeholder="Lectura Actual" label="Lectura Actual" />
+                  <Input placeholder="Consumo" label="Consumo" />
 
-              <Text style={Styles.textFormularios}>Estado</Text>
+                  <Text style={Styles.textFormularios}>Estado</Text>
 
-              <Picker>
-                {estados.map((item) => {
-                  return (
-                    <Picker.Item
-                      label={item.lavel}
-                      value={item.id}
-                      key={item.id}
-                    ></Picker.Item>
-                  );
-                })}
-              </Picker>
-              <Text style={Styles.textFormularios}>Observaciones</Text>
-              <TextInput
-                style={Styles.textArea}
-                placeholder="Observaciones Del Medidor"
-              />
+                  <Picker onValueChange = {(itemValue, itemIndex)=>{setSelectEstadoFisico(String(itemValue))}} >
+                      {
+                          catalogoEstadoFisico == null ?
+                          <Picker.Item label = {"Cargando.."} value = {-1} key = {"-1"} ></Picker.Item> :
+                          catalogoEstadoFisico.map((item)=>{
+                          return <Picker.Item label = {item.Descripcion} value = {item.clave} key = {String(item.clave)} ></Picker.Item>
+                          })
+                      }
+                  </Picker>
+                  <Text style={Styles.textFormularios}>Observaciones</Text>
+                  <TextInput
+                    style={Styles.textArea}
+                    placeholder="Observaciones Del Medidor"
+                  />
+                  <Carousel
+                    ref={caorusel}
+                    data={arrayImageEncode}
+                    renderItem={_renderItem}
+                    sliderWidth={ITEM_WIDTH}
+                    itemWidth={ITEM_HEIGHT}
+                    useScrollView={true}
+                    onSnapToItem={(index) => setActiveIndex(index)}
+                  >
+                    {pagination}
+                  </Carousel>
+                  
+                  <TouchableOpacity
+                    style={Styles.btnButton}
+                    onPress={validarNumeroDeFotos}
+                  >
+                    <Text style = {Styles.btnTexto}>
+                      <Icon
+                        color = {"white"}
+                        tvParallaxProperties
+                        type="feather"
+                        name="camera"
+                        size={15}
+                      ></Icon>
+                      {"  Tomar Fotografia"}
+                    </Text>
+                  </TouchableOpacity>
 
-              <Carousel
-                ref={caorusel}
-                data={arrayImageEncode}
-                renderItem={_renderItem}
-                sliderWidth={ITEM_WIDTH}
-                itemWidth={ITEM_HEIGHT}
-                useScrollView={true}
-                onSnapToItem={(index) => setActiveIndex(index)}
-              >
-                {pagination}
-              </Carousel>
-              
-              <TouchableOpacity
-                style={Styles.btnButton}
-                onPress={validarNumeroDeFotos}
-              >
-                <Text>
-                  <Icon
-                    tvParallaxProperties
-                    type="feather"
-                    name="camera"
-                    size={15}
-                  ></Icon>
-                  {"  Tomar Fotografia"}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={Styles.btnButton} onPress={() => {}}>
-                <Text>
-                  <Icon
-                    tvParallaxProperties
-                    type="feather"
-                    name="save"
-                    size={15}
-                  ></Icon>
-                  {"  Guardar"}
-                </Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </KeyboardAvoidingView>
+                  <TouchableOpacity style={Styles.btnButton} onPress={() => {}}>
+                    <Text style = {Styles.btnTexto} >
+                      <Icon
+                        color = {"white"}
+                        tvParallaxProperties
+                        type="feather"
+                        name="save"
+                        size={15}
+                      ></Icon>
+                      {"  Guardar"}
+                    </Text>
+                  </TouchableOpacity>
+                </ScrollView>
+              </KeyboardAvoidingView>
+            </>)
+          }
         </View>
       )}
     </View>

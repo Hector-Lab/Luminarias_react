@@ -2,7 +2,8 @@ import * as SQLite from "expo-sqlite";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from "@react-navigation/native";
 import { registerCustomIconType } from "react-native-elements";
-import { RefreshControlComponent } from "react-native";
+import { RecyclerViewBackedScrollView, RefreshControlComponent } from "react-native";
+import { resolveUri } from "expo-asset/build/AssetSources";
 let db: SQLite.WebSQLDatabase;
 const root = "@Storage:";
 export class StorageService{
@@ -231,7 +232,7 @@ export class StorageService{
         db.transaction((commad)=>{
             Luminaria.map((item:{ClaveLuminaria:string,Contrato:string,Padron:string,Tipo:string,clasificacion:string,id_Tipo:string},value)=>{
                 commad.executeSql("INSERT INTO CatalogoLuminaria (id,ClaveLuminaria,Contrato,Padron,Tipo,Clasificacion,id_Tipo) VALUES (NULL,?,?,?,?,?,?)",
-                [item.ClaveLuminaria,item.Contrato,item.Padron,item.Tipo,item.clasificacion,item.id_Tipo]);
+                [item.ClaveLuminaria,item.Contrato,item.Padron,item.Tipo,item.clasificacion,item.id_Tipo],(_,{insertId})=>{console.log(JSON.stringify(insertId) + "insertado")});
             });
         },(error)=>{console.log(error.message)},()=>{console.log("Catalogo insertado")});
     }
@@ -239,16 +240,40 @@ export class StorageService{
         db.transaction((commad)=>{
             Medidor.map((item:{ClaveLuminaria:string,Contrato:string,LecturaActual:string,Padron:string},index)=>{
                 commad.executeSql("INSERT INTO CatalogoMedidores (id,ClaveLuminaria,Contrato,LecturaActual,Padron) VALUES (null,?,?,?,?)",
-                [item.ClaveLuminaria,item.Contrato,item.LecturaActual,item.Padron]);
+                [item.ClaveLuminaria,item.Contrato,item.LecturaActual,item.Padron],(_,{insertId})=>{console.log(JSON.stringify(insertId) + " insertado")});
             });
         },(erro)=>{console.log(`Mensaje de error: ${erro.message}`)},()=>{});
     }
     leerCatalogoLuminarias(){
         return new Promise((resolve,reject)=>{
-            db.transaction((commad)=>{
-                commad.executeSql("SELECT * FROM CatalogoLuminaria",[],(_,{rows})=>{ console.log(JSON.stringify(rows)); resolve(rows._array)})
-            },(error)=>{reject(error.message)});
-        })
+            db.transaction((command)=>{
+                command.executeSql("SELECT * FROM CatalogoLuminaria",[],(_,{rows})=>{
+                    let result = new Array();
+                    rows._array.map((item,index)=>{
+                        let data = {
+                            ClaveLuminaria: item.ClaveLuminaria,
+                            Contrato: item.Contrato,
+                            Padron: item.Padron,
+                            Tipo: item.Tipo,
+                            clasificacion: item.clasificacion,
+                            id_Tipo: item.id_Tipo,
+                        };
+                        result.push(data);
+                    });
+                    resolve(JSON.stringify(result));
+                });
+            },(error)=>{reject("Error al leer CatalogoLuminaria: " + error.message)});
+        });
+    }
+    buscarLuminariaClave(key: string){
+        return new Promise((resolve,reject)=>{
+            db.transaction((command)=>{
+                command.executeSql(`SELECT * FROM CatalogoLuminaria WHERE ClaveLuminaria LIKE '%${key}%'`,[],
+                (_,{rows})=>{
+                    resolve(JSON.stringify(rows._array));
+                });
+            },(error)=>{reject(`Mensaje de error: ${error.message}`)});
+        });
     }
     //NOTE: metodos para guardar datos basicos de ,
     public async setUser(user:string, name:string, token: string,cliente:string ){
@@ -259,6 +284,32 @@ export class StorageService{
     }
     public async getItem(key:string){
         return await AsyncStorage.getItem(root+key);
+    }
+
+    public async clearUser(){
+
+        // TipoLuminaria, CatalogoLuminaria, CatalogoMedidores
+        await AsyncStorage.clear();
+        return await this.borrarTablas();
+    }
+    public async borrarTablas(){
+        
+        let result = await this.borrarDatosAsync("TipoLuminaria");
+        console.log(result);
+        result = await this.borrarDatosAsync("CatalogoLuminaria");
+        console.log(result);
+        result = await this.borrarDatosAsync("EstadoFisico");
+        console.log(result);
+        result = await this.borrarDatosAsync("CatalogoMedidores");
+        console.log(result);
+        return true;
+    }
+    public async borrarDatosAsync(tableName:string){
+        return new Promise((resolve,reject)=>{
+            db.transaction((commad)=>{
+                commad.executeSql("DELETE FROM " + tableName,[],(_,{rowsAffected})=>{ resolve(`Datos de la tabla ${tableName} eliminados:  ${rowsAffected}`)});
+            },(error)=>{reject(`Error al eliminar los datos de la tabla ${tableName}:  ${error.message}`)});
+        })
     }
 }
 
