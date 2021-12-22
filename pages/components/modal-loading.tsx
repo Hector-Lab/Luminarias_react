@@ -3,6 +3,7 @@ import React,{Component} from 'react';
 import { ActivityIndicator, View, StyleSheet,Text, Modal, TouchableOpacity} from 'react-native';
 import { Card} from 'react-native-elements'
 import { Button } from 'react-native-elements/dist/buttons/Button';
+import { color } from 'react-native-elements/dist/helpers';
 
 export default class Loading extends React.Component<
 {   
@@ -16,7 +17,6 @@ export default class Loading extends React.Component<
 }>{
     render(){
         return(
-            <View style = {styles.container}>
                 <Modal
                 style = { styles.modalContainer}
                 visible = {this.props.loading}
@@ -28,12 +28,12 @@ export default class Loading extends React.Component<
                     <View style = {styles.modalBodyConteiner}>
                         <Card containerStyle = {styles.cardConteiner} >
                             <Card.Title>
-                                {this.props.tittle == "" ? "Verificando Credenciales" : this.props.tittle == ""}
+                                {this.props.tittle == "" ? "Verificando Credenciales" : this.props.tittle}
                             </Card.Title>
                             <Card.Divider/>
-                            <ActivityIndicator size = "large" color = "#B20115" />
+                            <ActivityIndicator size = "large" color = {color == "" ? "#B20115" : color} />
                             <View style = {styles.mensajeConteiner}>
-                                <Text >Cargando...</Text>
+                                <Text >{ this.props.message == "" ? "Cargando..." : this.props.message }</Text>
                             </View>
                             <TouchableOpacity 
                                 style={styles.btnButton}
@@ -45,10 +45,8 @@ export default class Loading extends React.Component<
                         </Card>
                     </View>
                     <View style = {styles.modalFooterConainer}>
-                    
                     </View>
                 </Modal>
-            </View>
         )
     };
 }

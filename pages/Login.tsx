@@ -12,7 +12,7 @@ import { StorageService } from './controller/storage-controller';
 export default function Log(props: any) {
     const [user,setUser] = useState(String);
     const [password,setPassword] = useState(String);
-    const [loading,setLoading] = useState(false);
+    const [loading,setLoading] = useState(true);
     //NOTE: manejador del modal de avisos
     const [showMessage, setShowMessage] = useState(false);
     const [message,setMessage] = useState(String);
@@ -23,11 +23,17 @@ export default function Log(props: any) {
     useEffect(()=>{
         storage.createOpenDB();
         storage.createTables();
-        //storage.borrarDatos("EstadoFisico");
-        //storage.borrarDatos("TipoLuminaria");
-        //storage.borrarDatos("CatalogoLuminaria");
-        //storage.borrarDatos("CatalogoMedidores");
-    })
+        async function validarSession(){
+            let valido = await storage.validarSession();
+            if(valido){
+                setLoading(false);
+                props.navigation.navigate("Menu");
+            }else{
+                setLoading(false);
+            }
+        }
+        validarSession();
+    },[])
     const login = async ()=>{
         setLoading(true);
        let validDatos = true;

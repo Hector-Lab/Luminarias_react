@@ -311,5 +311,13 @@ export class StorageService{
             },(error)=>{reject(`Error al eliminar los datos de la tabla ${tableName}:  ${error.message}`)});
         })
     }
+    public async validarSession(){
+        let token = await AsyncStorage.getItem(root+"Token");
+        let idUsuario = await AsyncStorage.getItem(root + "User");
+        let cliente = await AsyncStorage.getItem(root + "Cliente");
+        console.log(`idUsuarios: ${idUsuario} - Cliente: ${cliente} - Token: ${token}`);
+        return token != null && idUsuario != null && cliente != null;
+
+    }
 }
 
