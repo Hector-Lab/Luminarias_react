@@ -2,12 +2,11 @@ import React,{} from "react";
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import BachesRegistry from './Baches';
-import CustomMapBaches from './map';
-import BachesList from './ListaBaches';
-
-import { iconColorBlue, SuinpacRed } from "../../Styles/Color";
-export default function BachesHome(props:any ){
+import Luminarias from "./Luminarias";
+import LuminariasEstados from "./estado-luminarias";
+import CustomMap from './map';
+import { iconColorBlue, SuinpacRed } from "../../../Styles/Color";
+export default function MainLuminaria(props:any ){
     const Tabs = createBottomTabNavigator();
     return (
         <NavigationContainer independent = {true}>
@@ -23,9 +22,9 @@ export default function BachesHome(props:any ){
                             : 'home';
                         } else if (route.name === 'Luminaria') {
                           iconName = focused ? 'bulb' : 'bulb';
-                        }if (route.name === 'Historial') {
-                            iconName = focused ? 'list' : 'list';
-                          }
+                        }else if (route.name === 'Historia'){
+                            iconName = focused ? 'time' : 'time';
+                        }
                         return <Ionicons name={iconName} size={size} color={color} />;
                     }
                 })}
@@ -34,10 +33,9 @@ export default function BachesHome(props:any ){
                     inactiveTintColor: iconColorBlue,
                   }}
             >
-                <Tabs.Screen name="Home" component={CustomMapBaches} />
-                <Tabs.Screen name="Historial" component={BachesList}/>
-                <Tabs.Screen name="Luminaria" component={BachesRegistry}/>
-                
+                <Tabs.Screen name="Home" component={CustomMap} />
+                <Tabs.Screen name="Luminaria" component={Luminarias}/>
+                <Tabs.Screen name="Historia" component={LuminariasEstados}/>
             </Tabs.Navigator>
     </  NavigationContainer>
     )

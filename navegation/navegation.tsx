@@ -4,7 +4,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from '../pages/Login';
 import BachesHome from '../pages/Baches/home';
-import LuminariasHome from '../pages/Luminarias/home';
+import MenuLuminarias from '../pages/Luminarias/home';
+import MainLuminaria from '../pages/Luminarias/Luminarias-pages/home';
+import HomeBaches from '../pages/Baches/home';
+import MedidoresHome from '../pages/Luminarias/Medidores-pages/home';
 const Stack = createStackNavigator();
 
 function Nav() {
@@ -17,9 +20,16 @@ function Nav() {
                 <Stack.Screen name='Reportes'>
                     {props => <BachesHome {...props} ></BachesHome>}
                 </Stack.Screen>
-                <Stack.Screen name='Luminarias'>
-                    {props => <LuminariasHome {...props} ></LuminariasHome>}
+                <Stack.Screen name='Menu'>
+                    {props => <MenuLuminarias {...props} ></MenuLuminarias>}
                 </Stack.Screen> 
+                <Stack.Screen name='Luminarias'>
+                    {props => <MainLuminaria {...props} ></MainLuminaria>}
+                </Stack.Screen> 
+                <Stack.Screen name='Medidores'>
+                    {props => <MedidoresHome {...props} ></MedidoresHome>}
+                </Stack.Screen> 
+        
             </Stack.Navigator>
         </NavigationContainer>
     )
