@@ -10,7 +10,6 @@ import {
   Vibration,
   Alert,
   RefreshControlComponent,
-  TouchableHighlight,
 } from "react-native";
 import { Text, Button, Icon, Card, ListItem } from "react-native-elements";
 import { FlatList } from 'react-native';
@@ -22,44 +21,27 @@ import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Camera } from "expo-camera";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
 import { StorageService } from '../../controller/storage-controller';
-import { Searchbar } from 'react-native-paper';
-import Loading from '../../components/modal-loading';
-import Message from '../../components/modal-message';
-import { useSafeArea } from "react-native-safe-area-context";
+import { List, Searchbar } from 'react-native-paper';
+import { Item } from "react-native-paper/lib/typescript/components/List/List";
 
 export default function LuminariasEstados(props: any) {
-  const [showBox, setShowBox] = useState(true);
-  const [visibleList, setvisibleList ] = useState(true);
-  //NOTE: Manejadores de modal
-  const [ showModalMessage, setShowModalMessage ] = useState(false); 
-  const [ modalMessage, setModalMessage ] = useState("");
-  const [ modalTittle, setModalTittle ] = useState("");
-  const [ icon, setIcon ] = useState("info");
-  const [iconColor, setIconColor] = useState(""); 
-  const [ iconSource,setIconSource ] = useState("fontawesome");
-  //NOTE: manejadores de loading 
-  const [loading, setLoading ] =  useState(false);
-  const [serchKey, setSerchKey ] =  useState(String);
-  //NOTE: Manejadores de la camara e imagenes
+  const [previewVisible, setPreviewVisible] = useState(false);
   const [cameraPermissions, setCameraPermision] = useState(false);
+  const [arrayImageLinks, setArrayImageLinks] = useState([]);
   const [arrayImageEncode, setArrayImageEncode] = useState([]);
   const [flashOn, setFlashOn] = useState(false);
   const [onCamera, setOnCamera] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showBox, setShowBox] = useState(true);
+  const [ clavesLuminaria , setClaveLuminarias ] = useState([]);
+  const [ catalogoEstadoFisico, setCatalodoEstadoFisico ] = useState([]);
+  const [ selectEstadoFisico , setSelectEstadoFisico ] = useState(String);
+  const [serchKey, setSerchKey ] =  useState();
+  const [visibleList, setvisibleList ] = useState(true);
   const caorusel = React.useRef(null);
   const SLIDER_WIDTH = Dimensions.get("window").width;
   const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
   const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
-  //NOTE: Catalogos
-  const [ clavesLuminaria , setClaveLuminarias ] = useState([]);
-  const [ catalogoEstadoFisico, setCatalodoEstadoFisico ] = useState([]);
-  const [ catalogoLuminarias, setCatalogoLuminarias ] = useState([]);
-  //NOTE: Manejadores de interfaz
-  const [ claveLuminaria, setClaveLuminaria ] = useState(String);
-  const [ clasificacionLumianria, setClasificacionLuminaria ] = useState(String);
-  const [ voltajeLuminaria, setVoltajeLuminaria ] = useState(String);
-  const [ selectEstadoFisico , setSelectEstadoFisico ] = useState(String);
-  const [ selectTipoLuminaria, setTipoLuminaria ] = useState(String);
   let storage = new StorageService();
   let camera: Camera;
 
@@ -68,9 +50,8 @@ export default function LuminariasEstados(props: any) {
       let { status } = await Camera.requestCameraPermissionsAsync();
       setCameraPermision(status === "granted");
       let estados = await storage.leerEstadoFisco();
-      let tipoLuminaria = await storage.leerLuminarias();
-      setCatalogoLuminarias(JSON.parse(String(tipoLuminaria)));
-      setCatalodoEstadoFisico(JSON.parse(String(estados)));
+      let arrayEstado = JSON.parse(String(estados));
+      setCatalodoEstadoFisico(arrayEstado);
     })();
   },[]);
 
@@ -101,6 +82,21 @@ export default function LuminariasEstados(props: any) {
       },
     ]);
   };
+
+  const estados = [
+    {
+      id: "4",
+      lavel: "Bueno",
+    },
+    {
+      id: "6",
+      lavel: "Regular",
+    },
+    {
+      id: "8",
+      lavel: "malo",
+    },
+  ];
 
   const validarNumeroDeFotos = () => {
     //    console.log(arrayImageEncode.length);
@@ -175,26 +171,7 @@ export default function LuminariasEstados(props: any) {
   }
   const serchLuminarias = async () =>{
     let serchData = await storage.buscarLuminariaClave(serchKey);
-    if(String(serchData) == "[]"){
-      console.log("Esta Vacio");
-      setModalMessage("Sin Resultados");
-      setIconColor("#ffd54f");
-      setIcon("info");
-      setModalTittle("Mensaje");
-      setIconSource("");
-      setShowModalMessage(true);
-    }
     setClaveLuminarias(JSON.parse(String(serchData)));
-    setLoading(false);
-  }
-  const luminariaSeleccionada = (luminaria: any) =>{
-    //NOTE: insertamos los datos en la interfaz
-    if(luminaria != null){
-      setClaveLuminaria(luminaria.ClaveLuminaria);
-      setClasificacionLuminaria(luminaria.Clasificacion);
-      setVoltajeLuminaria(luminaria.setVoltajeLuminaria);
-      setTipoLuminaria(luminaria.id);
-    }
   }
   return (
     <View style={Styles.TabContainer}>
@@ -298,52 +275,34 @@ export default function LuminariasEstados(props: any) {
                   value = {serchKey}
                   onChangeText = {onChangeSearch}
                   placeholder="Clave Padrón"
-                  onSubmitEditing = {()=>{ setLoading(true);  serchLuminarias(); }}
+                  onSubmitEditing = {serchLuminarias}
                 />
                 <Text></Text>
-                <View style = {{flex :1 , backgroundColor:'white',borderRadius: 10}}>
-                  <FlatList 
-                    style = {{borderRadius :10,borderColor:iconColorBlue}}
-                    data = { clavesLuminaria }
-                    renderItem = {({item})=>(
-                      <TouchableOpacity style = {{margin:5}} onPress = {()=>{luminariaSeleccionada(item)}} >
-                      <ListItem tvParallaxProperties hasTVPreferredFocus bottomDivider>
-                      <Icon
-                                type = {"font-awesome-5"}
-                                tvParallaxProperties
-                                name ={"lightbulb"}
-                                size = {30}
-                                color = {SuinpacRed}
-                            />
-                        <ListItem.Content>
-                          <ListItem.Title > {`Clave: ${item.ClaveLuminaria} - ${ item.Contrato == "" ? "Sin contrato":`Contrato:  ${item.Contrato}` }`} </ListItem.Title>
-                          <ListItem.Subtitle>{ `Tipo: ${item.Tipo} - Clasificación: ${item.Clasificacion}`  }</ListItem.Subtitle>
-                        </ListItem.Content>
-                      </ListItem>
-                      </TouchableOpacity>
-                    )}/>
-                </View>
+                <FlatList 
+                  style = {{ borderWidth : 1, borderRadius :10,borderColor:iconColorBlue}}
+                  data = { clavesLuminaria }
+                  renderItem = {({item})=>(
+                    <TouchableOpacity style = {{margin:10}} >
+                    <ListItem tvParallaxProperties hasTVPreferredFocus bottomDivider  style = {{padding: 2 }}>
+                      <ListItem.Content>
+                        <ListItem.Title > {`Clave: ${item.ClaveLuminaria} - ${ item.Contrato == "" ? "Sin contrato":`Contrato:  ${item.Contrato}` }`} </ListItem.Title>
+                        <ListItem.Subtitle>{ `Tipo: ${item.Tipo} - Clasificación: ${item.Clasificacion}`  }</ListItem.Subtitle>
+                      </ListItem.Content>
+                    </ListItem>
+                    </TouchableOpacity>
+                  )}
+                  
+                />
             </View>) : (<>
                   <KeyboardAvoidingView>
                   <ScrollView>
-                  <Input placeholder="Clave de identificación" label="Clave" value = {claveLuminaria} />
-                  <Input placeholder="Ejemplo: L.E.D" label="Clasificación" value = {clasificacionLumianria} />
-                  <Input placeholder="Ejemplo: 20" label="Voltaje" value = {voltajeLuminaria}  />
-                  <Text style = {Styles.textFormularios}> Tipo </Text>
-                  <Picker selectedValue = {selectTipoLuminaria} >
-                    {
-                      catalogoLuminarias == null ? 
-                      <Picker.Item label = {"Cargando.."} value = {-1} key = {"-1"} ></Picker.Item> : 
-                      catalogoLuminarias.map((item)=>{
-                        return <Picker.Item label = {item.Descripcion} value = {item.clave} key = {String(item.clave)} ></Picker.Item>
-                      })
-                    }
-                  </Picker>
+                  <Input placeholder="Lectura Anterior" label="Lectura Anterior" />
+                  <Input placeholder="Lectura Actual" label="Lectura Actual" />
+                  <Input placeholder="Consumo" label="Consumo" />
+
                   <Text style={Styles.textFormularios}>Estado</Text>
 
-                  <Picker 
-                  selectedValue = {selectEstadoFisico}
-                  onValueChange = {(itemValue, itemIndex)=>{setSelectEstadoFisico(String(itemValue))}} >
+                  <Picker onValueChange = {(itemValue, itemIndex)=>{setSelectEstadoFisico(String(itemValue))}} >
                       {
                           catalogoEstadoFisico == null ?
                           <Picker.Item label = {"Cargando.."} value = {-1} key = {"-1"} ></Picker.Item> :
@@ -403,26 +362,6 @@ export default function LuminariasEstados(props: any) {
           }
         </View>
       )}
-      <Loading
-      transparent = {true}
-      tittle = {"Mensaje"}
-      loadinColor = {SuinpacRed}
-      onCancelLoad = { ()=>{}}
-      message = {"Buscando..."}
-      loading = {loading}
-      />
-      <Message 
-      loading = {showModalMessage}
-      loadinColor = {iconColor}
-      onCancelLoad = {()=>{setShowModalMessage(false)}}
-      buttonText = {"Aceptar"}
-      transparent = {true}
-      tittle = {modalTittle}
-      message = {modalMessage}
-      icon = { icon }
-      iconsource = {iconSource}
-      color = {iconColor}
-      />
     </View>
   );
 }
