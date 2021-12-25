@@ -14,7 +14,7 @@ export default function Log(props: any) {
     return (
         <View style={Styles.container}>
             <StatusBar style="auto" />
-            <View style={Styles.avatarView}>
+            <View style={[Styles.avatarView]}>
                 <View style={Styles.avatarElement}>
                     <Avatar 
                         rounded
@@ -24,7 +24,7 @@ export default function Log(props: any) {
                     />
                 </View>
             </View>
-            <View style = {Styles.inputButtons} >
+            <View style = {[Styles.inputButtons]} >
                 <Input 
                     placeholder = "Nombre de usuario"
                     onChangeText = {text => ("")}
