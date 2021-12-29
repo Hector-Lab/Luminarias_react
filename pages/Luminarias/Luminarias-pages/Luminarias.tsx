@@ -14,6 +14,7 @@ import ModalLoading from '../../components/modal-loading';
 import ModalMessage from '../../components/modal-message';
 import { GuardarLuminaria } from '../../controller/api-controller';
 import { useSafeArea } from "react-native-safe-area-context";
+import { black } from "react-native-paper/lib/typescript/styles/colors";
 
 export default function Luminarias(props:any ){
     const storage = new StorageService();
@@ -229,7 +230,7 @@ export default function Luminarias(props:any ){
                 <View style = {Styles.inputButtons}>
                     <KeyboardAvoidingView>
                         <ScrollView>
-                            <Input value = {contrato}  placeholder = "Contrato" label = "Contrato" onChangeText = {(text)=>{setContrato(text)}} ></Input>
+                            <Input value = {contrato}  style={Styles.inputData} placeholder = "Contrato" label = "Contrato" onChangeText = {(text)=>{setContrato(text)}} ></Input>
                             <Input value = {clave} style = {inputStyles(handleError.includes("C,"))} placeholder = "Clave de indentificacion" label = "Clave" onChangeText = {(text)=>{setClave(text)}} ></Input>
                             <Input value = {clasificacion} style = {inputStyles(handleError.includes("CL,"))} placeholder = "Ejemplo: Luz L.E.D" label = "Clasificacion" onChangeText = {(text)=>{setClasificacion(text)}} ></Input>
                             <Input value = {voltaje} style = {inputStyles(handleError.includes("V,"))} placeholder = "Voltaje" label = "Voltaje" onChangeText = {(text)=>{setVoltaje(text)}} ></Input>
@@ -243,7 +244,7 @@ export default function Luminarias(props:any ){
                                 }
                             </Picker>
         
-                            <Picker onValueChange = {(itemValue, itemIndex)=>{setSelectEstadoFisico(String(itemValue))}} >
+                            <Picker style={{}} onValueChange = {(itemValue, itemIndex)=>{setSelectEstadoFisico(String(itemValue))}} >
                                 {
                                     tipoEstadoFisico == null ?
                                     <Picker.Item label = {"Cargando.."} value = {-1} key = {"-1"} ></Picker.Item> :

@@ -21,6 +21,7 @@ import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
 import * as Location from "expo-location";
 import { StorageService } from "../controller/storage-controller";
 const storage = new StorageService();
+import { Picker } from "@react-native-picker/picker";
 
 export default function BachesRegistry(props: any) {
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -366,6 +367,15 @@ export default function BachesRegistry(props: any) {
      ) }
                   </View>
                 </View>
+
+              <Text style={Styles.textFormularios}>Tipo De Reporte</Text>  
+      <Picker >
+        <Picker.Item label="Bache" value="Bache" />
+        <Picker.Item label="Fuga de Agua" value="Fuga de Agua" />
+        <Picker.Item label="Fuga de Agua" value="Fuga de Agua" />
+        <Picker.Item label="Semaforo Descompuesto" value="Semaforo Descompuesto" />
+      </Picker>
+    
               
               <Input
                 style={{
@@ -425,9 +435,27 @@ export default function BachesRegistry(props: any) {
                 placeholder="Estado"
                 label="Estado"
               />
-              <Text style={Styles.textFormularios}>Descripción</Text>
-              <TextInput style={Styles.textArea} placeholder="Descripción" />
-
+              <Text style={Styles.textFormularios}>Observaciones</Text>
+              <TextInput style={Styles.textArea} placeholder="Observaciones" />
+              <Input
+                style={Styles.inputData}
+             
+                placeholder="Contribuyente"
+                label="Contribuyente"
+              />
+              
+              <Input
+                style={Styles.inputData}
+             
+                placeholder="Telefono"
+                label="Telefono"
+              />
+              <Input
+                style={Styles.inputData}
+             
+                placeholder="Correo"
+                label="Correo"
+              />
               <Carousel
                 ref={caorusel}
                 data={arrayImageEncode}
