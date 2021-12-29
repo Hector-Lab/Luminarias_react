@@ -1,5 +1,5 @@
 import React,{ useEffect, useState } from "react";
-import { View, ImageBackground } from "react-native";
+import { View, ImageBackground, SafeAreaViewBase } from "react-native";
 import { Text, Card,Icon } from 'react-native-elements'
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { iconColorBlue, SuinpacRed } from '../../Styles/Color';
@@ -63,7 +63,7 @@ export default function MenuLuminarias(props:any ){
                             />
                         </Card>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handMedidoresPress}>
+                     {/*<TouchableOpacity onPress={handMedidoresPress}>
                         <Card>
                                 <Card.Title>Medidores</Card.Title>
                                 <Icon
@@ -74,25 +74,22 @@ export default function MenuLuminarias(props:any ){
                                     color = {SuinpacRed}
                                 />
                         </Card>
-                    </TouchableOpacity>
+                        </TouchableOpacity>*/}
                     {
                         //REVIEW: Este Boton se activa cuando haya datos en guardados que no enviaron en la captura
-                        canUpload ? 
                         <TouchableOpacity>
-                            <Card>
-                                    <Card.Title>Cargar</Card.Title>
-                                    <Icon
-                                        style = {{marginLeft:15, marginRight:15}}
-                                        type = {"font-awesome-5"}
-                                        tvParallaxProperties
-                                        name ={"upload"}
-                                        size = {50}
-                                        color = {SuinpacRed}
-                                    />
-                            </Card>
-                        </TouchableOpacity>
-                        :
-                        <></>
+                        <Card>
+                                <Card.Title>Cargar</Card.Title>
+                                <Icon
+                                    style = {{marginLeft:15, marginRight:15}}
+                                    type = {"font-awesome-5"}
+                                    tvParallaxProperties
+                                    name ={"upload"}
+                                    size = {50}
+                                    color = {SuinpacRed}
+                                />
+                        </Card>
+                    </TouchableOpacity>
                     }
                 </View>
                 <View style = {[Styles.btnMenuSali]} >

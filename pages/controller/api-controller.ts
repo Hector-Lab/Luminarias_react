@@ -40,6 +40,7 @@ export async function Auth(user:string,pass:string){
 export async function CatalogoLuminarias() {
     let token = await storage.getItem("Token");
     let cliente = await storage.getItem("Cliente");
+    console.log(cliente);
     if( token != null ){
         let data = {
             Cliente : cliente
@@ -73,6 +74,23 @@ export async function GuardarLuminaria(data:any, connection: any ){
         console.log(error.message);
     }
 }
+export async function GuardarHistoriaLuminaria(data:any, connection: any) {
+    let valid = VerificarDatosLuminaria(data);
+    if(valid != "")
+    throw new Error(valid);
+    let token = await storage.getItem("Token");
+    try{
+        if(connection){//NOTE: se evia directo al api
+
+        }else{ //se envia al storage 
+            console.warn("Sin conexion");
+            return await storage.insertarHistoral(data); 
+
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
 export async function ClavesLuminarias(){
     storage.createOpenDB();
     let cliente = await storage.getItem("Cliente");
@@ -83,9 +101,10 @@ export async function ClavesLuminarias(){
         };
         let rawData = await service.obtenerLuminarias(data,String(token));
         let result = await rawData.json();
-        console.log("Datos del result: ");
-        console.log(result['result']);
-        storage.insertarClavesLuminaria(result['result']);
+        if(result['Status']){
+            console.log(result);
+            storage.insertarClavesLuminaria(result['result']);
+        }
     }catch(error){
         return verificarErrores(error);
     }
@@ -100,7 +119,12 @@ export async function ClavesMedidor() {
         };
         let rawData = await service.obtenerMedidores(data,token);
         let result = await rawData.json();
-        storage.insertClavesMedidores(result['result']);
+        if(result['Status']){
+            console.log(result);
+            storage.insertClavesMedidores(result['result']);
+        }else{
+            console.log("Sin datos que descargar");
+        }
     }catch(error){
         return verificarErrores(error);
     }
@@ -146,6 +170,12 @@ function VerificarDatosLuminaria(data:any){
    }
    if(String(data.Tipo) == ""){
        errores += "T,"
+   }
+   if(String(data.EstadoFisico) == ""){
+       errores += "E,"
+   }
+   if(data.Evidencia.length == 0){
+        errores += "EV,"
    }
    return errores;
 }

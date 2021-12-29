@@ -21,13 +21,23 @@ export default function Log(props: any) {
     const [ color, setColor ] = useState(String);
     let storage = new StorageService();
     useEffect(()=>{
+        setLoading(true);
+        console.log("No")
         storage.createOpenDB();
-        storage.createTables();
+        storage.createTables(); 
+        async function validarSesion(){
+            let valido = await storage.verificarSesion();
+            setLoading(false);
+            if(valido){
+                props.navigation.navigate("Menu");
+            }
+        }
+        validarSesion();
         //storage.borrarDatos("EstadoFisico");
         //storage.borrarDatos("TipoLuminaria");
         //storage.borrarDatos("CatalogoLuminaria");
         //storage.borrarDatos("CatalogoMedidores");
-    })
+    },[]);
     const login = async ()=>{
         setLoading(true);
        let validDatos = true;
