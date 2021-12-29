@@ -16,7 +16,6 @@ export default class Loading extends React.Component<
 }>{
     render(){
         return(
-            <View style = {styles.container}>
                 <Modal
                 style = { styles.modalContainer}
                 visible = {this.props.loading}
@@ -48,7 +47,6 @@ export default class Loading extends React.Component<
                     
                     </View>
                 </Modal>
-            </View>
         )
     };
 }

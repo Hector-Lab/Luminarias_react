@@ -9,7 +9,6 @@ import {
   Dimensions,
   Vibration,
   Alert,
-  RefreshControlComponent,
 } from "react-native";
 import { Text, Button, Icon, Card, ListItem } from "react-native-elements";
 import { FlatList } from 'react-native';
@@ -21,27 +20,49 @@ import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Camera } from "expo-camera";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
 import { StorageService } from '../../controller/storage-controller';
-import { List, Searchbar } from 'react-native-paper';
-import { Item } from "react-native-paper/lib/typescript/components/List/List";
+import { Searchbar } from 'react-native-paper';
+import Loading from '../../components/modal-loading';
+import Message from '../../components/modal-message';
+import { checkConnection, CordenadasActuales } from '../../../utilities/utilities';
+import { GuardarHistoriaLuminaria } from '../../controller/api-controller';
 
 export default function LuminariasEstados(props: any) {
-  const [previewVisible, setPreviewVisible] = useState(false);
+  const [showBox, setShowBox] = useState(true);
+  const [visibleList, setvisibleList ] = useState(true);
+  const [ coords, setCoords ] = useState(null);
+  //NOTE: Manejadores de modal
+  const [ showModalMessage, setShowModalMessage ] = useState(false); 
+  const [ modalMessage, setModalMessage ] = useState("");
+  const [ modalTittle, setModalTittle ] = useState("");
+  const [ icon, setIcon ] = useState("info");
+  const [iconColor, setIconColor] = useState(""); 
+  const [ iconSource,setIconSource ] = useState("fontawesome");
+  //NOTE: manejadores de loading 
+  const [loading, setLoading ] =  useState(false);
+  const [serchKey, setSerchKey ] =  useState(String);
+  //NOTE: Manejadores de la camara e imagenes
   const [cameraPermissions, setCameraPermision] = useState(false);
-  const [arrayImageLinks, setArrayImageLinks] = useState([]);
   const [arrayImageEncode, setArrayImageEncode] = useState([]);
   const [flashOn, setFlashOn] = useState(false);
   const [onCamera, setOnCamera] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [showBox, setShowBox] = useState(true);
-  const [ clavesLuminaria , setClaveLuminarias ] = useState([]);
-  const [ catalogoEstadoFisico, setCatalodoEstadoFisico ] = useState([]);
-  const [ selectEstadoFisico , setSelectEstadoFisico ] = useState(String);
-  const [serchKey, setSerchKey ] =  useState();
-  const [visibleList, setvisibleList ] = useState(true);
   const caorusel = React.useRef(null);
   const SLIDER_WIDTH = Dimensions.get("window").width;
   const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.8);
   const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
+  //NOTE: Catalogos
+  const [ clavesLuminaria , setClaveLuminarias ] = useState([]);
+  const [ catalogoEstadoFisico, setCatalodoEstadoFisico ] = useState([]);
+  const [ catalogoLuminarias, setCatalogoLuminarias ] = useState([]);
+  //NOTE: Manejadores de interfaz
+  const [ claveLuminaria, setClaveLuminaria ] = useState(String);
+  const [ clasificacionLumianria, setClasificacionLuminaria ] = useState(String);
+  const [ voltajeLuminaria, setVoltajeLuminaria ] = useState(String);
+  const [ selectEstadoFisico , setSelectEstadoFisico ] = useState(String);
+  const [ selectTipoLuminaria, setTipoLuminaria ] = useState(String);
+  const [ contrato, setContrato ] = useState(String);
+  const [ padron, setPadron ] = useState(String);
+  const date =  Date.now();
   let storage = new StorageService();
   let camera: Camera;
 
@@ -50,8 +71,9 @@ export default function LuminariasEstados(props: any) {
       let { status } = await Camera.requestCameraPermissionsAsync();
       setCameraPermision(status === "granted");
       let estados = await storage.leerEstadoFisco();
-      let arrayEstado = JSON.parse(String(estados));
-      setCatalodoEstadoFisico(arrayEstado);
+      let tipoLuminaria = await storage.leerLuminarias();
+      setCatalogoLuminarias(JSON.parse(String(tipoLuminaria)));
+      setCatalodoEstadoFisico(JSON.parse(String(estados)));
     })();
   },[]);
 
@@ -83,21 +105,6 @@ export default function LuminariasEstados(props: any) {
     ]);
   };
 
-  const estados = [
-    {
-      id: "4",
-      lavel: "Bueno",
-    },
-    {
-      id: "6",
-      lavel: "Regular",
-    },
-    {
-      id: "8",
-      lavel: "malo",
-    },
-  ];
-
   const validarNumeroDeFotos = () => {
     //    console.log(arrayImageEncode.length);
     if (arrayImageEncode.length < 3) {
@@ -120,6 +127,7 @@ export default function LuminariasEstados(props: any) {
         photo.uri;
         setArrayImageEncode((arrayImageEncode) => [...arrayImageEncode, photo]);
         setOnCamera(false);
+        setCoords(await CordenadasActuales());
       } else {
         let { status } = await Camera.requestCameraPermissionsAsync();
         setCameraPermision(status === "granted");
@@ -171,7 +179,84 @@ export default function LuminariasEstados(props: any) {
   }
   const serchLuminarias = async () =>{
     let serchData = await storage.buscarLuminariaClave(serchKey);
+    if(String(serchData) == "[]"){
+      console.log("Esta Vacio");
+      setModalMessage("Sin Resultados");
+      setIconColor("#ffd54f");
+      setIcon("info");
+      setModalTittle("Mensaje");
+      setIconSource("");
+      setShowModalMessage(true);
+    }
     setClaveLuminarias(JSON.parse(String(serchData)));
+    setLoading(false);
+  }
+  const luminariaSeleccionada = (luminaria: any) =>{
+    //NOTE: insertamos los datos en la interfaz
+    console.log(JSON.stringify(luminaria));
+    if(luminaria != null){
+      setClaveLuminaria(luminaria.ClaveLuminaria);
+      setClasificacionLuminaria(luminaria.Clasificacion);
+      setVoltajeLuminaria(luminaria.setVoltajeLuminaria);
+      setTipoLuminaria(luminaria.id);
+      setvisibleList(false);
+      setContrato(luminaria.Contrato == "Sin Contraro" ? null : luminaria.Contrato);
+      setPadron(luminaria.Padron);
+    }
+  }
+  const guardarHistoriaLuminaria = async () => {
+    let online = await checkConnection();
+    let evidencia = new Array();
+    if(online){
+      //NOTE: se manda a la API
+      arrayImageEncode.map((item,index)=>{
+        evidencia.push(item.base64);
+      })
+    }else{
+      //NOTE: se manda a local uri
+      arrayImageEncode.map((item,index)=>{
+        evidencia.push(item.uri);
+      });
+    }
+    /**
+     * create table if not exists Luminaria
+                                (id integer primary key NOT NULL,
+                                    Clave varchar,
+                                    Ubicacion varchar, 
+                                    Cliente integer,
+                                    Tipo varchar,
+                                    Latitud varchar,
+                                    Longitud varchar,
+                                    FechaTupla varchar,
+                                    ContratoVigente varchar
+                                    );
+     */
+      let data = {
+        Contrato: contrato,
+        Clave: claveLuminaria,
+        Municipio: "12038" /* Datos de prueba */ ,
+        Localidad: "2" /* Datos de prueba */,
+        Cliente: await storage.getItem("Cliente"),
+        Latitud: coords.latitude,
+        Longitud: coords.longitude,
+        Voltaje : voltajeLuminaria,
+        Calsificacion: clasificacionLumianria,
+        Tipo: selectTipoLuminaria,
+        Fecha: date.toLocaleString(),
+        Usuario: await storage.getItem("User"),
+        LecturaActual:"0",
+        LecturaAnterior:'0',
+        Consumo: '0',
+        Estado: selectEstadoFisico,
+        Evidencia: !online ? JSON.stringify(evidencia) : evidencia,
+        TipoPadron: "1",
+        Ubicacion: "Sin ubicacion",
+        Observacion:"",
+        Padron: padron
+    }
+    //VErificamos y enviamos los datos}
+    await GuardarHistoriaLuminaria(data,false);
+
   }
   return (
     <View style={Styles.TabContainer}>
@@ -275,34 +360,52 @@ export default function LuminariasEstados(props: any) {
                   value = {serchKey}
                   onChangeText = {onChangeSearch}
                   placeholder="Clave Padrón"
-                  onSubmitEditing = {serchLuminarias}
+                  onSubmitEditing = {()=>{ setLoading(true);  serchLuminarias(); }}
                 />
                 <Text></Text>
-                <FlatList 
-                  style = {{ borderWidth : 1, borderRadius :10,borderColor:iconColorBlue}}
-                  data = { clavesLuminaria }
-                  renderItem = {({item})=>(
-                    <TouchableOpacity style = {{margin:10}} >
-                    <ListItem tvParallaxProperties hasTVPreferredFocus bottomDivider  style = {{padding: 2 }}>
-                      <ListItem.Content>
-                        <ListItem.Title > {`Clave: ${item.ClaveLuminaria} - ${ item.Contrato == "" ? "Sin contrato":`Contrato:  ${item.Contrato}` }`} </ListItem.Title>
-                        <ListItem.Subtitle>{ `Tipo: ${item.Tipo} - Clasificación: ${item.Clasificacion}`  }</ListItem.Subtitle>
-                      </ListItem.Content>
-                    </ListItem>
-                    </TouchableOpacity>
-                  )}
-                  
-                />
+                <View style = {{flex :1 , backgroundColor:'white',borderRadius: 10}}>
+                  <FlatList 
+                    style = {{borderRadius :10,borderColor:iconColorBlue}}
+                    data = { clavesLuminaria }
+                    renderItem = {({item})=>(
+                      <TouchableOpacity style = {{margin:5}} onPress = {()=>{luminariaSeleccionada(item)}} >
+                      <ListItem tvParallaxProperties hasTVPreferredFocus bottomDivider>
+                      <Icon
+                                type = {"font-awesome-5"}
+                                tvParallaxProperties
+                                name ={"lightbulb"}
+                                size = {30}
+                                color = {SuinpacRed}
+                            />
+                        <ListItem.Content>
+                          <ListItem.Title > {`Clave: ${item.ClaveLuminaria} - ${ item.Contrato == "" ? "Sin contrato":`Contrato:  ${item.Contrato}` }`} </ListItem.Title>
+                          <ListItem.Subtitle>{ `Tipo: ${item.Tipo} - Clasificación: ${item.Clasificacion}`  }</ListItem.Subtitle>
+                        </ListItem.Content>
+                      </ListItem>
+                      </TouchableOpacity>
+                    )}/>
+                </View>
             </View>) : (<>
                   <KeyboardAvoidingView>
                   <ScrollView>
-                  <Input placeholder="Lectura Anterior" label="Lectura Anterior" />
-                  <Input placeholder="Lectura Actual" label="Lectura Actual" />
-                  <Input placeholder="Consumo" label="Consumo" />
-
+                  <Input placeholder="Clave de identificación" label="Clave" value = {claveLuminaria} onChangeText = {text => {setClaveLuminaria(text)}} />
+                  <Input placeholder="Ejemplo: L.E.D" label="Clasificación" value = {clasificacionLumianria} onChangeText={ text => {setClasificacionLuminaria(text)}} />
+                  <Input placeholder="Ejemplo: 20" label="Voltaje" value = {voltajeLuminaria} onChangeText={ text => {setVoltajeLuminaria(text)}} />
+                  <Text style = {Styles.textFormularios}> Tipo </Text>
+                  <Picker selectedValue = {selectTipoLuminaria} onValueChange = {(itemValue, itemIndex)=>{setTipoLuminaria(itemValue)}} >
+                    {
+                      catalogoLuminarias == null ? 
+                      <Picker.Item label = {"Cargando.."} value = {-1} key = {"-1"} ></Picker.Item> : 
+                      catalogoLuminarias.map((item)=>{
+                        return <Picker.Item label = {item.Descripcion} value = {item.clave} key = {String(item.clave)} ></Picker.Item>
+                      })
+                    }
+                  </Picker>
                   <Text style={Styles.textFormularios}>Estado</Text>
 
-                  <Picker onValueChange = {(itemValue, itemIndex)=>{setSelectEstadoFisico(String(itemValue))}} >
+                  <Picker 
+                  selectedValue = {selectEstadoFisico}
+                  onValueChange = {(itemValue, itemIndex)=>{setSelectEstadoFisico(String(itemValue))}} >
                       {
                           catalogoEstadoFisico == null ?
                           <Picker.Item label = {"Cargando.."} value = {-1} key = {"-1"} ></Picker.Item> :
@@ -344,7 +447,7 @@ export default function LuminariasEstados(props: any) {
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={Styles.btnButton} onPress={() => {}}>
+                  <TouchableOpacity style={Styles.btnButton} onPress={guardarHistoriaLuminaria}>
                     <Text style = {Styles.btnTexto} >
                       <Icon
                         color = {"white"}
@@ -362,6 +465,26 @@ export default function LuminariasEstados(props: any) {
           }
         </View>
       )}
+      <Loading
+      transparent = {true}
+      tittle = {"Mensaje"}
+      loadinColor = {SuinpacRed}
+      onCancelLoad = { ()=>{}}
+      message = {"Buscando..."}
+      loading = {loading}
+      />
+      <Message 
+      loading = {showModalMessage}
+      loadinColor = {iconColor}
+      onCancelLoad = {()=>{setShowModalMessage(false)}}
+      buttonText = {"Aceptar"}
+      transparent = {true}
+      tittle = {modalTittle}
+      message = {modalMessage}
+      icon = { icon }
+      iconsource = {iconSource}
+      color = {iconColor}
+      />
     </View>
   );
 }

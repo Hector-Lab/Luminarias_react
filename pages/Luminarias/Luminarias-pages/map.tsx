@@ -4,11 +4,11 @@ import Styles from "../../../Styles/styles";
 import MyLocation from '../../components/map-request';
 import  * as Location from 'expo-location';
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { PermissionResponse } from "expo-camera";
 export default function CustomMap(props:any){
     const [enableLocation, setLocationEnable ] = useState(false);
     const [location,setLocation] = useState(null);
     const [region,setRegion] = useState(null);
+
     const image = require("../../../resources/suinpac.png");
     useEffect(() => {
         (async () => {
@@ -48,7 +48,6 @@ export default function CustomMap(props:any){
                 </View>
             }
             </ImageBackground>
-            
         </View>
     );
 }

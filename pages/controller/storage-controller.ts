@@ -1,9 +1,5 @@
 import * as SQLite from "expo-sqlite";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CommonActions } from "@react-navigation/native";
-import { registerCustomIconType } from "react-native-elements";
-import { RecyclerViewBackedScrollView, RefreshControlComponent } from "react-native";
-import { resolveUri } from "expo-asset/build/AssetSources";
 let db: SQLite.WebSQLDatabase;
 const root = "@Storage:";
 export class StorageService{
@@ -108,6 +104,7 @@ export class StorageService{
     }
     insertarCatalogos( EstadoFisico: [], Luminaria: [] ){
         //NOTE: Insercion de catalogo estado fisico
+        db = SQLite.openDatabase("data.db");
         db.transaction((command)=>{
             EstadoFisico.map((item: { id:string,Descripci_on:string }, index:Number)=>{
                 command.executeSql("INSERT INTO EstadoFisico (id,clave,Descripcion) VALUES (NULL,?,?)",[item.id,item.Descripci_on]);
@@ -175,6 +172,7 @@ export class StorageService{
         })
     }
     insertarLuminaria(data:any){
+        db = SQLite.openDatabase("data.db");
         return new Promise((resolve,reject)=>{
             let fecha = new Date();
             db.transaction((command)=>{
@@ -194,6 +192,7 @@ export class StorageService{
         });
     }
     async insertarHistoriaLuminaria(data:any){
+        db = SQLite.openDatabase("data.db");
         let usuarios = await this.getItem('User');
         return new Promise((resolve,reject)=>{
            let fecha = new Date();
@@ -215,6 +214,7 @@ export class StorageService{
         })
     }
     verificarDatos(table:string){
+        db = SQLite.openDatabase("data.db");
         return new Promise((resolve,reject)=>{
             db.transaction((commad)=>{
                 commad.executeSql("SELECT COUNT(id) FROM Luminaria",[],(_,{rows})=>{resolve(rows._array)});
@@ -229,6 +229,7 @@ export class StorageService{
         });
     }
     insertarClavesLuminaria(Luminaria:[]){
+        db = SQLite.openDatabase("data.db");
         db.transaction((commad)=>{
             Luminaria.map((item:{ClaveLuminaria:string,Contrato:string,Padron:string,Tipo:string,clasificacion:string,id_Tipo:string},value)=>{
                 commad.executeSql("INSERT INTO CatalogoLuminaria (id,ClaveLuminaria,Contrato,Padron,Tipo,Clasificacion,id_Tipo) VALUES (NULL,?,?,?,?,?,?)",
@@ -237,6 +238,7 @@ export class StorageService{
         },(error)=>{console.log(error.message)},()=>{console.log("Catalogo insertado")});
     }
     insertClavesMedidores(Medidor:[]){
+        db = SQLite.openDatabase("data.db");
         db.transaction((commad)=>{
             Medidor.map((item:{ClaveLuminaria:string,Contrato:string,LecturaActual:string,Padron:string},index)=>{
                 commad.executeSql("INSERT INTO CatalogoMedidores (id,ClaveLuminaria,Contrato,LecturaActual,Padron) VALUES (null,?,?,?,?)",
@@ -275,6 +277,28 @@ export class StorageService{
             },(error)=>{reject(`Mensaje de error: ${error.message}`)});
         });
     }
+    async insertarHistoral(data: any){
+        db = SQLite.openDatabase("data.db");
+        let usuarios = await this.getItem('User');
+        return new Promise((resolve,reject)=>{
+            let fecha = new Date();
+            db.transaction((command)=>{
+                command.executeSql(`INSERT INTO HistorialLuminaria (id,Padron,Estado,Voltaje,Calsificacion,Tipo,Observacion,Evidencia,Fecha,Usuario) VALUES 
+                (NULL,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?)`,
+                    [data.Padron,String(data.Estado),String(data.Voltaje),String(data.Calsificacion),data.Tipo,data.Observacion,data.Evidencia,String(fecha.toLocaleDateString()),usuarios],
+                    ()=>{resolve(true)})
+            },(error)=>{ reject(error.message)})
+        });
+    }
     //NOTE: metodos para guardar datos basicos de ,
     public async setUser(user:string, name:string, token: string,cliente:string ){
         await AsyncStorage.setItem(root+"User",user);
@@ -310,6 +334,11 @@ export class StorageService{
                 commad.executeSql("DELETE FROM " + tableName,[],(_,{rowsAffected})=>{ resolve(`Datos de la tabla ${tableName} eliminados:  ${rowsAffected}`)});
             },(error)=>{reject(`Error al eliminar los datos de la tabla ${tableName}:  ${error.message}`)});
         })
+    }
+    public async verificarSesion(){
+        let token = await AsyncStorage.getItem(root+"Token");
+        let user = await AsyncStorage.getItem(root+"User");
+        return (token != null && user != null)
     }
 }
 
