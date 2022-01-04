@@ -5,14 +5,13 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import BachesRegistry from './Baches';
 import CustomMapBaches from './map';
 import BachesList from './ListaBaches';
-
 import { iconColorBlue, SuinpacRed } from "../../Styles/Color";
+import { BlueColor, cardColor, PrimaryColor } from '../../Styles/BachesColor';
 export default function BachesHome(props:any ){
     const Tabs = createBottomTabNavigator();
     return (
         <NavigationContainer independent = {true}>
             <Tabs.Navigator
-            
                 screenOptions = {({route})=>({
                     tabBarIcon:({ focused, color, size }) =>{
                         let iconName;
@@ -23,19 +22,20 @@ export default function BachesHome(props:any ){
                             : 'home';
                         } else if (route.name === 'Luminaria') {
                           iconName = focused ? 'bulb' : 'bulb';
-                        }if (route.name === 'Historial') {
+                        }if (route.name === 'Reportar') {
                             iconName = focused ? 'list' : 'list';
                           }
                         return <Ionicons name={iconName} size={size} color={color} />;
                     }
                 })}
                 tabBarOptions={{
-                    activeTintColor: SuinpacRed,
-                    inactiveTintColor: iconColorBlue,
+                    activeTintColor: "#f8bb68",
+                    inactiveTintColor: cardColor,
+                    tabStyle: {backgroundColor:PrimaryColor}
                   }}
             >
                 <Tabs.Screen name="Home" component={CustomMapBaches} />
-                <Tabs.Screen name="Historial" component={BachesList}/>
+                <Tabs.Screen name="Reportar" component={BachesList}/>
                 <Tabs.Screen name="Luminaria" component={BachesRegistry}/>
                 
             </Tabs.Navigator>

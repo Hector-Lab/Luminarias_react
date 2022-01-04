@@ -19,20 +19,27 @@ export default function Log(props: any) {
     const [tittle,setTittle] = useState(String);
     const [ iconMessega, setIconMessega] = useState("info");
     const [ color, setColor ] = useState(String);
+    const [aplicacion,setAplicacion] = useState("Baches");
+
     let storage = new StorageService();
     useEffect(()=>{
         setLoading(true);
-        console.log("No")
-        storage.createOpenDB();
-        storage.createTables(); 
-        async function validarSesion(){
-            let valido = await storage.verificarSesion();
+        if(aplicacion == "Baches"){
             setLoading(false);
-            if(valido){
-                props.navigation.navigate("Menu");
+            props.navigation.navigate("Reportes");
+        }else{
+            console.log("No")
+            storage.createOpenDB();
+            storage.createTables(); 
+            async function validarSesion(){
+                let valido = await storage.verificarSesion();
+                setLoading(false);
+                if(valido){
+                    props.navigation.navigate("Menu");
+                }
             }
+            validarSesion();
         }
-        validarSesion();
         //storage.borrarDatos("EstadoFisico");
         //storage.borrarDatos("TipoLuminaria");
         //storage.borrarDatos("CatalogoLuminaria");
