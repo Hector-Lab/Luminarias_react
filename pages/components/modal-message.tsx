@@ -3,7 +3,6 @@ import React,{Component} from 'react';
 import { View, StyleSheet,Text, Modal, TouchableOpacity} from 'react-native';
 import { Icon } from 'react-native-elements'
 import { Card} from 'react-native-elements'
-import { Button } from 'react-native-elements/dist/buttons/Button';
 
 export default class Message extends React.Component<
 {   
@@ -34,13 +33,13 @@ export default class Message extends React.Component<
                                 {this.props.tittle}
                             </Card.Title>
                             <Card.Divider/>
-                            <Icon
-                            tvParallaxProperties
-                                type = {this.props.iconsource}
-                                name = {this.props.icon}
-                                color = {this.props.loadinColor}
-                                size = {50}
-                            />
+                                <Icon
+                                tvParallaxProperties
+                                    type = {this.props.iconsource}
+                                    name = {this.props.icon}
+                                    color = {this.props.loadinColor}
+                                    size = {50}
+                                />
                             <View style = {styles.mensajeConteiner}>
                             <Text >{this.props.message}</Text>
                             </View>

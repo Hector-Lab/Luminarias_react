@@ -1,152 +1,88 @@
-import { KeyboardAvoidingView, Platform, TouchableOpacity, View, ScrollView} from "react-native";
-import { Text, Input} from "react-native-elements";
 import React, { useEffect, useState } from "react";
-import { StatusBar } from "expo-status-bar";
-import Styles from "../Styles/styles";
-import { Avatar } from "react-native-elements/dist/avatar/Avatar";
-import { Auth, CatalogoLuminarias, ClavesLuminarias, ClavesMedidor } from './controller/api-controller';
-import Loading from './components/modal-loading';
-import Message from './components/modal-message';
-import { BackgrounBlue, iconColorBlue, SuinpacRed } from "../Styles/Color";
-import { StorageService } from './controller/storage-controller';
+import { View, TouchableOpacity, Text, ImageBackground } from  'react-native';
+import { Card, Icon } from 'react-native-elements';
+import { BlueColor, DarkPrimaryColor } from "../Styles/BachesColor";
+import { ALERTMENU, ENGINNERMENU, PERSONPINMENU, SETTINGMENU } from '../Styles/Iconos';
+
+
 export default function Log(props: any) {
-    const [user,setUser] = useState(String);
-    const [password,setPassword] = useState(String);
-    const [loading,setLoading] = useState(false);
-    //NOTE: manejador del modal de avisos
-    const [showMessage, setShowMessage] = useState(false);
-    const [message,setMessage] = useState(String);
-    const [tittle,setTittle] = useState(String);
-    const [ iconMessega, setIconMessega] = useState("info");
-    const [ color, setColor ] = useState(String);
-    const [aplicacion,setAplicacion] = useState("Baches");
-
-    let storage = new StorageService();
-    useEffect(()=>{
-        setLoading(true);
-        if(aplicacion == "Baches"){
-            setLoading(false);
-            props.navigation.navigate("Reportes");
-        }else{
-            console.log("No")
-            storage.createOpenDB();
-            storage.createTables(); 
-            async function validarSesion(){
-                let valido = await storage.verificarSesion();
-                setLoading(false);
-                if(valido){
-                    props.navigation.navigate("Menu");
-                }
-            }
-            validarSesion();
-        }
-        //storage.borrarDatos("EstadoFisico");
-        //storage.borrarDatos("TipoLuminaria");
-        //storage.borrarDatos("CatalogoLuminaria");
-        //storage.borrarDatos("CatalogoMedidores");
-    },[]);
-    const login = async ()=>{
-        setLoading(true);
-       let validDatos = true;
-       if(user == "" || password == ""){
-            validDatos = false;
-            setLoading(false);
-            setMessage("Favor de ingresar sus credenciales");
-            setColor(BackgrounBlue);
-            setIconMessega("info");
-            setTittle("Mensaje");
-       }
-        setShowMessage(!validDatos);
-        if(validDatos){
-            await Auth(user,password)
-            .then( async (result)=>{
-                if(result == 0){ 
-                    await CatalogoLuminarias();
-                    await ClavesLuminarias();
-                    await ClavesMedidor();
-                    setLoading(false);
-                    props.navigation.navigate("Menu");
-                }else if(result = 1){
-                    //NOTE: al menu de baches
-                    setLoading(false);
-                    props.navigation.navigate("Reportes");
-                }else{
-                    setColor(iconColorBlue);
-                    setMessage("No se encontro el usuario");
-                    setIconMessega("user-x");
-                    setTittle("Mensaje");
-                    setLoading(false);
-                }
-            })
-            .catch((error)=>{
-                setLoading(false);
-                let message = error.message+"";
-                setShowMessage(true);
-                setColor(SuinpacRed);
-                setMessage(message);
-                setIconMessega(message.includes("Usuario o Contraseña Incorrectos") ? "user-x" : "wifi-off");
-                setTittle("Mensaje");
-                //NOTE: manejo de errores
-            })
-        }
+    const imagenRequiered = require("../resources/logo.png");
+    const AplicacionReportes = () => {
+        props.navigation.navigate("Reportes");
     }
-    return (    
-        <KeyboardAvoidingView
-        style={Styles.container}
-         >
-            <ScrollView>
-            <View style={Styles.container}>
-            <StatusBar style="auto" />
-            <View style={Styles.avatarView}>
-                <View style={Styles.avatarElement}>
-                    <Avatar 
-                        rounded
-                        size = "xlarge"
-                        containerStyle = {{height:100,width:200}}
-                        source = {require("../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
-                    />
+    const AplicacionLuminaria = () =>{
+        props.navigation.navigate("Menu");
+    }
+    return(
+        <View style = {{flex:1, marginLeft:20,marginRight:20}} >
+            <ImageBackground   
+                source={imagenRequiered} 
+                resizeMode = "contain" 
+                style = {{justifyContent:"center",flex:1}}
+                imageStyle = {{opacity:.1}} >
+                <View style = {{flex:1, justifyContent:"center" , alignItems:"center"}} > 
+                    <Text style = {{color: BlueColor, fontSize:32 }} >
+                        Atención Ciudadana
+                    </Text>
                 </View>
-            </View>
-            <View style = {Styles.inputButtons} >
-
-                <Input 
-                    autoCompleteType = {"username"}
-                    placeholder = "Nombre de usuario"
-                    onChangeText = {text => (setUser(text))}
-                    leftIcon = {{type:'font-awesome', name: 'user'}}
-                />
-                <Input 
-                    secureTextEntry = {true} 
-                    autoCompleteType = {"password"}
-                    placeholder = "Contraseña"
-                    onChangeText = {pass =>(setPassword(pass))}
-                    leftIcon = {{type:'font-awesome', name: 'lock'}}/>
-                <TouchableOpacity style={Styles.btnButton} onPress={login}>
-                    <Text style = {Styles.btnTexto} >Acceder</Text>
-                </TouchableOpacity>
-            </View>
+                <View style = {{flex:7 }} >
+                    <View style = {{flex:1, flexDirection:"column", justifyContent:"center",alignItems:"center"}} >
+                        <View style = {{flex:1,flexDirection:"row",  justifyContent:"center", alignItems:"center"}} >
+                            <TouchableOpacity
+                                onPress={ AplicacionReportes }
+                            >
+                                <Card>
+                                    <Icon 
+                                        color = {DarkPrimaryColor}
+                                        name = { ENGINNERMENU[0] } 
+                                        type = {ENGINNERMENU[1]} 
+                                        size = {100}
+                                        tvParallaxProperties></Icon>
+                                </Card>
+                            </TouchableOpacity>
+                            <TouchableOpacity>
+                                <Card>
+                                    <Icon 
+                                        color = {"#f38b1e"}
+                                        name = { ALERTMENU[0] } 
+                                        type = {ALERTMENU[1]} 
+                                        size = {100}
+                                        tvParallaxProperties></Icon>
+                                </Card>
+                            </TouchableOpacity>
+                        </View>
+                        <View style = {{flex:1,flexDirection:"row",  justifyContent:"center", alignItems:"center"}} >
+                            <TouchableOpacity>
+                                <Card>
+                                    <Icon 
+                                    color = {"#4c2eb4"}
+                                        name = { PERSONPINMENU[0] } 
+                                        type = {PERSONPINMENU[1]} 
+                                        size = {100}
+                                        tvParallaxProperties></Icon>
+                                </Card>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={ AplicacionLuminaria }
+                            >
+                                <Card>
+                                    <Icon 
+                                        color = {"#9e9e9e"}
+                                        name = { SETTINGMENU[0] } 
+                                        type = {SETTINGMENU[1]} 
+                                        size = {100}
+                                        tvParallaxProperties></Icon>
+                                </Card>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+                <View style = {{flex:1,  justifyContent:"center", alignItems:"center"}} >
+                    <Text style = {{color: DarkPrimaryColor}} >
+                        Suinpac
+                    </Text>
+                </View>
+            </ImageBackground>
         </View>
-            </ScrollView>
-            <Loading 
-                transparent = {true}
-                loading = {loading}
-                loadinColor = {"#0000ff"}
-                onCancelLoad = {()=>{}}
-                message = {""}
-                tittle = {""}
-            />
-         <Message
-            transparent = {true}
-            loading = {showMessage}
-            onCancelLoad = {()=>{ setShowMessage(false) }}
-            color = {color}
-            icon = {iconMessega}
-            iconsource = "feather"
-            loadinColor = {SuinpacRed}
-            message = {message}
-            tittle = {tittle}
-            buttonText = {"Aceptar"}
-         />
-        </KeyboardAvoidingView>
-      );
+    );
 }

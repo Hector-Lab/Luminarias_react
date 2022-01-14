@@ -1,124 +1,40 @@
 import React,{ useEffect, useState } from "react";
-import { View, ImageBackground, SafeAreaViewBase } from "react-native";
-import { Text, Card,Icon } from 'react-native-elements'
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { iconColorBlue, SuinpacRed } from '../../Styles/Color';
+import { View, ImageBackground, TouchableOpacity, Text} from "react-native";
 import Styles from "../../Styles/styles";
-import { StorageService } from '../controller/storage-controller';
-import ModalMessage from '../components/modal-message';
-import { color } from "react-native-elements/dist/helpers";
+import { Avatar, Input, Button } from 'react-native-elements';
+import { DarkPrimaryColor } from "../../Styles/BachesColor";
+
 
 export default function MenuLuminarias(props:any ){
-    const image = require("../../resources/suinpac.png");
-    const [message,setMessage] = useState(String);
-    const [icon, setIcon] = useState(String);
-    const [iconColor, setIconColor ] = useState(String);
-    const [headerMessage, setHeaderMessage] = useState(String);
-    const [showMessage, setShowMessage] = useState(false);
-    let storage = new StorageService();    
-    const [canUpload,setCantUpload] = useState(false);
-    useEffect(()=>{
-            async function fetchData (){
-                let result = await storageService();
-                if(result[0]['COUNT(id)'] >= 1){
-                    console.log(result[0]['COUNT(id)']);
-                    setShowMessage(true);
-                    setMessage("Existen registros guardados en el dispositivo");
-                    setIcon("info");
-                    setIconColor(iconColorBlue);
-                    setHeaderMessage("Mensaje");
-                    setCantUpload(true);
-                }
-            }
-            fetchData();
-    },[]);
-    
-    const handleLuminariaPress = ()=>{
+    const LoginBaches = () =>{
         props.navigation.navigate("Luminarias");
-    }
-    const handleLogount = async () =>{
-        let borrado = await storage.clearUser();
-        console.log(`Datos Eliminados : ${borrado}`);
-        props.navigation.pop();
-    }
-    const handMedidoresPress = ()=>{
-        props.navigation.navigate("Medidores");
-    }
-    const storageService =  async() => {
-        return await storage.verificarDatos("Luminarias");
     }
     return(
         <View style = {[Styles.container]}>
-            <ImageBackground source={image} resizeMode="center" style = {Styles.backgroundimage} imageStyle = {{opacity:.06}} >
-                <View style = {[Styles.MenuLuminaria]} >
-                    <TouchableOpacity onPress = {handleLuminariaPress}>
-                        <Card>
-                            <Card.Title> Luminarias</Card.Title>
-                            <Icon
-                                type = {"font-awesome-5"}
-                                tvParallaxProperties
-                                name ={"lightbulb"}
-                                size = {50}
-                                color = {SuinpacRed}
+            <View style = {{flex:1, borderWidth:2,  borderColor:"res", justifyContent:"center"}}>
+                <View style = {{flex:3, borderColor:"green", borderWidth:2}} >
+                    <View style={[Styles.avatarView,{flex:3}]}>
+                        <View style={Styles.avatarElement}>
+                            <Avatar  //FIXME:  se pude cambiar el logo del cliente
+                                rounded
+                                size = "xlarge"
+                                containerStyle = {{height:100,width:200}}
+                                source = {require("../../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
                             />
-                        </Card>
-                    </TouchableOpacity>
-                     {/*<TouchableOpacity onPress={handMedidoresPress}>
-                        <Card>
-                                <Card.Title>Medidores</Card.Title>
-                                <Icon
-                                    type = {"font-awesome-5"}
-                                    tvParallaxProperties
-                                    name ={"tachometer-alt"}
-                                    size = {50}
-                                    color = {SuinpacRed}
-                                />
-                        </Card>
-                        </TouchableOpacity>*/}
-                    {
-                        //REVIEW: Este Boton se activa cuando haya datos en guardados que no enviaron en la captura
-                        <TouchableOpacity>
-                        <Card>
-                                <Card.Title>Cargar</Card.Title>
-                                <Icon
-                                    style = {{marginLeft:15, marginRight:15}}
-                                    type = {"font-awesome-5"}
-                                    tvParallaxProperties
-                                    name ={"upload"}
-                                    size = {50}
-                                    color = {SuinpacRed}
-                                />
-                        </Card>
-                    </TouchableOpacity>
-                    }
+                        </View>
+                    </View>
                 </View>
-                <View style = {[Styles.btnMenuSali]} >
-                <TouchableOpacity onPress = {handleLogount}>
-                        <Card  >
-                            <Card.Title> Salir</Card.Title>
-                            <Icon
-                                style = {{marginLeft:15, marginRight:15}}
-                                tvParallaxProperties
-                                name ={"logout"}
-                                size = {50}
-                                color = {SuinpacRed}
-                            />
-                        </Card>
+                <View style = {{ flex:5, flexDirection:"column" , borderColor:"cyan", borderWidth:2, padding:10 }} >
+                    <Input placeholder = "Usuario" autoCompleteType = {undefined} style = {Styles.inputBachees} />
+                    <Input placeholder = "Contraseña" autoCompleteType = {undefined} style = {Styles.inputBachees} />
+                    <TouchableOpacity style = {Styles.btnButtonSuccess} onPress={ LoginBaches } >
+                        <Text style = {{color:"white", fontWeight:"bold"}} > {`Iniciar Sesión`} </Text>
                     </TouchableOpacity>
                 </View>
-                <ModalMessage
-                    transparent = {true}
-                    loading = {showMessage}
-                    message = { message }
-                    tittle = {headerMessage}
-                    color = {color}
-                    icon = {icon}
-                    iconsource = { ""}
-                    loadinColor = {iconColor}
-                    buttonText = {"Aceptar"}
-                    onCancelLoad = {()=>{setShowMessage(false)}}
-                />
-            </ImageBackground>
+                <View style = {{flex:2,borderColor:"pink", borderWidth:2, flexDirection:"column-reverse"}} >  
+                    <Text style = {{textAlign:"center", marginBottom:20, color: DarkPrimaryColor, fontWeight:"bold", fontSize:16 }} > {`Suinpac`} </Text>
+                </View>
+            </View> 
         </View>
     );
 }

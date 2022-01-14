@@ -27,20 +27,13 @@ export default class Loading extends React.Component<
                     <View style = {styles.modalBodyConteiner}>
                         <Card containerStyle = {styles.cardConteiner} >
                             <Card.Title>
-                                {this.props.tittle == "" ? "Verificando Credenciales" : this.props.tittle == ""}
+                                {this.props.tittle == "" ? "Verificando Credenciales" : this.props.tittle}
                             </Card.Title>
                             <Card.Divider/>
                             <ActivityIndicator size = "large" color = "#B20115" />
                             <View style = {styles.mensajeConteiner}>
                                 <Text >Cargando...</Text>
                             </View>
-                            <TouchableOpacity 
-                                style={styles.btnButton}
-                                onPress = {this.props.onCancelLoad}
-                            >
-                                <Text style = {{color: "white"}}  >Cancelar</Text>
-                            </TouchableOpacity>
-                            
                         </Card>
                     </View>
                     <View style = {styles.modalFooterConainer}>

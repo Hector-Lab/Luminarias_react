@@ -4,6 +4,7 @@ import { buttonSuccess,cardColor,BlueColor, DarkPrimaryColor } from './BachesCol
 const Styles = StyleSheet.create({
     inputs: {
         marginTop: 10,
+        backgroundColor:cardColor+45
       },
       TabContainer: {
         flex: 1,
@@ -21,14 +22,20 @@ const Styles = StyleSheet.create({
         //backgroundColor: 'red'
       },
       btnButtonSuccess: {
-        marginTop: 30,
+        marginTop: 15,
         borderRadius: 15,
         alignItems: "center",
         padding: 10,
         backgroundColor: buttonSuccess ,
-        borderWidth: 2,
-        borderColor: buttonSuccess,
         //backgroundColor: 'red'
+      },
+      btnButtonSuccessSinPading: {
+        borderRadius: 15,
+        alignItems: "center",
+        padding: 10,
+        marginLeft:10,
+        marginRight:10,
+        backgroundColor: BlueColor ,  
       },
       container: { 
         flex:1,
@@ -52,7 +59,8 @@ const Styles = StyleSheet.create({
       cardHeader:{
         flex:1,
         flexDirection:"row",
-        alignContent:"center"
+        alignContent:"center",
+        marginTop:10
       },
       cardLeftIcon : {
         flex:1,
@@ -87,7 +95,8 @@ const Styles = StyleSheet.create({
       cardFoteer: {
         flex:.5,
         flexDirection:"row",
-        alignContent:"center"
+        alignContent:"center",
+        marginBottom:10
       },
       cardFoteerContainer: {
         flex:1,
@@ -111,7 +120,55 @@ const Styles = StyleSheet.create({
         paddingLeft:7,
         paddingRight:7, 
         borderRadius:5
-      }
+      },
+      slider: {
+        overflow: 'visible' // for custom animations
+    },
+    sliderContentContainer: {
+      paddingVertical: 10 // for custom animation
+    },
+    errorDatos : {
+      borderColor:'red',
+      borderWidth:2,
+    },
+    bachesTextInput : {
+      borderColor:cardColor, 
+      borderWidth:1, 
+      marginTop:15,
+      backgroundColor:cardColor+"40"
+    },
+    cardBackButton: {
+      backgroundColor:BlueColor,
+      borderRadius:10
+    },
+    cardConteinerFlex8: {
+      flex:8, 
+      borderRadius:10,
+      padding:5, 
+      backgroundColor:cardColor
+    },
+    directionTittleColor: {
+      textAlign:"center", 
+      fontSize:18, 
+      marginTop:5, 
+      marginBottom:5
+    },
+    label: {
+      padding: 10
+    },
+    avatarView: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    avatarElement: {
+      flex: 1,
+      alignItems: "center",
+    },
+    inputBachees:{
+      marginTop: 10,
+      backgroundColor:cardColor+45
+    },
 });
 
 export default Styles;

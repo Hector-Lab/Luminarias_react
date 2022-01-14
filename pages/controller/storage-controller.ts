@@ -78,6 +78,7 @@ export class StorageService{
                                 )`);
         },(error)=>{console.log("Mensaje de error: " +error.message)},
         ()=>{});
+        //NOTE: Tabla Tipo de luminarias
         db.transaction((commad)=>{
             commad.executeSql(`create table if not exists CatalogoLuminaria
                                 (
@@ -90,6 +91,7 @@ export class StorageService{
                                     id_Tipo integer
                                 )`);
         },(error)=>{console.log("Mensaje de error: "+ error.message)},()=>{});
+        //NOTE: Tabla Tipo de CatalogoMedidores
         db.transaction((commad)=>{
             commad.executeSql(`create table if not exists CatalogoMedidores 
                                 (
@@ -99,7 +101,23 @@ export class StorageService{
                                     LecturaActual integer,
                                     Padron integer
                                 )`);
-        },(error)=>{"Mensaje de error: " + error.message},
+        },
+        (error)=>{"Mensaje de error: " + error.message},
+        ()=>{});
+        //NOTE: Tabla Tipo de luminarias
+    }
+    crearTablasBaches(){
+        //NOTE:
+        db.transaction((command)=>{
+            command.executeSql(`create table if not exists CatalogoClientes
+                                (
+                                    id integer primary key NOT NULL,
+                                    Municipio varchar,
+                                    Estado varchar,
+                                    Cliente integer
+                                )`);
+        },
+        (error)=>{"Mensaje de error:" + error.message},
         ()=>{});
     }
     insertarCatalogos( EstadoFisico: [], Luminaria: [] ){

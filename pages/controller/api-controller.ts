@@ -1,11 +1,19 @@
-import { CommonActions, ServerContainer } from '@react-navigation/native';
-import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageService } from '../controller/storage-controller';
+import { StorageBaches } from '../controller/storage-controllerBaches';
 const service = new APIServices();
 const storage = new StorageService();
-const networkError = new Error("Favor de verificar la conexion a internet");
+const storageBaches = new StorageBaches();
+const networkError = new Error("Sin acceso a interner");
 const userNotFound = new Error("Usuario o Contraseña Incorrectos");
+const curpUtilizada = new Error("Ciudadano ya registrado");
+const usuarioNoValido = new Error("");
+const usuarioNoEncontrado = new Error("Ciudadano no econtrado\nFavor de registrarse para continuar");
+const ErrorDesconocido = new Error("Error desconocido");
+const SinCambios = new Error("OK"); 
+const ErrorInsertar = new Error("Error al registrar el reporte\nFavor de intentar mas tarde");
+const NoRowSelect = new Error("Datos no encontrados");
+const ErrorLista = new Error("Error al obtener el historial\nFavor de intentar mas tarde");
 export async function Auth(user:string,pass:string){
     //Creamos la base de datos
     let cliente = {
@@ -129,14 +137,155 @@ export async function ClavesMedidor() {
         return verificarErrores(error);
     }
 }
+//INDEV: Nuevas funciones para la aplicacion de los baches
+export async function CatalogoSolicitud(){
+    let cliente = await storage.getItem("Cliente");
+    let data = {
+        Cliente: cliente == null ? "56" : cliente 
+    };
+    let rawData = await service.ObtenerCatalogoAreas(data);
+    let result = await rawData.json();
+    return result.Catalogo;
+}
+export async function ObtenerMunicipios(){
+    let rawData = await service.ObtenerMunicipios();
+    let municipios = await rawData.json();
+    if(municipios.Status){
+        return municipios.Catalogo;
+    }
+}
+export async function RegistrarCiudadano( ciudadadano:any ){
+    try{
+        let idCiudadano = await service.insertarCiudadano(ciudadadano);
+        let jsonRespuesta = await idCiudadano.json();
+        return jsonRespuesta;
+    }catch( error ){
+        throw verificarErrores(error);
+    }
+}
+export async function EnviarReportes( reporte:any ){
+    try{
+        let rawData = await service.insertarReporte(reporte);
+        let jsonData = await rawData.json();
+        if(jsonData.Code == 200){
+            return true;
+        }else if(jsonData.Code == 404 || jsonData.Code == 403 ){
+            throw ErrorInsertar;
+        }
+    }catch(error){
+         throw verificarErrores(error);
+    }
+}
+export async function ObtenerMisReportes (){
+    try{
+        let cliente = await storageBaches.obtenerCliente();
+        let ciudadano = await storageBaches.obtenerIdCiudadano();
+        if(cliente != "" && ciudadano != "" ){
+            let datos = {
+                "Cliente": cliente,
+                "Ciudadano": ciudadano
+            };
+            console.log(datos);
+            let rawData = await service.obtenerreportesCiudadano(datos);
+            let jsonData = await rawData.json();
+            
+            console.log(jsonData);
+            if(jsonData.Code == 200){
+                return jsonData.Mensaje;
+            }else if(jsonData.Code == 404){
+                throw NoRowSelect;
+            }else if (jsonData.Code == 403){
+                throw ErrorLista;
+            }
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
+export async function RecuperarDatos(inputCliente: string, inputCurp: string ){
+    try{
+        let datos = {
+            "Cliente": inputCliente,
+            "Curp": inputCurp
+        };
+        let rawData = await service.recuperarDatosCiudadano(datos);
+        let ciudadano = await rawData.json();
+        console.log(ciudadano.Code == 200 + " - " +ciudadano.Code);
+        if(ciudadano.Code == 200){
+            return JSON.stringify(ciudadano.Mensaje[0]);
+        }else if (ciudadano.Code == 404){
+            throw usuarioNoEncontrado;
+        } else if (ciudadano.Code == 403){
+            throw ErrorDesconocido;
+        }
+        
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
+export async function editarDatosCiudadano( curp:string, telefono:string, email:string ){
+    try{
+        let cliente = await storageBaches.obtenerCliente();
+        let datos = {
+            "Cliente":cliente,
+            "Curp":curp,
+            "Telefono":telefono,
+            "Email":email
+        };
+        let rawData = await service.editarDatosCiudadano(datos);
+        let ciudadanoDatos = await rawData.json();
+        console.log(ciudadanoDatos);
+        if(ciudadanoDatos.Code == 200){
+            return JSON.stringify(ciudadanoDatos.Mensaje);
+        }else if( ciudadanoDatos.Code == 403 ){
+            throw usuarioNoValido;
+        }else if( ciudadanoDatos.Code == 404 ){
+            throw SinCambios;
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
+export async function RefrescarReporte (reporte: string){
+    try{
+        let cliente =  await storageBaches.obtenerCliente();
+        let ciudadano = await storageBaches.obtenerIdCiudadano();
+        if( cliente != null && ciudadano != null ){
+            let data = {
+                Cliente: cliente,
+                Ciudadano: ciudadano,
+                Reporte: reporte
+            };
+            let rawData = await service.ObtenerReporte(data);
+            let reportData = await rawData.json();
+            console.log(reportData);
+            if(reportData.code == 200){
+                console.log("Todo esta bien");
+                return JSON.stringify(reportData.Mensaje[0]);
+            }else if ( reportData.Code == 404 ){
+                throw NoRowSelect;
+            }
+        }else{
+            //NOTE: regresamos un error
+            throw usuarioNoEncontrado;
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
 //NOTE: metodo internos
 function verificarErrores(error:Error) {
     let message = error.message;
     console.log(message);
     if(message.includes("Usuario")){
         return userNotFound;
+    }else{
+        if(message.includes("Network")){
+            return networkError;
+        }
     }
-    return networkError;
+    return error;
+
 }
 async function  verificamosRoles(usuario:{Usuario:string, Cliente:string},token:string){
     let type = -1; //NOTE: -1: usuario no valido, 0: luminarias, 1:Baches
@@ -179,3 +328,4 @@ function VerificarDatosLuminaria(data:any){
    }
    return errores;
 }
+

@@ -1,6 +1,6 @@
 import { Dimensions, StyleSheet } from "react-native";
 import { SuinpacRed, BackgrounBlue } from "./Color";
-
+import { cardColor, buttonSuccess } from '../Styles/BachesColor';
 const Styles = StyleSheet.create({
   containerKeyboard: {
     flex: 1,
@@ -154,7 +154,19 @@ const Styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
     borderColor: 'red',
-  }
+  },
+  inputBachees:{
+    marginTop: 10,
+    backgroundColor:cardColor+45
+  },
+  btnButtonSuccess: {
+    marginTop: 15,
+    borderRadius: 15,
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: buttonSuccess ,
+    //backgroundColor: 'red'
+  },
 });
 
 export default Styles;
