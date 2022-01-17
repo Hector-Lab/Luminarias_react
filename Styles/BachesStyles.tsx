@@ -168,7 +168,11 @@ const Styles = StyleSheet.create({
     inputBachees:{
       marginTop: 10,
       backgroundColor:cardColor+45
-    },
+    }
+    
+
+    
+
 });
 
 export default Styles;

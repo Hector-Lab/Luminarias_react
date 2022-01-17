@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer ,DefaultTheme} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from '../pages/Login';
 import BachesHome from '../pages/Baches/home';
@@ -10,14 +10,15 @@ import HomeBaches from '../pages/Baches/home';
 import MedidoresHome from '../pages/Luminarias/Medidores-pages/home';
 const Stack = createStackNavigator();
 
+
 function Nav() {
     return(
-        <NavigationContainer independent = {true}>
-            <Stack.Navigator>
-                <Stack.Screen name='Bienvenido!'>
+        <NavigationContainer independent = {true}  >
+            <Stack.Navigator >
+                <Stack.Screen name='Bienvenido!'  >
                     {props => <Home {...props} ></Home>}
                 </Stack.Screen>  
-                <Stack.Screen name='Reportes'>
+                <Stack.Screen name='Reportes' >
                     {props => <BachesHome {...props} ></BachesHome>}
                 </Stack.Screen>
                 <Stack.Screen name='Menu'>

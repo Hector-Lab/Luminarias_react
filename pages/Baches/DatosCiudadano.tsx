@@ -50,7 +50,7 @@ export default function CustomMapBaches(props:any){
                 if(jsonUbicacion != null && jsonUbicacion != undefined )
                 {
                     let ubicacionActual = JSON.parse(jsonUbicacion);
-                    let indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    let indicioFormato ="";//String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     Municipios(indicioFormato);
                 }else{
                     Municipios("");

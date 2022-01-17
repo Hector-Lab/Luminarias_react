@@ -167,6 +167,26 @@ const Styles = StyleSheet.create({
     backgroundColor: buttonSuccess ,
     //backgroundColor: 'red'
   },
+  containerr: {
+    flex: 1,
+  },
+  fonts: {
+    marginBottom: 8,
+  },
+  user: {
+    flexDirection: 'row',
+    marginBottom: 6,
+  },
+  image: {
+    width: 30,
+    height: 30,
+    marginRight: 10,
+  },
+  name: {
+    fontSize: 16,
+    marginTop: 5,
+  },
+  
 });
 
 export default Styles;

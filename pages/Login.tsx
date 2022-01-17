@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, ImageBackground } from  'react-native';
+import React, { Component,useEffect, useState } from "react";
+import { View, TouchableOpacity, Text,Image, ImageBackground ,StyleSheet,
+  
+    Dimensions} from  'react-native';
 import { Card, Icon } from 'react-native-elements';
 import { BlueColor, DarkPrimaryColor } from "../Styles/BachesColor";
+import Styles from "../Styles/BachesStyles";
 import { ALERTMENU, ENGINNERMENU, PERSONPINMENU, SETTINGMENU } from '../Styles/Iconos';
+
 
 
 export default function Log(props: any) {
@@ -14,75 +18,96 @@ export default function Log(props: any) {
         props.navigation.navigate("Menu");
     }
     return(
-        <View style = {{flex:1, marginLeft:20,marginRight:20}} >
-            <ImageBackground   
-                source={imagenRequiered} 
-                resizeMode = "contain" 
-                style = {{justifyContent:"center",flex:1}}
-                imageStyle = {{opacity:.1}} >
-                <View style = {{flex:1, justifyContent:"center" , alignItems:"center"}} > 
-                    <Text style = {{color: BlueColor, fontSize:32 }} >
-                        Atención Ciudadana
-                    </Text>
+        
+        
+        <View style = {{flex:1,}} >
+         
+                <View style = {{flex:1, justifyContent:"center" , alignItems:"center", marginLeft:0}} > 
+       
+       
+
+             <Image
+              source={imagenRequiered}
+              style={{
+                resizeMode: 'center', marginTop:15}}
+          
+            />
                 </View>
-                <View style = {{flex:7 }} >
-                    <View style = {{flex:1, flexDirection:"column", justifyContent:"center",alignItems:"center"}} >
-                        <View style = {{flex:1,flexDirection:"row",  justifyContent:"center", alignItems:"center"}} >
-                            <TouchableOpacity
-                                onPress={ AplicacionReportes }
-                            >
-                                <Card>
-                                    <Icon 
-                                        color = {DarkPrimaryColor}
+                <View style = {{flex:7}} >
+                
+              
+
+                <TouchableOpacity
+                                onPress={ AplicacionReportes } >        
+                  
+                <Card containerStyle={{backgroundColor:'#f4542c',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:40,marginRight:2}}>                  
+                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
+                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Atención Ciudadana</Text>
+                            <Icon
+                                        color = {'#FFFF'}
                                         name = { ENGINNERMENU[0] } 
                                         type = {ENGINNERMENU[1]} 
-                                        size = {100}
+                                        size = {70}
                                         tvParallaxProperties></Icon>
-                                </Card>
-                            </TouchableOpacity>
-                            <TouchableOpacity>
-                                <Card>
-                                    <Icon 
-                                        color = {"#f38b1e"}
+                        </View>                                             
+                </Card>
+                </TouchableOpacity>
+                <TouchableOpacity>
+
+                
+                <Card containerStyle={{backgroundColor:'#e61723',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
+                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
+                        <Icon 
+                                        color = {"#FFFF"}
                                         name = { ALERTMENU[0] } 
                                         type = {ALERTMENU[1]} 
-                                        size = {100}
+                                        size = {70}
                                         tvParallaxProperties></Icon>
-                                </Card>
-                            </TouchableOpacity>
-                        </View>
-                        <View style = {{flex:1,flexDirection:"row",  justifyContent:"center", alignItems:"center"}} >
-                            <TouchableOpacity>
-                                <Card>
-                                    <Icon 
-                                    color = {"#4c2eb4"}
+                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Luminaria</Text>
+                       
+                        </View>                                             
+                </Card>
+                </TouchableOpacity>
+                <Card containerStyle={{backgroundColor:'#045688',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
+                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
+                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:50, marginLeft:30}}> Agua Potable </Text>
+                            <Icon 
+                                    color = {"#FFFF"}
                                         name = { PERSONPINMENU[0] } 
                                         type = {PERSONPINMENU[1]} 
-                                        size = {100}
+                                        size = {70}
                                         tvParallaxProperties></Icon>
-                                </Card>
-                            </TouchableOpacity>
-                            <TouchableOpacity
+                        </View>                                             
+                </Card>
+                <TouchableOpacity
                                 onPress={ AplicacionLuminaria }
                             >
-                                <Card>
-                                    <Icon 
-                                        color = {"#9e9e9e"}
+                <Card containerStyle={{backgroundColor:'#912307',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:0,marginRight:2}}>                  
+                        
+                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
+                        
+                        <Icon 
+                                        color = {"#FFFF"}
                                         name = { SETTINGMENU[0] } 
                                         type = {SETTINGMENU[1]} 
-                                        size = {100}
+                                        size = {70}
                                         tvParallaxProperties></Icon>
-                                </Card>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Botón de pánico </Text>
+                         
+                        </View>                                             
+                </Card>
+                </TouchableOpacity>
+                        
+                        
+                    
                 </View>
                 <View style = {{flex:1,  justifyContent:"center", alignItems:"center"}} >
                     <Text style = {{color: DarkPrimaryColor}} >
                         Suinpac
                     </Text>
                 </View>
-            </ImageBackground>
+             
+
         </View>
     );
 }
