@@ -20,9 +20,9 @@ export default function Log(props: any) {
     return(
         
         
-        <View style = {{flex:1,}} >
+        <View style = {{flex:1, backgroundColor:'#FFFF'}} >
          
-                <View style = {{flex:1, justifyContent:"center" , alignItems:"center", marginLeft:0}} > 
+                <View style = {{flex:1, marginTop:12, justifyContent:"center" , alignItems:"center", marginLeft:0}} > 
        
        
 
@@ -40,7 +40,7 @@ export default function Log(props: any) {
                 <TouchableOpacity
                                 onPress={ AplicacionReportes } >        
                   
-                <Card containerStyle={{backgroundColor:'#f4542c',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:40,marginRight:2}}>                  
+                <Card containerStyle={{backgroundColor:'#045688',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:40,marginRight:2}}>                  
                         <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
                             <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Atención Ciudadana</Text>
                             <Icon
@@ -55,7 +55,7 @@ export default function Log(props: any) {
                 <TouchableOpacity>
 
                 
-                <Card containerStyle={{backgroundColor:'#e61723',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
+                <Card containerStyle={{backgroundColor:'#912307',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
                         <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
                         <Icon 
                                         color = {"#FFFF"}
@@ -68,7 +68,7 @@ export default function Log(props: any) {
                         </View>                                             
                 </Card>
                 </TouchableOpacity>
-                <Card containerStyle={{backgroundColor:'#045688',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
+                <Card containerStyle={{backgroundColor:'#f4542c',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
                         <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
                             <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:50, marginLeft:30}}> Agua Potable </Text>
                             <Icon 
@@ -82,7 +82,7 @@ export default function Log(props: any) {
                 <TouchableOpacity
                                 onPress={ AplicacionLuminaria }
                             >
-                <Card containerStyle={{backgroundColor:'#912307',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:0,marginRight:2}}>                  
+                <Card containerStyle={{backgroundColor:'#e61723',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:0,marginRight:2}}>                  
                         
                         <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
                         

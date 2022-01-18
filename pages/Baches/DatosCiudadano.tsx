@@ -386,8 +386,11 @@ export default function CustomMapBaches(props:any){
                                 style = {[Styles.inputs,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} 
                                 keyboardType="default"
                                 value= { CURP}
-                                label={ "CURP" }
+                                label={ "CURP"}
+                                editable={false}
                                 onChangeText={ text => { setCURP(text);}}
+                                autoCapitalize = {"characters"}
+
                                 autoCompleteType={undefined}
                             />
                             <Input
@@ -395,6 +398,7 @@ export default function CustomMapBaches(props:any){
                                 style = { [Styles.inputs]} 
                                 keyboardType="default"
                                 value= { RFC }
+                                editable={false}
                                 label={ "RFC: XAXX010101000" }
                                 onChangeText={ text => { setRFC(text); }}
                                 autoCompleteType={undefined}
@@ -405,12 +409,14 @@ export default function CustomMapBaches(props:any){
                                 style={[Styles.inputs, { borderWidth: String(errorUI).includes("N,") ? 1 : 0, borderColor: "red" }]}
                                 label={"Nombres"}
                                 onChangeText={text => setNombres(text)} 
+                                editable={false}
                                 autoCompleteType={undefined}                        />
                             <Input
                                 value = { paterno }
                                 keyboardType="twitter"
                                 style = {[Styles.inputs,{borderWidth: String(errorUI).includes("M,") ? 1 : 0 ,borderColor:"red"}]}
                                 label={ "Apellido Paterno" }
+                                editable={false}
                                 onChangeText={text => setPaterno(text)}
                                 autoCompleteType={undefined}
                             />
@@ -419,6 +425,7 @@ export default function CustomMapBaches(props:any){
                                 keyboardType="twitter"
                                 style = {[Styles.inputs,{borderWidth: String(errorUI).includes("P,") ? 1 : 0 ,borderColor:"red"}]}
                                 label={ "Apellido Materno" }
+                                editable={false}
                                 onChangeText={ text => setMaterno(text)}
                                 autoCompleteType={undefined}
                             />
@@ -481,6 +488,7 @@ export default function CustomMapBaches(props:any){
                                 label = "CURP"
                                 autoCompleteType={undefined}
                                 placeholder = {"CURP"} 
+                                autoCapitalize="characters"
                                 onChangeText = {text =>{setCURP(text)}}
                                 maxLength={ 18 }
                                 style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
@@ -500,7 +508,7 @@ export default function CustomMapBaches(props:any){
                             </View>
                         </View>
                         <View style = {{flex: 1, padding:20}} >
-                            <TouchableOpacity style = {Styles.btnButtonSuccess} onPress={ validarDato } >
+                            <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress={ validarDato } >
                                 <Text style = {{color:"white"}}> Iniciar Sesión </Text>
                             </TouchableOpacity>
                             <TouchableOpacity 

@@ -29,6 +29,14 @@ const Styles = StyleSheet.create({
         backgroundColor: buttonSuccess ,
         //backgroundColor: 'red'
       },
+      btnButtonLoginSuccess: {
+        marginTop: 15,
+        borderRadius: 15,
+        alignItems: "center",
+        padding: 10,
+        backgroundColor: '#3A5C84' ,
+        //backgroundColor: 'red'
+      },
       btnButtonSuccessSinPading: {
         borderRadius: 15,
         alignItems: "center",

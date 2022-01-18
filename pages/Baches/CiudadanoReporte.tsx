@@ -498,7 +498,7 @@ const itemWidth = slideWidth + itemHorizontalMargin * 2;
                     color: 'white',
                   }}
                   title={" Guardar Reporte"}
-                  buttonStyle = {[Styles.btnButtonSuccess]}
+                  buttonStyle = {[Styles.btnButtonLoginSuccess]}
                   onPress={ verificarDatos }/>
                 </View>
               </View>
