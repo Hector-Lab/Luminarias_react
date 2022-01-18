@@ -57,7 +57,7 @@ export default function Log(props: any) {
                 
                 <Card containerStyle={{backgroundColor:'#912307',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
                         <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
-                        <Icon 
+                        <Icon style={{marginLeft:20}}
                                         color = {"#FFFF"}
                                         name = { ALERTMENU[0] } 
                                         type = {ALERTMENU[1]} 
@@ -86,7 +86,7 @@ export default function Log(props: any) {
                         
                         <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
                         
-                        <Icon 
+                        <Icon style={{marginLeft:20}}
                                         color = {"#FFFF"}
                                         name = { SETTINGMENU[0] } 
                                         type = {SETTINGMENU[1]} 
