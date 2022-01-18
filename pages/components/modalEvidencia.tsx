@@ -1,6 +1,6 @@
 import React,{Component, useEffect} from 'react';
 import { View ,Text, Modal, TouchableOpacity, Dimensions} from 'react-native';
-import { buttonSuccess } from '../../Styles/BachesColor';
+import { buttonSuccess, PrimaryColor } from '../../Styles/BachesColor';
 import Styles from '../../Styles/BachesStyles';
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Card, Image } from 'react-native-elements';
@@ -87,7 +87,7 @@ export default class Evidencias extends React.Component<
                         </View>
                         <View style = {{flex:1, justifyContent:"center", padding:20}} >
                         <TouchableOpacity 
-                            style = {[Styles.cardLeftBtn,{backgroundColor:buttonSuccess, borderRadius:10 , borderColor: buttonSuccess, }]}
+                            style = {[Styles.cardLeftBtn,{backgroundColor:'#3A5C84', borderRadius:10 , borderColor: buttonSuccess, }]}
                             onPress = {this.props.onButtonPress}
                             >
                         <Text style = {{ color:"white", textAlign:"center"}} > Aceptar </Text>

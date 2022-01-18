@@ -433,7 +433,7 @@ export default function CustomMapBaches(props:any){
                                 value = {telefono}
                                 keyboardType="number-pad"
                                 style = {[Styles.inputs,{borderWidth: String(errorUI).includes("T,") ? 1 : 0 ,borderColor:"red"}]}
-                                label={ "Telefono" }
+                                label={ "Telefono *" }
                                 onChangeText={ text => setTelefono(text)}
                                 autoCompleteType={undefined}
                             />
@@ -441,7 +441,7 @@ export default function CustomMapBaches(props:any){
                                 keyboardType="email-address"
                                 value = {email}
                                 style = {[Styles.inputs,{borderWidth: String(errorUI).includes("E,") ? 1 : 0 ,borderColor:"red"}]}
-                                label={ "Email " }
+                                label={ "Email *" }
                                 onChangeText={ text => setEmail(text)}
                                 autoCompleteType={undefined}
                             />

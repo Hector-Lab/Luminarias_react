@@ -406,37 +406,31 @@ const itemWidth = slideWidth + itemHorizontalMargin * 2;
               <View style = {[Styles.bachesCard,{marginTop:5}]} >
                 {/* NOTE:: Direccion del defecto */ }
                 <View style = {Styles.cardHeader}>
-                  <View style = {Styles.cardLeftIcon}>
-                    <View style = {Styles.cardRpundedIcon} >
-                      <Icon color = {"white"}  tvParallaxProperties  name = "street-view" type ="font-awesome-5" style = {{margin:3}} />
-                    </View>
-                  </View>
+               
+                  
                   <View style = {Styles.cardHeaderText}>
-                    <Text style = {{textAlign:"center"}} >Direccion Actual</Text> 
-                  </View>
-                  <View style = {Styles.cardRigthIcon}>
                   <View style = {Styles.cardRpundedIcon} >
-                      <Icon color = {"white"}  tvParallaxProperties  name = "map" type ="feather" style = {{margin:3}} />
-                    </View> 
+                      <Icon color = {"white"}  tvParallaxProperties  name = "map" type ="font-awesome-5" style = {{margin:3}} />
+                    </View>
+                    <Text style = {{textAlign:"center",marginLeft:15}} >    
+                        Direccion Actual</Text> 
                   </View>
+                
                 </View>
                 <View style = {[Styles.cardTextView]} >
                     <Text style = {[Styles.textMultiline, errorUi.includes("S,") ? Styles.errorDatos : {} ]}>{ direccion }</Text>
                 </View>
                 <View style = {Styles.cardFoteer}>
-                  <View style = {Styles.cardFoteerContainer}>
-                      <TouchableOpacity style = {Styles.cardLeftBtn} >
-                        <Text style = {{ color:BlueColor }} > Editar </Text>
-                      </TouchableOpacity> 
-                  </View>
+               
                   <View style = {Styles.cardLocateBtn}>
-                    <TouchableOpacity style = {Styles.cardBtn} onPress={obtenerDireccionActuales} >
-                      <Icon color = {DarkPrimaryColor}  tvParallaxProperties  name = "map-pin" type ="font-awesome-5" style = {{margin:3}} />
+                    <TouchableOpacity style = {{}} onPress={obtenerDireccionActuales} >
+                      
+                      <Icon color = {DarkPrimaryColor}  size={25} tvParallaxProperties  name = "street-view" type ="font-awesome-5" style = {{marginLeft:45 }} />
                     </TouchableOpacity> 
                   </View>
                   <View style = {{flex:1,flexDirection:"row", justifyContent:"center", alignItems:"center"}}>
-                    <TouchableOpacity style = {Styles.cardBtn} onPress={ ()=>{setDireccion("");}} >
-                        <Icon color = {DarkPrimaryColor}  tvParallaxProperties  name = "trash-alt" type ="font-awesome-5" style = {{margin:3}} />
+                    <TouchableOpacity style = {{}} onPress={ ()=>{setDireccion("");}} >
+                        <Icon  size={20} color = {DarkPrimaryColor}  tvParallaxProperties  name = "trash-alt" type ="font-awesome-5" style = {{marginRight:45}} />
                     </TouchableOpacity> 
                   </View>
                 </View>
@@ -515,7 +509,7 @@ const itemWidth = slideWidth + itemHorizontalMargin * 2;
         color = { BlueColor }
         message = {errorMsg}
         tittle = { headerMessage }
-        buttonText = { "Cancelar" }
+        buttonText = { "Aceptar" }
       />
       <Loading
         loading = {loading}

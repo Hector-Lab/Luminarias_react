@@ -28,7 +28,7 @@ export default function Log(props: any) {
 
              <Image
               source={imagenRequiered}
-              style={{
+              style={{ 
                 resizeMode: 'center', marginTop:15}}
           
             />
