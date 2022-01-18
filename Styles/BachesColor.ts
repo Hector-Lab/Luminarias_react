@@ -1,6 +1,6 @@
 
 export const PrimaryColor = "#003357";
-
+export const buttonSuccess = "#39B54A";
 export const DarkPrimaryColor = "#9a0a12";
 export const BlueColor = "#005687";
 export const errorColor = "#fa5341"
