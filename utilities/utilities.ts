@@ -18,6 +18,7 @@ export async function CordenadasActualesNumerico () {
         latitude : data.coords.latitude,
         longitude : data.coords.longitude
     };
+    
     return coords;
 }
 

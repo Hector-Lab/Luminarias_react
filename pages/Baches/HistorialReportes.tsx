@@ -105,7 +105,7 @@ export default function HistorialReporte(props: any) {
               bottomDivider>
                 <Icon name = { icon } type = {"font-awesome-5"} tvParallaxProperties/>  
                 <TouchableOpacity onPress= { ()=>{verReporte(item)} } >
-                  <ListItem.Content>
+                  <ListItem.Content >
                     <ListItem.Title>
                       { `Folio: ${item.Codigo} `}
                       <Badge 

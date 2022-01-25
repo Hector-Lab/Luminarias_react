@@ -12,7 +12,7 @@ const usuarioNoEncontrado = new Error("Ciudadano no econtrado\nFavor de registra
 const ErrorDesconocido = new Error("Error desconocido");
 const SinCambios = new Error("OK"); 
 const ErrorInsertar = new Error("Error al registrar el reporte\nFavor de intentar mas tarde");
-const NoRowSelect = new Error("Datos no encontrados");
+const NoRowSelect = new Error("Aún no tiene registros");
 const ErrorLista = new Error("Error al obtener el historial\nFavor de intentar mas tarde");
 export async function Auth(user:string,pass:string){
     //Creamos la base de datos
