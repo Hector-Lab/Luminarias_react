@@ -33,7 +33,7 @@ import {
 import { StorageBaches } from "../controller/storage-controllerBaches";
 import Loading from "../components/modal-loading";
 import Message from "../components/modal-message";
-import RNPickerDialog from "rn-modal-picker";
+
 import {
   OK,
   DESCONOCIDO,
@@ -494,20 +494,7 @@ export default function Reportar(props: any) {
               ]}
             >
               {/* NOTE:: Area Administrativa */}
-              <View>
-                <RNPickerDialog
-                  data={arrayDataList}
-                  searchBarPlaceHolder={"Buscar..."}
-                  pickerTitle={"Temario de la solicitud"}
-                  labelText={"Temario de la solicitud"}
-                  showSearchBar={true}
-                  changeAnimation='fade'
-                  searchBarPlaceHolderColor={BlueColor}
-                  showPickerTitle={true}
-                  selectedValue={(index, item) => this.selectedValue(index, item)}
-
-                ></RNPickerDialog>
-              </View>
+   
 
               <Picker
                 style={{
