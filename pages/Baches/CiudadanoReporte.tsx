@@ -25,6 +25,7 @@ import {
 } from "../../utilities/utilities";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
 import * as Location from "expo-location";
+
 import {
   CatalogoSolicitud,
   EnviarReportes,
@@ -32,6 +33,7 @@ import {
 import { StorageBaches } from "../controller/storage-controllerBaches";
 import Loading from "../components/modal-loading";
 import Message from "../components/modal-message";
+import RNPickerDialog from "rn-modal-picker";
 import {
   OK,
   DESCONOCIDO,
@@ -46,6 +48,7 @@ export default function Reportar(props: any) {
   const caorusel = React.useRef(null);
   const [cameraPermissions, setCameraPermision] = useState(false);
   const [arrayImageEncode, setArrayImageEncode] = useState([]);
+  const [arrayDataList, setArrayDataList] = useState([]);
   const SLIDER_WIDTH = Dimensions.get("window").width;
   const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.9);
   const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
@@ -73,11 +76,18 @@ export default function Reportar(props: any) {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [loading, setLoading] = useState(false);
   let camera: Camera;
+  let dataListSolicitudes=[];
+
   const [Color, setColor] = useState("");
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       let arrayAreasSolicitud = await CatalogoSolicitud();
+      
+      dataListSolicitudes= arrayAreasSolicitud.map(elemento=>{
+       return {id:elemento.id,name:elemento.descripci_on};
+      });
+      setArrayDataList(dataListSolicitudes);
       setCatalogoSolicitud(arrayAreasSolicitud);
       if (status !== "granted") {
         setErrorMsg("Permisos negados");
@@ -86,13 +96,12 @@ export default function Reportar(props: any) {
     })();
   }, []);
 
-const iniciarCamara=async ()=>{    
-  let { status } = await Camera.requestCameraPermissionsAsync();
-  if(status==='granted'){
-    setOnCamera(true);
-  }  
-}
-
+  const iniciarCamara = async () => {
+    let { status } = await Camera.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      setOnCamera(true);
+    }
+  };
 
   function wp(percentage) {
     const value = (percentage * viewportWidth) / 100;
@@ -145,6 +154,10 @@ const iniciarCamara=async ()=>{
       />
     );
   };
+  const selectedItem = {
+    title: "Selected item title",
+    description: "Secondary long descriptive text ...",
+  };
   const __takePicture = async () => {
     if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
@@ -193,9 +206,9 @@ const iniciarCamara=async ()=>{
       ]);
     }
   };
-  const obtenerDireccionActuales = async () => {    
-    let gpsServiceStatus =await Location.hasServicesEnabledAsync();    
-    if(gpsServiceStatus){
+  const obtenerDireccionActuales = async () => {
+    let gpsServiceStatus = await Location.hasServicesEnabledAsync();
+    if (gpsServiceStatus) {
       setLoading(true);
       let coordenadasActuales = await CordenadasActualesNumerico();
       setCoords(coordenadasActuales);
@@ -217,16 +230,13 @@ const iniciarCamara=async ()=>{
         `${DireccionActual.region} ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
       );
       setLoading(false);
-  
-      
-    }else{
-      console.log('GPS Apagado')
-      setErrorMsg('Para mejor su experiencia se recomienda encender su GPS');
+    } else {
+      console.log("GPS Apagado");
+      setErrorMsg("Para mejor su experiencia se recomienda encender su GPS");
       setSHowMessage(true);
       return false;
     }
     setLoading(true);
-
 
     /*
     let coordenadasActuales = await CordenadasActualesNumerico();
@@ -375,7 +385,7 @@ const iniciarCamara=async ()=>{
       },
     ]);
   };
-  
+
   return (
     <View style={[Styles.container]}>
       {onCamera ? (
@@ -480,18 +490,38 @@ const iniciarCamara=async ()=>{
               ]}
             >
               {/* NOTE:: Area Administrativa */}
+              <View>
+                <RNPickerDialog
+                  data={arrayDataList}
+                  searchBarPlaceHolder={"Buscar..."}
+                  pickerTitle={"Temario de la solicitud"}
+                  labelText={"Temario de la solicitud"}
+                  showSearchBar={true}
+                  changeAnimation='fade'
+                  searchBarPlaceHolderColor={BlueColor}
+                  showPickerTitle={true}
+                  selectedValue={(index, item) => this.selectedValue(index, item)}
+
+                ></RNPickerDialog>
+              </View>
+
               <Picker
+                style={{
+                  backgroundColor: BlueColor,
+                  color: "#FFFF",
+                  marginLeft: 15,
+                  marginRight: 15,
+                  borderRadius: 90,
+                  height: 10,
+                  marginBottom: 50,
+                }}
                 selectedValue={seleccionSolicitud}
                 onValueChange={(itemValue, itemIndex) => {
                   setSeleccionSolicitud(String(itemValue));
                 }}
               >
                 <Picker.Item
-                
-                style={{  width:'70%',
-                backgroundColor:'gray',
-                color:'red' }}
-
+                  //style={{color:'#FFFF', backgroundColor:BlueColor,margin:0}}
                   label=" Temario de solicitud "
                   value={-1}
                 ></Picker.Item>
@@ -510,9 +540,15 @@ const iniciarCamara=async ()=>{
               {/* NOTE:: Direccion del defecto */}
               <View style={Styles.cardHeader}>
                 <View style={Styles.cardHeaderText}>
-                  <View style={Styles.cardRpundedIcon}>
-                                      </View>
-                  <Text style={{ textAlign: "center", marginLeft: 15, fontSize:15, fontWeight:'bold' }}>
+                  <View style={Styles.cardRpundedIcon}></View>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginLeft: 15,
+                      fontSize: 15,
+                      fontWeight: "bold",
+                    }}
+                  >
                     Direccion Actual
                   </Text>
                 </View>
@@ -531,7 +567,8 @@ const iniciarCamara=async ()=>{
                 <View style={Styles.cardLocateBtn}>
                   <TouchableOpacity
                     style={{}}
-                    onPress={obtenerDireccionActuales}>
+                    onPress={obtenerDireccionActuales}
+                  >
                     <Icon
                       color={DarkPrimaryColor}
                       size={25}
