@@ -15,9 +15,9 @@ export default class ImageViewer extends React.Component<
         let Imagenes = [];
         for (let index = 0; index < 3; index++) {
             Imagenes.push(
-                <View style = {{flex:1}} key = {index} >
+                <View style = {{flex:1, marginBottom:20 }} key = {index} >
                     <Card containerStyle = {{borderWidth:1}} >
-
+                        
                     </Card>
                 </View>
             )

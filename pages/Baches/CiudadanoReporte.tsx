@@ -16,7 +16,6 @@ import {
 } from "../../Styles/BachesColor";
 import { Text, Icon, Card, Button } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
-import Carousel, { Pagination } from "react-native-snap-carousel";
 import { Camera } from "expo-camera";
 import {
   checkConnection,
@@ -112,52 +111,7 @@ export default function Reportar(props: any) {
   const slideWidth = wp(90);
   const itemHorizontalMargin = wp(2);
   const itemWidth = slideWidth + itemHorizontalMargin * 2;
-  const _renderItem = ({ item, index }) => {
-    return (
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 20,
-        }}
-      >
-        <TouchableOpacity
-          onLongPress={() => {
-            eliminarEvidencia(item.uri);
-          }}
-        >
-          <Card>
-            <Image
-              source={{ uri: item.uri }}
-              style={{ width: 200, height: 300 }}
-            />
-          </Card>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-  const pagination = () => {
-    return (
-      <Pagination
-        activeDotIndex={activeIndex}
-        dotsLength={arrayImageEncode.length}
-        containerStyle={{}}
-        dotStyle={{
-          width: 5,
-          height: 5,
-          borderRadius: 2,
-          marginHorizontal: 8,
-          backgroundColor: SuinpacRed,
-        }}
-        inactiveDotOpacity={0.4}
-        inactiveDotScale={0.6}
-      />
-    );
-  };
-  const selectedItem = {
-    title: "Selected item title",
-    description: "Secondary long descriptive text ...",
-  };
+  
   const __takePicture = async () => {
     if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
@@ -608,10 +562,9 @@ export default function Reportar(props: any) {
             <View style={{ flex: 6 }}>
               {/* NOTE: Seccion de galeria */}
               <View style={Styles.cardTextView}>
-                  {/* NOTE: Carrusel */}
+                  {/* INDEV: Lista de imagenes */}
                   <ImageViewer
-
-                  
+                     Data = {[]}
                   />
                 </View>
               <View style={{ flex: 1, padding: 20 }}>
