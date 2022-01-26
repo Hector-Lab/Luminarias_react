@@ -40,9 +40,7 @@ import {
   ERROR,
   CAMERA,
 } from "../../Styles/Iconos";
-import { Linking } from "react-native";
-import { PermissionsAndroid } from "react-native";
-import { color } from "react-native-elements/dist/helpers";
+import ImageViewer from '../components/image-view';
 export default function Reportar(props: any) {
   const storage = new StorageBaches();
   const caorusel = React.useRef(null);
@@ -154,7 +152,6 @@ const iniciarCamara=async ()=>{
           __takePicture();
           return;
         }
-        console.log(camera);
         const photo = await camera.takePictureAsync({
           base64: true,
           quality: 0.4,
@@ -319,7 +316,6 @@ const iniciarCamara=async ()=>{
     referencia == "" ? (error += "R,") : error;
     observaciones == "" ? (error += "D,") : error;
     direccion == "" ? (error += "S,") : error;
-
     if (error != "") {
       setErrorUi(error);
       setErrorMsg("Favor de capturar los campos requeridos");
@@ -574,25 +570,13 @@ const iniciarCamara=async ()=>{
             </View>
             <View style={{ flex: 6 }}>
               {/* NOTE: Seccion de galeria */}
-              {arrayImageEncode.length > 0 ? (
-                <View style={Styles.cardTextView}>
+              <View style={Styles.cardTextView}>
                   {/* NOTE: Carrusel */}
-                  <Carousel
-                    ref={caorusel}
-                    data={arrayImageEncode}
-                    renderItem={_renderItem}
-                    sliderWidth={slideWidth}
-                    itemWidth={itemWidth}
-                    layout={"tinder"}
-                    onSnapToItem={(index) => setActiveIndex(index)}
-                    containerCustomStyle={Styles.slider}
-                    contentContainerCustomStyle={Styles.sliderContentContainer}
-                    loop={true}
-                  ></Carousel>
+                  <ImageViewer
+
+                  
+                  />
                 </View>
-              ) : (
-                <></>
-              )}
               <View style={{ flex: 1, padding: 20 }}>
                 <Button
                   icon={{
