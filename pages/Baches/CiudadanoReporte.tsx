@@ -460,8 +460,6 @@ export default function Reportar(props: any) {
               ]}
             >
               {/* NOTE:: Area Administrativa */}
-   
-
               <Picker
                 style={{
                   backgroundColor: BlueColor,
