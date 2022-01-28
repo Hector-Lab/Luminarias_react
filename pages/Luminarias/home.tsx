@@ -23,6 +23,8 @@ export default function MenuLuminarias(props:any ){
     useEffect(()=>{
         (async () => {
             //NOTE: Verificasmos los datos de la session
+            storage.createOpenDB();
+            storage.createTables();
             let sessionValida = await storage.verificarSesion();
             if(sessionValida){
                 //NOTE: si es valida verificamos que el token sea valido
@@ -42,9 +44,6 @@ export default function MenuLuminarias(props:any ){
             }
         })();
     },[]);
-
-    //storage.createOpenDB();
-    //storage.createTables();
     const ObtenerPadronLuminarias = async () =>{
         //NOTE: Primero descargamos los catalogos de la base de datos
         await CatalogoLuminarias()

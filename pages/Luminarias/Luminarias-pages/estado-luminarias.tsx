@@ -17,9 +17,6 @@ import { cardColor, DarkPrimaryColor } from "../../../Styles/BachesColor";
 import DropDownPicker from 'react-native-dropdown-picker';
 import {} from '../../controller/api-controller';
 import { StorageService } from '../../controller/storage-controller';
-import { useSafeArea } from "react-native-safe-area-context";
-
-
 
 export default function LuminariasEstados(props: any) {
   const storage = new StorageService();
@@ -42,6 +39,13 @@ export default function LuminariasEstados(props: any) {
     })();
   },[]);
 
+
+  //NOTE: Metodos de prueba
+  const eliminarDatos = async () => {
+    console.log("Eliminanda dato");
+    storage.borrarDatos("EstadoFisico");
+    storage.borrarDatos("TipoLuminaria");
+  }
   return (
     <View style={[Styles.TabContainer,{justifyContent:"center"}]}>
                       <View style = {Styles.cardContainer} >
@@ -95,7 +99,7 @@ export default function LuminariasEstados(props: any) {
                         >
                           <TouchableOpacity
                             style={{}}
-                            onPress={() => {}}
+                            onPress={eliminarDatos}
                           >
                             <Icon
                               size={20}
@@ -117,7 +121,8 @@ export default function LuminariasEstados(props: any) {
                           items = { listaLuminarias }
                           setItems = {setListaLuminarias}
                           value = { seleccionLuminaria }
-                          setValue = { setSeleccionLuminaria } />
+                          setValue = { setSeleccionLuminaria }
+                          language = {"ES"} />
 
                         <TextInput
                           autoCorrect = { false }

@@ -265,6 +265,7 @@ export class StorageService{
         },(erro)=>{console.log(`Mensaje de error: ${erro.message}`)},()=>{});
     }
     leerCatalogoLuminarias(){
+        db = SQLite.openDatabase("data.db");
         return new Promise((resolve,reject)=>{
             db.transaction((command)=>{
                 command.executeSql("SELECT * FROM CatalogoLuminaria",[],(_,{rows})=>{
