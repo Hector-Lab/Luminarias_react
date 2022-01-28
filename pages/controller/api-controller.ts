@@ -1,3 +1,4 @@
+import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageService } from '../controller/storage-controller';
 import { StorageBaches } from '../controller/storage-controllerBaches';
@@ -33,7 +34,6 @@ export async function Auth(user:string,pass:string){
                 };
                 //Verificamos roles
                 let result = await verificamosRoles(usuario,jsonData['token']);
-                console.log(result);
                 if(result != -1){
                     await storage.setUser(jsonData['idUsuario']+"",jsonData['datosUsuario']['NombreCompleto'],jsonData['token'],jsonData['cliente']);
                 }
@@ -294,15 +294,6 @@ async function  verificamosRoles(usuario:{Usuario:string, Cliente:string},token:
     let userLuminaria = await luminariasValid.json();
     if(userLuminaria['Mensaje'].length > 0){
         userLuminaria['Mensaje'][0]['Estatus'] == "1" ? type = 0 : type = -1;
-        if(type = 0){
-            return type;
-        }
-    }
-    //Esto para verificar el rol de los baches
-    let bachesValid = await service.verificarRolBaches(usuario,token);
-    let userBaches = await bachesValid.json();
-    if(userBaches['Mensaje'].length > 0){
-        userBaches['Mensaje'][0]['Estatus'] == "1" ? type = 1 : type = -1;
     }
     return type;
 }

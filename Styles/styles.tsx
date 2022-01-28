@@ -159,6 +159,12 @@ const Styles = StyleSheet.create({
     marginTop: 10,
     backgroundColor:cardColor+45
   },
+  inputBacheesError: {
+    marginTop: 10,
+    backgroundColor:cardColor+45,
+    borderColor:'red',
+    borderWidth:2,
+  },
   btnButtonSuccess: {
     marginTop: 15,
     borderRadius: 15,
