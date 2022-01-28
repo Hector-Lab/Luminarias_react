@@ -13,7 +13,7 @@ export default function MenuLuminarias(props:any ){
     const [ contrasenia, setContrasenia ] = useState(String);
     const [ usuario, setUsuarios ] = useState(String);
     const [ errorUI, setErrorUI ] = useState(String);
-    const [ loading, setLoading ] =  useState(false);
+    const [ loading, setLoading ] =  useState(true);
     const [ mostrarMensaje, setMostrarMensaje ] = useState(false);
     const [ icono, setIcono ] = useState("info");
     const [ fuenteIcono, setIconoFuente ] = useState("font-awesome-5");
@@ -21,9 +21,28 @@ export default function MenuLuminarias(props:any ){
     const [ mensajeTitulo, setMensajeTitulo ] =  useState("Mensaje");
     let storage = new StorageService(); 
     useEffect(()=>{
-        storage.createOpenDB();
-        storage.createTables();
+        (async () => {
+            //NOTE: Verificasmos los datos de la session
+            let sessionValida = await storage.verificarSesion();
+            if(sessionValida){
+                //NOTE: si es valida verificamos que el token sea valido
+                 await CatalogoLuminarias()
+                 .then((result)=>{
+                    //NOTE: Todo bien 
+                    props.navigation.navigate("Luminarias");
+                    setLoading(false);
+                 })
+                 .catch((error)=>{
+                    setLoading(false);
+                 })
+            }else{
+                setLoading(false);
+            }
+        })();
     },[]);
+
+    //storage.createOpenDB();
+    //storage.createTables();
     const ObtenerPadronLuminarias = async () =>{
         //NOTE: Primero descargamos los catalogos de la base de datos
         await CatalogoLuminarias()

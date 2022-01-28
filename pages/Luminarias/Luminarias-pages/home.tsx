@@ -6,7 +6,7 @@ import NavegacionLuminarias from '../../../navegation/navegacioLuminarias';
 export default function MainLuminaria(props:any ){
     return (
         <NavigationContainer independent = {true}  >
-        <NavegacionLuminarias />
+        <NavegacionLuminarias/>
       </NavigationContainer>
     )
 }

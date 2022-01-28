@@ -10,15 +10,34 @@ import {
   Vibration,
   Alert,
 } from "react-native";
-import { Text, Button, Icon, Card, ListItem } from "react-native-elements";
-import { Picker } from "@react-native-picker/picker";
+import { Text, Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Styles from '../../../Styles/BachesStyles';
 import { cardColor, DarkPrimaryColor } from "../../../Styles/BachesColor";
 import DropDownPicker from 'react-native-dropdown-picker';
+import {} from '../../controller/api-controller';
+import { StorageService } from '../../controller/storage-controller';
+
+
 
 export default function LuminariasEstados(props: any) {
+  const storage = new StorageService();
+  const [ listaLuminarias, setListaLuminarias ] = useState([]);
+  const [ seleccionLuminaria, setSeleccionLuminaria ] = useState(String);
   
+  useEffect(()=>{
+    //NOTE: obtenemos el catalogo de luminarias
+    (async () => {
+      
+        let jsonData = await storage.leerCatalogoLuminarias() ;
+        let luminarias = JSON.parse(String(jsonData));
+        let arregloLuminarias = new Array;
+        arregloLuminarias.map((item,index)=>{
+          console.log(item);
+        })
+    })();
+  },[]);
+
   return (
     <View style={[Styles.TabContainer,{justifyContent:"center"}]}>
                       <View style = {Styles.cardContainer} >
