@@ -273,7 +273,26 @@ export async function RefrescarReporte (reporte: string){
         throw verificarErrores(error);
     }
 }
-//NOTE: metodo internos
+//INDEV: metodos para verificar la session
+export async function VerificarSession (){
+    try{
+        let cliente = await storage.getItem("Cliente");
+        let token = await storage.getItem("Token");
+        let datos = {
+            Cliente: cliente
+        };
+        let rawData = await service.VerificaToken(datos,token);
+        let jsonResult = await rawData.json();
+        if(jsonResult['code'] == 200 && jsonResult['Status']){
+            return jsonResult['Mensaje'][0]['Estatus'] == 1;
+        }else if ( jsonResult['Error'] == "Falta Token"){
+            return false;
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
+//NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
     console.log(message);
@@ -319,4 +338,5 @@ function VerificarDatosLuminaria(data:any){
    }
    return errores;
 }
+
 

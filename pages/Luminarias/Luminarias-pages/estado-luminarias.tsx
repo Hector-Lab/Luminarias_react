@@ -17,6 +17,7 @@ import { cardColor, DarkPrimaryColor } from "../../../Styles/BachesColor";
 import DropDownPicker from 'react-native-dropdown-picker';
 import {} from '../../controller/api-controller';
 import { StorageService } from '../../controller/storage-controller';
+import { useSafeArea } from "react-native-safe-area-context";
 
 
 
@@ -24,6 +25,7 @@ export default function LuminariasEstados(props: any) {
   const storage = new StorageService();
   const [ listaLuminarias, setListaLuminarias ] = useState([]);
   const [ seleccionLuminaria, setSeleccionLuminaria ] = useState(String);
+  const [ mostrarPickerLuminaria, setMostrarPickerLuminaria ] = useState( false )
   
   useEffect(()=>{
     //NOTE: obtenemos el catalogo de luminarias
@@ -31,10 +33,12 @@ export default function LuminariasEstados(props: any) {
       
         let jsonData = await storage.leerCatalogoLuminarias() ;
         let luminarias = JSON.parse(String(jsonData));
-        let arregloLuminarias = new Array;
-        arregloLuminarias.map((item,index)=>{
-          console.log(item);
+        let arregloLuminarias = [];
+        luminarias.map((item,index)=>{
+          let datos = {label: item.ClaveLuminaria , value: item.Padron};
+          arregloLuminarias.push(datos);
         })
+        setListaLuminarias(arregloLuminarias);
     })();
   },[]);
 
@@ -107,7 +111,13 @@ export default function LuminariasEstados(props: any) {
                     </View>
                     <View style = {{flex:6}} >
                       <View style = {{margin:10}} >
-
+                        <DropDownPicker
+                          open = { mostrarPickerLuminaria }
+                          setOpen = { setMostrarPickerLuminaria }
+                          items = { listaLuminarias }
+                          setItems = {setListaLuminarias}
+                          value = { seleccionLuminaria }
+                          setValue = { setSeleccionLuminaria } />
 
                         <TextInput
                           autoCorrect = { false }

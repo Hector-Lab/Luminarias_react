@@ -4,10 +4,10 @@ import Styles from "../../Styles/styles";
 import { Avatar, Input, Button, Icon } from 'react-native-elements';
 import { BlueColor, DarkPrimaryColor, errorColor } from "../../Styles/BachesColor";
 import { StorageService } from '../controller/storage-controller';
-import { ClavesLuminarias, Auth, CatalogoLuminarias } from '../controller/api-controller';
+import { ClavesLuminarias, Auth, CatalogoLuminarias, VerificarSession } from '../controller/api-controller';
 import Message from '../components/modal-message';
 import Loading from '../components/modal-loading';
-import { USER_COG } from '../../Styles/Iconos'; 
+import { USER_COG, LOGINEXIT } from '../../Styles/Iconos'; 
 
 export default function MenuLuminarias(props:any ){
     const [ contrasenia, setContrasenia ] = useState(String);
@@ -26,15 +26,17 @@ export default function MenuLuminarias(props:any ){
             let sessionValida = await storage.verificarSesion();
             if(sessionValida){
                 //NOTE: si es valida verificamos que el token sea valido
-                 await CatalogoLuminarias()
-                 .then((result)=>{
-                    //NOTE: Todo bien 
-                    props.navigation.navigate("Luminarias");
-                    setLoading(false);
-                 })
-                 .catch((error)=>{
-                    setLoading(false);
-                 })
+                await VerificarSession()
+                .then((status)=>{ 
+                    if(status){
+                        setLoading(false);
+                        props.navigation.navigate("Luminarias");
+                    }else{
+                        lanzarMensaje("Favor de iniciar session","Session Finalizada",LOGINEXIT[0],LOGINEXIT[1]);
+                        setLoading(true);
+                    }
+                })
+                .catch(( error )=>{ setLoading(false) });
             }else{
                 setLoading(false);
             }
