@@ -1,3 +1,4 @@
+import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageService } from '../controller/storage-controller';
 import { StorageBaches } from '../controller/storage-controllerBaches';
@@ -110,7 +111,6 @@ export async function ClavesLuminarias(){
         let rawData = await service.obtenerLuminarias(data,String(token));
         let result = await rawData.json();
         if(result['Status']){
-            console.log(result);
             storage.insertarClavesLuminaria(result['result']);
         }
     }catch(error){
@@ -273,7 +273,26 @@ export async function RefrescarReporte (reporte: string){
         throw verificarErrores(error);
     }
 }
-//NOTE: metodo internos
+//INDEV: metodos para verificar la session
+export async function VerificarSession (){
+    try{
+        let cliente = await storage.getItem("Cliente");
+        let token = await storage.getItem("Token");
+        let datos = {
+            Cliente: cliente
+        };
+        let rawData = await service.VerificaToken(datos,token);
+        let jsonResult = await rawData.json();
+        if(jsonResult['code'] == 200 && jsonResult['Status']){
+            return jsonResult['Mensaje'][0]['Estatus'] == 1;
+        }else if ( jsonResult['Error'] == "Falta Token"){
+            return false;
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
+//NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
     console.log(message);
@@ -294,15 +313,6 @@ async function  verificamosRoles(usuario:{Usuario:string, Cliente:string},token:
     let userLuminaria = await luminariasValid.json();
     if(userLuminaria['Mensaje'].length > 0){
         userLuminaria['Mensaje'][0]['Estatus'] == "1" ? type = 0 : type = -1;
-        if(type = 0){
-            return type;
-        }
-    }
-    //Esto para verificar el rol de los baches
-    let bachesValid = await service.verificarRolBaches(usuario,token);
-    let userBaches = await bachesValid.json();
-    if(userBaches['Mensaje'].length > 0){
-        userBaches['Mensaje'][0]['Estatus'] == "1" ? type = 1 : type = -1;
     }
     return type;
 }
@@ -328,4 +338,5 @@ function VerificarDatosLuminaria(data:any){
    }
    return errores;
 }
+
 

@@ -14,4 +14,6 @@ export const SETTINGMENU = ["settings","material"];
 export const CAMERA = ["camera","material"];
 export const UPLOAD = ["backup","material"];
 export const ADDPHOTO = ['add-a-photo','material'];
-export const DELETE = [`delete`,'material']
+export const DELETE = [`delete`,'material'];
+export const ADDLUMIN = ['more-time','material'];
+export const LOGINEXIT = ['watch-later','material'];

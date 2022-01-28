@@ -327,7 +327,6 @@ export class StorageService{
     public async getItem(key:string){
         return await AsyncStorage.getItem(root+key);
     }
-
     public async clearUser(){
 
         // TipoLuminaria, CatalogoLuminaria, CatalogoMedidores
