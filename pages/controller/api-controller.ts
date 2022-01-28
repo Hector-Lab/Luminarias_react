@@ -33,6 +33,7 @@ export async function Auth(user:string,pass:string){
                 };
                 //Verificamos roles
                 let result = await verificamosRoles(usuario,jsonData['token']);
+                console.log(result);
                 if(result != -1){
                     await storage.setUser(jsonData['idUsuario']+"",jsonData['datosUsuario']['NombreCompleto'],jsonData['token'],jsonData['cliente']);
                 }
@@ -110,7 +111,6 @@ export async function ClavesLuminarias(){
         let rawData = await service.obtenerLuminarias(data,String(token));
         let result = await rawData.json();
         if(result['Status']){
-            console.log(result);
             storage.insertarClavesLuminaria(result['result']);
         }
     }catch(error){

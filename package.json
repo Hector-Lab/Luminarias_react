@@ -30,6 +30,7 @@
     "react-native": "^0.64.3",
     "react-native-animation-utils": "^0.1.0",
     "react-native-camera": "^4.2.1",
+    "react-native-dropdown-picker": "^5.3.0",
     "react-native-elements": "^3.4.2",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-image-viewing": "^0.2.1",
@@ -41,7 +42,6 @@
     "react-native-select-dropdown": "^1.7.0",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-web": "0.17.1",
-    "rn-modal-picker": "^0.3.2",
     "simple-carousel-react-native": "^1.0.2"
   },
   "devDependencies": {

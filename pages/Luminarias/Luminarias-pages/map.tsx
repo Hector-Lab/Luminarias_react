@@ -4,7 +4,7 @@ import Styles from "../../../Styles/styles";
 import MyLocation from '../../components/map-request';
 import  * as Location from 'expo-location';
 import { TouchableOpacity } from "react-native-gesture-handler";
-export default function CustomMap(props:any){
+export default function HistorialUsuario (props:any){
     const [enableLocation, setLocationEnable ] = useState(false);
     const [location,setLocation] = useState(null);
     const [region,setRegion] = useState(null);
