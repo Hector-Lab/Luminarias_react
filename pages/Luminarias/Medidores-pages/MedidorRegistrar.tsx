@@ -141,7 +141,6 @@ export default function MedidorRegistry(props: any) {
           setShowBox(false);
         },
       },
-
       {
         text: "NO",
         onPress: () => {
@@ -168,7 +167,6 @@ export default function MedidorRegistry(props: any) {
     if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
         if (!camera) return;
-
         const photo = await camera.takePictureAsync({
           base64: true,
           quality: 0.4,

@@ -6,9 +6,6 @@ import { Card, Icon } from 'react-native-elements';
 import { BlueColor, DarkPrimaryColor } from "../Styles/BachesColor";
 import Styles from "../Styles/BachesStyles";
 import { ALERTMENU, ENGINNERMENU, PERSONPINMENU, SETTINGMENU } from '../Styles/Iconos';
-
-
-
 export default function Log(props: any) {
     const imagenRequiered = require("../resources/logo.png");
     const AplicacionReportes = () => {
@@ -17,14 +14,10 @@ export default function Log(props: any) {
     const AplicacionLuminaria = () =>{
         props.navigation.navigate("Menu");
     }
-    return(
-        
-        
+    return(                
         <View style = {{flex:1, backgroundColor:'#FFFF'}} >
          
-                <View style = {{flex:1, marginTop:12, justifyContent:"center" , alignItems:"center", marginLeft:0}} > 
-       
-       
+                <View style = {{flex:1, marginTop:12, justifyContent:"center" , alignItems:"center", marginLeft:0}} >               
 
              <Image
               source={imagenRequiered}
@@ -52,7 +45,8 @@ export default function Log(props: any) {
                         </View>                                             
                 </Card>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity 
+                onPress={AplicacionLuminaria}>
 
                 
                 <Card containerStyle={{backgroundColor:'#912307',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
@@ -84,22 +78,17 @@ export default function Log(props: any) {
                             >
                 <Card containerStyle={{backgroundColor:'#e61723',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:0,marginRight:2}}>                  
                         
-                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
-                        
+                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>                                       
                         <Icon style={{marginLeft:20}}
                                         color = {"#FFFF"}
                                         name = { SETTINGMENU[0] } 
                                         type = {SETTINGMENU[1]} 
                                         size = {70}
                                         tvParallaxProperties></Icon>
-                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Botón de pánico </Text>
-                         
+                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Botón de pánico </Text>                         
                         </View>                                             
                 </Card>
                 </TouchableOpacity>
-                        
-                        
-                    
                 </View>
                 <View style = {{flex:1,  justifyContent:"center", alignItems:"center"}} >
                     <Text style = {{color: DarkPrimaryColor}} >
