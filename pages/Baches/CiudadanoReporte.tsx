@@ -9,10 +9,7 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
-import {
-  BlueColor,
-  DarkPrimaryColor,
-} from "../../Styles/BachesColor";
+import { BlueColor, DarkPrimaryColor } from "../../Styles/BachesColor";
 import { Text, Icon, Card, Button } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
 import { Camera } from "expo-camera";
@@ -39,7 +36,7 @@ import {
   CAMERA,
 } from "../../Styles/Iconos";
 import ImageView from "react-native-image-viewing";
-import ImageViewer from '../components/image-view';
+import ImageViewer from "../components/image-view";
 export default function Reportar(props: any) {
   const storage = new StorageBaches();
   const [cameraPermissions, setCameraPermision] = useState(false);
@@ -70,20 +67,19 @@ export default function Reportar(props: any) {
   //NOTE: modal loading
   const [loadingMessage, setLoadingMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [imagenSeleccionada, setImagenSeleccionada ] =  useState("");
-  const [ indexImagenSeleccionada, setIndexImagenSeleccionada ] = useState(-1);
-  const [modalImagenVisible, setModalImagenVisible ] = useState(false);
+  const [imagenSeleccionada, setImagenSeleccionada] = useState("");
+  const [indexImagenSeleccionada, setIndexImagenSeleccionada] = useState(-1);
+  const [modalImagenVisible, setModalImagenVisible] = useState(false);
   let camera: Camera;
-  let dataListSolicitudes=[];
+  let dataListSolicitudes = [];
 
   const [Color, setColor] = useState("");
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       let arrayAreasSolicitud = await CatalogoSolicitud();
-      
-      dataListSolicitudes= arrayAreasSolicitud.map(elemento=>{
-       return {id:elemento.id,name:elemento.descripci_on};
+      dataListSolicitudes = arrayAreasSolicitud.map((elemento) => {
+        return { id: elemento.id, name: elemento.descripci_on };
       });
       setArrayDataList(dataListSolicitudes);
       setCatalogoSolicitud(arrayAreasSolicitud);
@@ -110,7 +106,7 @@ export default function Reportar(props: any) {
   const slideWidth = wp(90);
   const itemHorizontalMargin = wp(2);
   const itemWidth = slideWidth + itemHorizontalMargin * 2;
-  
+
   const __takePicture = async () => {
     if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
@@ -319,42 +315,64 @@ export default function Reportar(props: any) {
       console.log(error);
     }
   };
-  const _renderItem = () =>{
+  const _renderItem = () => {
     let Imagenes = [];
     let direccion = null;
     for (let index = 0; index < 3; index++) {
       //NOTE: Obtenemos la direccion de la imagen
-      if( arrayImageEncode.length > index ){
-          direccion = arrayImageEncode[index].uri;
-          Imagenes.push(
-            <TouchableOpacity 
-              key = {direccion} 
-              onPress = {()=>{setIndexImagenSeleccionada(index);  setImagenSeleccionada(arrayImageEncode[index].uri);}}
-              style = {{ backgroundColor: imagenSeleccionada == arrayImageEncode[index].uri ? BlueColor+"55" : "white", marginLeft:5 }}
-              >
-              <View style = {{flex:1, alignItems:"center", padding:7, borderRadius:5 }} key = {index} >
-                <Image
-                  source = {{uri: String(direccion)}}
-                  style={{ width: 50, height: 60 }}
-                />
-              </View>
-            </TouchableOpacity>
-          );
+      if (arrayImageEncode.length > index) {
+        direccion = arrayImageEncode[index].uri;
+        Imagenes.push(
+          <TouchableOpacity
+            key={direccion}
+            onPress={() => {
+              setIndexImagenSeleccionada(index);
+              setImagenSeleccionada(arrayImageEncode[index].uri);
+            }}
+            style={{
+              backgroundColor:
+                imagenSeleccionada == arrayImageEncode[index].uri
+                  ? BlueColor + "55"
+                  : "white",
+              marginLeft: 5,
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                padding: 7,
+                borderRadius: 5,
+              }}
+              key={index}
+            >
+              <Image
+                source={{ uri: String(direccion) }}
+                style={{ width: 50, height: 60 }}
+              />
+            </View>
+          </TouchableOpacity>
+        );
       }
     }
-    if(arrayImageEncode.length == 0){
-      Imagenes.push(  
-        <View style = {{flex:1 }} key = {"-1"} >
-          <Text style = {{textAlign:"center", fontWeight:"bold"}} > Sin Evidencias </Text>
+    if (arrayImageEncode.length == 0) {
+      Imagenes.push(
+        <View style={{ flex: 1 }} key={"-1"}>
+          <Text style={{ textAlign: "center", fontWeight: "bold" }}>
+            {" "}
+            Sin Evidencias{" "}
+          </Text>
         </View>
-      )
+      );
     }
     return Imagenes;
-  }
-  const eliminarFoto = () =>{
-    setArrayImageEncode(arrayImageEncode.filter(item => item.uri !== imagenSeleccionada ));
+  };
+  const eliminarFoto = () => {
+    setArrayImageEncode(
+      arrayImageEncode.filter((item) => item.uri !== imagenSeleccionada)
+    );
     setImagenSeleccionada("");
-  }
+  };
 
   return (
     <View style={[Styles.container]}>
@@ -491,7 +509,10 @@ export default function Reportar(props: any) {
                 })}
               </Picker>
             </View>
-            <View style={[Styles.bachesCard, { marginTop: 5 }]}>
+
+            <View
+              style={[Styles.bachesCard, { borderRadius: 25, marginTop: 5 }]}
+            >
               {/* NOTE:: Direccion del defecto */}
               <View style={Styles.cardHeader}>
                 <View style={Styles.cardHeaderText}>
@@ -521,7 +542,7 @@ export default function Reportar(props: any) {
               <View style={Styles.cardFoteer}>
                 <View style={Styles.cardLocateBtn}>
                   <TouchableOpacity
-                    style={{}}
+                    style={{ marginLeft: 45 }}
                     onPress={obtenerDireccionActuales}
                   >
                     <Icon
@@ -563,16 +584,18 @@ export default function Reportar(props: any) {
             <View style={{ flex: 6 }}>
               {/* NOTE: Seccion de galeria */}
               <View style={Styles.cardTextView}>
-                  {/* INDEV: Lista de imagenes */}
-                  <ImageViewer
-                     RenderItem = {_renderItem()}
-                     Selected = {imagenSeleccionada}
-                     EliminarImagen = {eliminarFoto}
-                     AgregarImagen = {iniciarCamara}
-                     MaximizarImagen = {()=>{setModalImagenVisible(true) }}
-                     MostrarMensaje = {arrayImageEncode.length == 0}
-                  />
-                </View>
+                {/* INDEV: Lista de imagenes */}
+                <ImageViewer
+                  RenderItem={_renderItem()}
+                  Selected={imagenSeleccionada}
+                  EliminarImagen={eliminarFoto}
+                  AgregarImagen={iniciarCamara}
+                  MaximizarImagen={() => {
+                    setModalImagenVisible(true);
+                  }}
+                  MostrarMensaje={arrayImageEncode.length == 0}
+                />
+              </View>
               <View style={{ flex: 1, padding: 20 }}>
                 <View>
                   <TextInput
@@ -645,12 +668,13 @@ export default function Reportar(props: any) {
         transparent={true}
       />
       <ImageView
-        images = {arrayImageEncode}
-        imageIndex = {indexImagenSeleccionada}
-        visible = {modalImagenVisible}
-        onRequestClose = {()=>{setModalImagenVisible(false)}}
+        images={arrayImageEncode}
+        imageIndex={indexImagenSeleccionada}
+        visible={modalImagenVisible}
+        onRequestClose={() => {
+          setModalImagenVisible(false);
+        }}
       />
-
     </View>
   );
 }
