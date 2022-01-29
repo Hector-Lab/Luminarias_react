@@ -62,7 +62,17 @@ export default function LuminariasEstados(props: any) {
     console.log(luminaria);
   }
   
+  useEffect(()=>{
+    if( mostrarPickerLuminaria ){
+      setMostrarPickerTipoLuminaria( false );
+    }
+    if(mostrarPickerTipoLuminaria){
+      setMostrarPickerLuminaria( false );
+    }
 
+  },[mostrarPickerLuminaria,mostrarPickerTipoLuminaria]);
+
+  
   return (
     <View style={[Styles.TabContainer,{justifyContent:"center"}]}>
                       <View style = {Styles.cardContainer} >
@@ -140,8 +150,13 @@ export default function LuminariasEstados(props: any) {
                           value = { seleccionLuminaria }
                           setValue = { setSeleccionLuminaria }
                           searchable = { true }
-                          language = {"ES"} />
+                          language = {"ES"}
+                          zIndex  = {2000}
+                          zIndexInverse = {1000}
+                          placeholder = { "Seleccione clave de luminaria" }
+                          />
                         <DropDownPicker
+                          style = {{ marginTop:20 }}
                           open = { mostrarPickerTipoLuminaria }
                           setOpen = { setMostrarPickerTipoLuminaria }
                           items = { listaTipoLuminaria}
@@ -149,11 +164,15 @@ export default function LuminariasEstados(props: any) {
                           value = { seleccionTipoLuminaria }
                           setValue = { setSeleccionTipoLuminaria }
                           searchable = { true }
-                          language = { "ES" } />
+                          zIndex = { 1000 }
+                          zIndexInverse = {2000}
+                          language = { "ES" }
+                          placeholder = { " Seleccione el tipo de luminaria" }
+                          />
                         <TextInput
                           autoCorrect = { false }
                           placeholder = {"Pruebas"}
-                          style = {{borderColor:cardColor, borderWidth:1,backgroundColor:cardColor+"40", padding:3, marginTop:10}} />
+                          style = {{borderColor:cardColor, borderWidth:1,backgroundColor:cardColor+"40", padding:3, marginTop:20}} />
                         <TextInput
                           autoCorrect = { false }
                           placeholder = {"Pruebas"}
