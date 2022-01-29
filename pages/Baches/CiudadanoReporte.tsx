@@ -581,6 +581,9 @@ export default function Reportar(props: any) {
                 </View>
               </View>
             </View>
+
+
+            
             <View style={{ flex: 6 }}>
               {/* NOTE: Seccion de galeria */}
               <View style={Styles.cardTextView}>

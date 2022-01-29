@@ -1,36 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
+import Styles from "../../../Styles/BachesStyles";
 import {
-  View,
-  Modal,
   TouchableOpacity,
+  View,
+  Image,
+  Dimensions,
+  Alert,
   ScrollView,
   TextInput,
 } from "react-native";
-import { Text, Icon, Card } from "react-native-elements";
-import { Camera } from "expo-camera";
+import { BlueColor, DarkPrimaryColor } from "../../../Styles/BachesColor";
+import { Text, Icon, Card, Button } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
-import Styles from "../../../Styles/BachesStyles";
+import { Camera } from "expo-camera";
 import {
+  checkConnection,
   CordenadasActualesNumerico,
   ObtenerDireccionActual,
 } from "../../../utilities/utilities";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
-import {
-  cardColor,
-  BlueColor,
-  DarkPrimaryColor,
-} from "../../../Styles/BachesColor";
 import * as Location from "expo-location";
+import {
+  
+  EnviarReportes,
+} from "../../controller/api-controller";
+import { StorageBaches } from "../../controller/storage-controllerBaches";
 import Loading from "../../components/modal-loading";
 import Message from "../../components/modal-message";
-import { StorageService } from "../../controller/storage-controller";
-import { CatalogoLuminarias } from "../../controller/api-controller";
-const storage = new StorageService();
-
-
-
-
-
 import {
   OK,
   DESCONOCIDO,
@@ -39,98 +35,130 @@ import {
   ERROR,
   CAMERA,
 } from "../../../Styles/Iconos";
-import { Button } from "react-native-elements/dist/buttons/Button";
+import ImageView from "react-native-image-viewing";
+import ImageViewer from "../../components/image-view";
 export default function Luminarias(props: any) {
-  const [tipoEstadoFisico, setTipoEstadoFisico] = useState([]);
-  const [selectEstadoFisico, setSelectEstadoFisico] = useState(String);
-  const [loadingMessage, setLoadingMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errorUi, setErrorUi] = useState(String);
-  const [observaciones, setObservaciones] = useState(String);
-  //NOTE: message title
-  const [messageIcon, setMessageIcon] = useState("info");
-  const [headerMessage, setHeaderMessage] = useState("Mensaje");
-  //-------------------
-  const [camaraActiva, setCamaraActiva] = useState(false);
-  const [activarFlash, setActivarFlash] = useState(false);
-  const [TituloMensaje, setTituloMensaje] = useState("Mensaje");
-  const [ErrorMensaje, setErrorMensje] = useState(String);
-  const [IconoMensaje, setIconoMensaje] = useState(String);
-  const [MostrarMensaje, setMostrarMensaje] = useState(String);
-  const [arrayImageEncode, setarrayImageEncode] = useState([]);
-  const [PermisosCamera, setPermisosCamara] = useState(false);
-  const [coordenadas, setCoordenadas] = useState();
+  const storage = new StorageBaches();
+  const [cameraPermissions, setCameraPermision] = useState(false);
+  const [arrayImageEncode, setArrayImageEncode] = useState([]);
+  const [arrayDataList, setArrayDataList] = useState([]);
+  const SLIDER_WIDTH = Dimensions.get("window").width;
+  const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.9);
+  const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
+  const [flashOn, setFlashOn] = useState(false);
+  const [onCamera, setOnCamera] = useState(false);
   const [coords, setCoords] = useState(null);
   const [direccion, setDireccion] = useState("");
-  const [direccionEnviar, setDireccionEnviar] = useState(String);
   const [errorMsg, setErrorMsg] = useState("");
+  const [habilitarBotonFotos, setHabilitarBotonFotos] = useState(false);
+  const { width: viewportWidth, height: viewportHeight } =
+    Dimensions.get("window");
+  const [catalogoSolicitud, setCatalogoSolicitud] = useState([]);
+  const [seleccionSolicitud, setSeleccionSolicitud] = useState("-1");
+  const [contrato, setContrato] = useState(String);
+  const [clasificacion, setClasificacion] = useState(String);
+  const [clave, setClave] = useState(String);
+  const [voltaje, setVoltaje] = useState(String);  
+  const [direccionEnviar, setDireccionEnviar] = useState(String);
+  const [errorUi, setErrorUi] = useState(String);
+  const [iconSource, setIconSource] = useState(String);
+  //NOTE: message title
   const [showMessage, setSHowMessage] = useState(false);
+  const [messageIcon, setMessageIcon] = useState("info");
+  const [headerMessage, setHeaderMessage] = useState("Mensaje");
+  //NOTE: modal loading
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [imagenSeleccionada, setImagenSeleccionada] = useState("");
   const [indexImagenSeleccionada, setIndexImagenSeleccionada] = useState(-1);
   const [modalImagenVisible, setModalImagenVisible] = useState(false);
-
-  let Camara: Camera;
-  const MostrarCamara = () => {
-    console.log("Esto es un ejemplo de un presable");
-    setCamaraActiva(true);
-  };
-
+  let camera: Camera;  
+  const [Color, setColor] = useState("");
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      storage.createOpenDB();
-      storage.createTables();
-      await CatalogoLuminarias().then();
-      storage.leerCatalogoLuminarias();
-      let estados = await storage.leerEstadoFisco();
-      //let arrayEstado = JSON.parse(String(estados));
-      //console.log(arrayEstado)
-      // setTipoEstadoFisico(arrayEstado);
+      let { status } = await Location.requestForegroundPermissionsAsync();                        
+      if (status !== "granted") {
+        setErrorMsg("Permisos negados");
+        return;
+      }
     })();
   }, []);
-  const solicitarPermisosCamara = async () => {
-    //NOTE: pedir Persmisos antes de lanzar la camara
-    try {
-      let { status } = await Camera.requestCameraPermissionsAsync(); //ESto Solo es para requerir permisos
-      if (status === "granted") {
-        setCamaraActiva(true);
-      } else {
+
+  const iniciarCamara = async () => {
+    let { status } = await Camera.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      setOnCamera(true);
+    }
+  };
+
+  function wp(percentage) {
+    const value = (percentage * viewportWidth) / 100;
+    return Math.round(value);
+  }
+
+  const slideHeight = viewportHeight * 0.36;
+  const slideWidth = wp(90);
+  const itemHorizontalMargin = wp(2);
+  const itemWidth = slideWidth + itemHorizontalMargin * 2;
+
+  const __takePicture = async () => {
+    if (arrayImageEncode.length <= 2) {
+      
+      if(direccion==''){
+        obtenerDireccionActuales
       }
-    } catch (error) {
-      console.log(error);
+
+      if (cameraPermissions) {
+        if (!camera) {
+          __takePicture();
+          return;
+        }
+        const photo = await camera.takePictureAsync({
+          base64: true,
+          quality: 0.4,
+        });
+        setImagenSeleccionada(photo.uri);
+        setArrayImageEncode((arrayImageEncode) => [...arrayImageEncode, photo]);
+      
+        setOnCamera(false);
+        let coordenadas = await CordenadasActualesNumerico();
+        setCoords(coordenadas);
+        //NOTE: verificamos los datos de localizacion
+        let DireccionActual = JSON.parse(
+          await ObtenerDireccionActual(coordenadas)
+        );
+        let formatoDireccion = `
+          Estado: ${DireccionActual.region}
+          Ciudad: ${DireccionActual.city}
+          Colonia: ${DireccionActual.district}
+          Calle: ${DireccionActual.street}
+          Codigo Postal: ${DireccionActual.postalCode}
+        `;
+        setDireccionEnviar(
+          `${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
+        );
+        setDireccion(formatoDireccion);
+      } else {
+        let { status } = await Camera.requestCameraPermissionsAsync();
+        setCameraPermision(status === "granted");
+      }
+    }
+    setLoading(false);
+  };
+  const validarNumeroDeFotos = () => {
+    //    console.log(arrayImageEncode.length);
+    if (arrayImageEncode.length < 3) {
+      setOnCamera(true);
+    } else {
+      Alert.alert("INFO", "El número maximo de fotos a registrar es tres.", [
+        { text: "Aceptar", onPress: () => console.log("OK Pressed") },
+      ]);
     }
   };
   const obtenerDireccionActuales = async () => {
     let gpsServiceStatus = await Location.hasServicesEnabledAsync();
     if (gpsServiceStatus) {
       setLoading(true);
-      let coordenadasActuales = await CordenadasActualesNumerico();
-      setCoords(coordenadasActuales);
-      //NOTE: Obtenemos los
-      let DireccionActual = JSON.parse(
-        await ObtenerDireccionActual(coordenadasActuales)
-      );
-      let formatoDireccion = `
-          Estado: ${DireccionActual.region}
-          Ciudad: ${DireccionActual.city}
-          Colonia: ${DireccionActual.district}
-          Calle: ${DireccionActual.street}
-          Codigo Postal: ${DireccionActual.postalCode}`;
-      setDireccion(formatoDireccion);
-      setDireccionEnviar(
-        `${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
-      );
-      console.log(
-        `${DireccionActual.region} ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
-      );
-      setLoading(false);
-    } else {
-      console.log("GPS Apagado");
-      setErrorMsg("Para mejor su experiencia se recomienda encender su GPS");
-      setSHowMessage(true);
-      return false;
-    }
-    setLoading(true);
-    /*
       let coordenadasActuales = await CordenadasActualesNumerico();
       setCoords(coordenadasActuales);
       //NOTE: Obtenemos los
@@ -149,323 +177,466 @@ export default function Luminarias(props: any) {
       );
       console.log(
         `${DireccionActual.region} ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
-      );*/
+      );
+      setLoading(false);
+    } else {
+      console.log("GPS Apagado");
+      setErrorMsg("Para mejor su experiencia se recomienda encender su GPS");
+      setSHowMessage(true);
+      return false;
+    }
+    setLoading(true);
+
     setLoading(false);
   };
-  const __takePicture = async () => {
-    if (arrayImageEncode.length <= 2) {
-      if (PermisosCamera) {
-        if (!Camara) {
-          __takePicture();
-          return;
+  const GuardarReporte = async () => {
+    setLoading(true);
+    let connection = checkConnection();
+    let ciudadano = await storage.obtenerIdCiudadano();
+    let cliente = await storage.obtenerCliente();
+    let arrayImages = new Array();
+    if (connection) {
+      arrayImageEncode.map((item, index) => {
+        console.log("Se hizo push");
+        arrayImages.push("data:image/jpeg;base64," + item.base64);
+      });
+    } else {
+      arrayImageEncode.map((item, index) => {
+        arrayImages.push(item.uri);
+      });
+    }
+    console.log("Numero de imagenes " + arrayImages.length);
+    let data = {
+      Tema: seleccionSolicitud,
+      //Descripcion: observaciones,
+      gps: JSON.stringify(coords),
+      direccion: direccionEnviar,
+      
+      Ciudadano: ciudadano,
+      Cliente: cliente,
+      Evidencia: arrayImages,
+    };
+    await EnviarReportes(data)
+      .then((result) => {
+        //NOTE: Todo bien
+        limpiarPantalla();
+        setErrorMsg("Reporte Guardado");
+        setHeaderMessage("Mensaje");
+        //NOTE: Cambiar los datos por el archvo de iconos
+        setIconSource(OK[1]);
+        setMessageIcon(OK[0]);
+        setSHowMessage(true);
+      })
+      .catch((error) => {
+        //NOTE: manejador de erroes
+        let mensaje = error.message;
+        if (mensaje.includes("interner")) {
+          //NOTE: mensaje sin internet
+          setIconSource(WIFI_OFF[1]);
+          setMessageIcon(WIFI_OFF[0]);
+        } else {
+          setIconSource(ERROR[1]);
+          setMessageIcon(ERROR[0]);
         }
-        const photo = await Camara.takePictureAsync({
-          base64: true,
-          quality: 0.4,
-        });
-        photo.uri;
-        setarrayImageEncode((arrayImageEncode) => [...arrayImageEncode, photo]);
-        setCamaraActiva(false);
-        let coordenadas = await CordenadasActualesNumerico();
-        //setCoords(coordenadas);
-        //NOTE: verificamos los datos de localizacion
-        let DireccionActual = JSON.parse(
-          await ObtenerDireccionActual(coordenadas)
-        );
-        let formatoDireccion = `
-              Estado: ${DireccionActual.region}
-              Ciudad: ${DireccionActual.city}
-              Colonia: ${DireccionActual.district}
-              Calle: ${DireccionActual.street}
-              Codigo Postal: ${DireccionActual.postalCode}
-            `;
-        //setDireccionEnviar(`${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`);
-        //setDireccion(formatoDireccion);
+        setErrorMsg(mensaje);
+        setSHowMessage(true);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+  const verificarDatos = async () => {
+    //NOTE: verificamos los datos antes de enviar
+    //REVIEW: el tema, la direccion, la foto, la descripcion
+    setLoading(true);
+    let error = "";
+    //seleccionSolicitud == "-1" ? (error += "T,") : error;
+    arrayImageEncode.length == 0 ? (error += error += "E,") : error;
+    
+    clave == "" ? (error += "R,") : error;
+    clasificacion == "" ? (error += "R,") : error;
+    voltaje == "" ? (error += "R,") : error;
+    //observaciones == "" ? (error += "D,") : error;
+    direccion == "" ? (error += "S,") : error;
+    if (error != "") {
+      setErrorUi(error);
+      setErrorMsg("Favor de capturar los campos requeridos");
+      setHeaderMessage("Mensaje");
+      setMessageIcon(INFO[0]);
+      setIconSource(INFO[1]);
+      setSHowMessage(true);
+      setLoading(false);
+    } else {
+      //INDEV: mandamos los datos a la API
+      setErrorMsg("");
+     // GuardarReporte();
+    }
+  };
+  const limpiarPantalla = () => {    
+    setContrato('');
+    setClave('');
+    setClasificacion('');
+    setVoltaje('');
+    setDireccion('');    
+    setArrayImageEncode([]);
+    
+  };
+  const solicitarPermisosCamara = async () => {
+    //NOTE: pedir Persmisos antes de lanzar la camara
+    try {
+      let { status } = await Camera.requestCameraPermissionsAsync();
+      if (status === "granted") {
+        await __takePicture();
       } else {
-        let { status } = await Camera.requestCameraPermissionsAsync();
-        //setCameraPermision(status === "granted");
+        //NOTE: lanzamos un un mensaje de permisos
+        setHeaderMessage("Mensaje");
+        setErrorMsg("Favor de conceder permisos");
+        setIconSource(CAMERA[1]);
+        setMessageIcon(CAMERA[0]);
+        setSHowMessage(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const _renderItem = () => {
+    let Imagenes = [];
+    let direccion = null;
+    for (let index = 0; index < 3; index++) {
+      //NOTE: Obtenemos la direccion de la imagen
+      if (arrayImageEncode.length > index) {
+        direccion = arrayImageEncode[index].uri;
+        Imagenes.push(
+          <TouchableOpacity
+            key={direccion}
+            onPress={() => {
+              setIndexImagenSeleccionada(index);
+              setImagenSeleccionada(arrayImageEncode[index].uri);
+            }}
+            style={{
+              backgroundColor:
+                imagenSeleccionada == arrayImageEncode[index].uri
+                  ? BlueColor + "55"
+                  : "white",
+              marginLeft: 5,
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                padding: 7,
+                borderRadius: 5,
+              }}
+              key={index}
+            >
+              <Image
+                source={{ uri: String(direccion) }}
+                style={{ width: 50, height: 60 }}
+              />
+            </View>
+          </TouchableOpacity>
+        );
       }
     }
-    //setLoading(false);
+    if (arrayImageEncode.length == 0) {
+      Imagenes.push(
+        <View style={{ flex: 1 }} key={"-1"}>
+          <Text style={{ textAlign: "center", fontWeight: "bold" }}>
+            {" "}
+            Sin Evidencias{" "}
+          </Text>
+        </View>
+      );
+    }
+    return Imagenes;
+  };
+  const eliminarFoto = () => {
+    setArrayImageEncode(
+      arrayImageEncode.filter((item) => item.uri !== imagenSeleccionada)
+    );
+    setImagenSeleccionada("");
   };
 
   return (
-    <View style={Styles.TabContainer}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={Styles.cardContainer}>
-          <View style={[Styles.bachesCard, { borderRadius: 25, marginTop: 5 }]}>
-            {/* NOTE:: Direccion del defecto */}
-            <View style={Styles.cardHeader}>
-              <View style={Styles.cardHeaderText}>
-                <View style={Styles.cardRpundedIcon}></View>
+    <View style={[Styles.container]}>
+      {onCamera ? (
+        <View style={{ flex: 1 }}>
+          <Camera
+            ref={(r) => {
+              camera = r;
+            }}
+            style={{ flex: 1 }}
+            autoFocus={true}
+            flashMode={
+              flashOn
+                ? Camera.Constants.FlashMode.torch
+                : Camera.Constants.FlashMode.off
+            }
+          >
+            <View
+              style={{
+                flex: 20,
+                marginTop: 10,
+                flexDirection: "row-reverse",
+                marginLeft: 20,
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  justifyContent: "center",
+                  backgroundColor: SuinpacRed,
+                  opacity: 0.5,
+                  height: 40,
+                  width: 40,
+                  borderRadius: 50,
+                }}
+                onPress={() => {
+                  setOnCamera(false);
+                }}
+              >
+                <Icon
+                  tvParallaxProperties
+                  name="cancel"
+                  color={iconColorBlue}
+                ></Icon>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                flex: 2,
+                marginTop: 10,
+                flexDirection: "row",
+                marginLeft: 20,
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  justifyContent: "center",
+                  backgroundColor: torchButton,
+                  opacity: 0.5,
+                  height: 40,
+                  width: 40,
+                  borderRadius: 50,
+                }}
+                onPress={() => {
+                  setFlashOn(!flashOn);
+                }}
+              >
+                <Icon
+                  type="feather"
+                  tvParallaxProperties
+                  name={flashOn ? "zap" : "zap-off"}
+                  color={iconColorBlue}
+                ></Icon>
+              </TouchableOpacity>
+            </View>
+            <View style={{ alignItems: "center", marginBottom: 10 }}>
+              <TouchableOpacity
+                style={{
+                  justifyContent: "center",
+                  backgroundColor: "white",
+                  opacity: 0.5,
+                  height: 60,
+                  width: 60,
+                  borderRadius: 50,
+                }}
+                onPress={solicitarPermisosCamara}
+              >
+                <Icon
+                  tvParallaxProperties
+                  name="camera"
+                  color={SuinpacRed}
+                ></Icon>
+              </TouchableOpacity>
+            </View>
+          </Camera>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={Styles.cardContainer}>
+            <View
+              style={[
+                errorUi.includes("T,") ? Styles.errorDatos : {},
+                { flex: 0.2 },
+              ]}
+            >
+              {/* NOTE:: Area Administrativa */}
+              
+            </View>
+
+            <View
+              style={[Styles.bachesCard, { borderRadius: 25, marginTop: 5 }]}
+            >
+              {/* NOTE:: Direccion del defecto */}
+              <View style={Styles.cardHeader}>
+                <View style={Styles.cardHeaderText}>
+                  <View style={Styles.cardRpundedIcon}></View>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginLeft: 15,
+                      fontSize: 15,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Direccion Actual
+                  </Text>
+                </View>
+              </View>
+              <View style={[Styles.cardTextView]}>
                 <Text
-                  style={{
-                    textAlign: "center",
-                    marginLeft: 15,
-                    fontSize: 15,
-                    fontWeight: "bold",
-                  }}
+                  style={[
+                    Styles.textMultiline,
+                    errorUi.includes("S,") ? Styles.errorDatos : {},
+                  ]}
                 >
-                  Direccion Actual
+                  {direccion}
                 </Text>
               </View>
-            </View>
-            <View style={[Styles.cardTextView]}>
-              <Text
-                style={[
-                  Styles.textMultiline,
-                  errorUi.includes("S,") ? Styles.errorDatos : {},
-                ]}
-              >
-                {direccion}
-              </Text>
-            </View>
-            <View style={Styles.cardFoteer}>
-              <View style={Styles.cardLocateBtn}>
-                <TouchableOpacity
-                  style={{ marginLeft: 45 }}
-                  onPress={obtenerDireccionActuales}
-                >
-                  <Icon
-                    color={DarkPrimaryColor}
-                    size={25}
-                    tvParallaxProperties
-                    name="street-view"
-                    type="font-awesome-5"
-                    style={{ marginLeft: "15%" }}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <TouchableOpacity
-                  style={{}}
-                  onPress={() => {
-                    setDireccion("");
+              <View style={Styles.cardFoteer}>
+                <View style={Styles.cardLocateBtn}>
+                  <TouchableOpacity
+                    style={{ marginLeft: 45 }}
+                    onPress={obtenerDireccionActuales}
+                  >
+                    <Icon
+                      color={DarkPrimaryColor}
+                      size={25}
+                      tvParallaxProperties
+                      name="street-view"
+                      type="font-awesome-5"
+                      style={{ marginLeft: 45 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
-                  <Icon
-                    size={20}
-                    color={DarkPrimaryColor}
-                    tvParallaxProperties
-                    name="trash-alt"
-                    type="font-awesome-5"
-                    style={{ marginRight: "75%" }}
-                  />
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{}}
+                    onPress={() => {
+                      setDireccion("");
+                    }}
+                  >
+                    <Icon
+                      size={20}
+                      color={DarkPrimaryColor}
+                      tvParallaxProperties
+                      name="trash-alt"
+                      type="font-awesome-5"
+                      style={{ marginRight: 45 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
+
+            
+            <View style={{ flex: 6 }}>
+        
+              <View style={{ flex: 1, padding: 20 }}>
+                <View>
+                  <TextInput
+                    onChangeText={(text) => {
+                      setContrato(text);
+                    }}
+                    value={contrato}
+                    placeholder="Contrato"
+                    multiline
+                    numberOfLines={2}
+                    style={[
+                      Styles.bachesTextInput,
+                      errorUi.includes("R,") ? Styles.errorDatos : {},
+                    ]}
+                  ></TextInput>
+                </View>
+                <View>
+                  <TextInput
+                    onChangeText={(text) => {
+                      setClave(text);
+                    }}
+                    value={clave}
+                    placeholder="Clave"
+                    multiline
+                    numberOfLines={2}
+                    style={[
+                      Styles.bachesTextInput,
+                      errorUi.includes("R,") ? Styles.errorDatos : {},
+                    ]}
+                  ></TextInput>
+                </View>
+
+                <View>
+                  <TextInput
+                    onChangeText={(text) => {
+                      setClasificacion(text);
+                    }}
+                    value={clasificacion}
+                    placeholder="Clasificación"
+                    multiline
+                    numberOfLines={2}
+                    style={[
+                      Styles.bachesTextInput,
+                      errorUi.includes("R,") ? Styles.errorDatos : {},
+                    ]}
+                  ></TextInput>
+                </View>
+                <View>
+                  <TextInput
+                    onChangeText={(text) => {
+                      setVoltaje(text);
+                    }}
+                    value={voltaje}
+                    placeholder="Voltaje"
+                    multiline
+                    numberOfLines={2}
+                    style={[
+                      Styles.bachesTextInput,
+                      errorUi.includes("R,") ? Styles.errorDatos : {},
+                    ]}
+                  ></TextInput>
+                </View>
+
+<Picker></Picker>
+
+           
+                      {/* NOTE: Seccion de galeria */}
+              <View style={Styles.cardTextView}>
+                {/* INDEV: Lista de imagenes */}
+                <ImageViewer
+                  RenderItem={_renderItem()}
+                  Selected={imagenSeleccionada}
+                  EliminarImagen={eliminarFoto}
+                  AgregarImagen={iniciarCamara}
+                  MaximizarImagen={() => {
+                    setModalImagenVisible(true);
+                  }}
+                  MostrarMensaje={arrayImageEncode.length == 0}
+                />
+              </View>
+                <Button
+                  icon={{
+                    name: "save",
+                    type: "font-awesome",
+                    size: 15,
+                    color: "white",
+                  }}
+                  title={" Guardar Reporte"}
+                  buttonStyle={[Styles.btnButtonLoginSuccess]}
+                  onPress={verificarDatos}
+                />
               </View>
             </View>
           </View>
-
-          <View style={{ flex: 6 }}>
-            <View style={{ margin: 10 }}>
-              <TextInput
-                autoCorrect={false}
-                placeholder={"Clave Del Padrón"}
-                style={{
-                  borderColor: cardColor,
-                  borderWidth: 1,
-                  backgroundColor: cardColor + "40",
-                  padding: 3,
-                  marginTop: 10,
-                }}
-              />
-              <TextInput
-                autoCorrect={false}
-                placeholder={"Lectura Anterior"}
-                style={{
-                  borderColor: cardColor,
-                  borderWidth: 1,
-                  backgroundColor: cardColor + "40",
-                  padding: 3,
-                  marginTop: 20,
-                }}
-              />
-              <TextInput
-                autoCorrect={false}
-                placeholder={"Lectura Actual"}
-                style={{
-                  borderColor: cardColor,
-                  borderWidth: 1,
-                  backgroundColor: cardColor + "40",
-                  padding: 3,
-                  marginTop: 20,
-                }}
-              />
-              <TextInput
-                autoCorrect={false}
-                placeholder={"Consumo"}
-                style={{
-                  borderColor: cardColor,
-                  borderWidth: 1,
-                  backgroundColor: cardColor + "40",
-                  padding: 3,
-                  marginTop: 20,
-                }}
-              />
-              <TextInput
-                autoCorrect={false}
-                placeholder={"Estado"}
-                style={{
-                  borderColor: cardColor,
-                  borderWidth: 1,
-                  backgroundColor: cardColor + "40",
-                  padding: 3,
-                  marginTop: 20,
-                }}
-              />
-              <TextInput
-                onChangeText={(text) => {
-                  setObservaciones(text);
-                }}
-                value={observaciones}
-                placeholder="Observaciones Del Medidor"
-                multiline
-                numberOfLines={5}
-                style={[
-                  Styles.bachesTextInput,
-                  errorUi.includes("D,") ? Styles.errorDatos : {},
-                ]}
-              ></TextInput>
-
-              <Picker
-                onValueChange={(itemValue, itemIndex) => {
-                  setSelectEstadoFisico(String(itemValue));
-                }}
-              >
-                {tipoEstadoFisico == null ? (
-                  <Picker.Item
-                    label={"Cargando.."}
-                    value={-1}
-                    key={"-1"}
-                  ></Picker.Item>
-                ) : (
-                  tipoEstadoFisico.map((item) => {
-                    return (
-                      <Picker.Item
-                        label={item.Descripcion}
-                        value={item.clave}
-                        key={String(item.clave)}
-                      ></Picker.Item>
-                    );
-                  })
-                )}
-              </Picker>
-
-              <Button
-                icon={{
-                  name: "save",
-                  type: "font-awesome",
-                  size: 15,
-                  color: "white",
-                }}
-                title={" Guardar "}
-                buttonStyle={[Styles.btnButtonLoginSuccess]}
-              />
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-      {/** NOTE: modal para la camara  */}
-      <Modal
-        style={{ flex: 1, backgroundColor: "#000000" }}
-        transparent={false}
-        visible={false}
-      >
-        <Camera
-          ref={(r) => {
-            Camara = r;
-          }}
-          style={{ flex: 1 }}
-          autoFocus={true}
-          flashMode={
-            activarFlash
-              ? Camera.Constants.FlashMode.torch
-              : Camera.Constants.FlashMode.off
-          }
-        >
-          <View
-            style={{
-              flex: 20,
-              marginTop: 10,
-              flexDirection: "row-reverse",
-              marginLeft: 20,
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                justifyContent: "center",
-                backgroundColor: SuinpacRed,
-                opacity: 0.5,
-                height: 40,
-                width: 40,
-                borderRadius: 50,
-              }}
-              onPress={() => {
-                setCamaraActiva(false);
-              }}
-            >
-              <Icon tvParallaxProperties name="cancel" color={iconColorBlue} />
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              flex: 2,
-              marginTop: 10,
-              flexDirection: "row",
-              marginLeft: 20,
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                justifyContent: "center",
-                backgroundColor: torchButton,
-                opacity: 0.5,
-                height: 40,
-                width: 40,
-                borderRadius: 50,
-              }}
-              onPress={() => {
-                setActivarFlash(!activarFlash);
-              }}
-            >
-              <Icon
-                type="feather"
-                tvParallaxProperties
-                name={activarFlash ? "zap" : "zap-off"}
-                color={iconColorBlue}
-              ></Icon>
-            </TouchableOpacity>
-          </View>
-          <View style={{ alignItems: "center", marginBottom: 10 }}>
-            <TouchableOpacity
-              style={{
-                justifyContent: "center",
-                backgroundColor: "white",
-                opacity: 0.5,
-                height: 60,
-                width: 60,
-                borderRadius: 50,
-              }}
-              onPress={() => {
-                PermisosCamera;
-              }}
-            >
-              <Icon
-                tvParallaxProperties
-                name="camera"
-                color={SuinpacRed}
-              ></Icon>
-            </TouchableOpacity>
-          </View>
-        </Camera>
-      </Modal>
+        </ScrollView>
+      )}
       <Message
         transparent={true}
         loading={showMessage}
@@ -489,6 +660,14 @@ export default function Luminarias(props: any) {
         }}
         tittle={"Cargando"}
         transparent={true}
+      />
+      <ImageView
+        images={arrayImageEncode}
+        imageIndex={indexImagenSeleccionada}
+        visible={modalImagenVisible}
+        onRequestClose={() => {
+          setModalImagenVisible(false);
+        }}
       />
     </View>
   );
