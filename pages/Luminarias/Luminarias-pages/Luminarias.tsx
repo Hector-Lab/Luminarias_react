@@ -77,9 +77,6 @@ export default function Luminarias(props: any) {
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      storage.createOpenDB();
-      storage.createTables();
-      await CatalogoLuminarias().then();
       storage.leerCatalogoLuminarias();
       let estados = await storage.leerEstadoFisco();
       //let arrayEstado = JSON.parse(String(estados));

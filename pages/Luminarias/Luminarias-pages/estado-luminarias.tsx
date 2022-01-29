@@ -15,37 +15,54 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Styles from '../../../Styles/BachesStyles';
 import { cardColor, DarkPrimaryColor } from "../../../Styles/BachesColor";
 import DropDownPicker from 'react-native-dropdown-picker';
-import {} from '../../controller/api-controller';
+import {  } from '../../controller/api-controller';
 import { StorageService } from '../../controller/storage-controller';
 
 export default function LuminariasEstados(props: any) {
   const storage = new StorageService();
+  //NOTE: Controladores de la seleccion de luminaria
   const [ listaLuminarias, setListaLuminarias ] = useState([]);
   const [ seleccionLuminaria, setSeleccionLuminaria ] = useState(String);
-  const [ mostrarPickerLuminaria, setMostrarPickerLuminaria ] = useState( false )
+  const [ mostrarPickerLuminaria, setMostrarPickerLuminaria ] = useState( false );
+  //NOTE: controladore de tipo de luminaria
+  const [ listaTipoLuminaria, setListaTipoLuminaria  ] = useState([]);
+  const [ seleccionTipoLuminaria, setSeleccionTipoLuminaria ] = useState(String);
+  const [ mostrarPickerTipoLuminaria, setMostrarPickerTipoLuminaria ] = useState(false);
+  //NOTE: 
   
   useEffect(()=>{
     //NOTE: obtenemos el catalogo de luminarias
     (async () => {
-      
-        let jsonData = await storage.leerCatalogoLuminarias() ;
+        let jsonData = await storage.leerCatalogoLuminarias();
         let luminarias = JSON.parse(String(jsonData));
         let arregloLuminarias = [];
         luminarias.map((item,index)=>{
           let datos = {label: item.ClaveLuminaria , value: item.Padron};
           arregloLuminarias.push(datos);
-        })
+        });
         setListaLuminarias(arregloLuminarias);
+        jsonData = await storage.leerLuminarias();
+        let tipoLuminaria = JSON.parse(String(jsonData));
+        let arregloTipoLuminarias = [];
+        tipoLuminaria.map(( item ,index )=>{
+          let datos = {label: item.Descripcion , value: item.clave};
+          arregloTipoLuminarias.push(datos);
+        });
+        setListaTipoLuminaria(arregloTipoLuminarias);
     })();
   },[]);
-
-
-  //NOTE: Metodos de prueba
-  const eliminarDatos = async () => {
-    console.log("Eliminanda dato");
-    storage.borrarDatos("EstadoFisico");
-    storage.borrarDatos("TipoLuminaria");
+  useEffect(()=>{
+    //NOTE: buscamos los datos de la base de dato
+    ( async () =>{
+      buscarDatos();
+    })();
+  },[seleccionLuminaria])
+  const buscarDatos = async () => {
+    let luminaria = await storage.buscarLuminariaPadron(seleccionLuminaria);
+    console.log(luminaria);
   }
+  
+
   return (
     <View style={[Styles.TabContainer,{justifyContent:"center"}]}>
                       <View style = {Styles.cardContainer} >
@@ -99,7 +116,7 @@ export default function LuminariasEstados(props: any) {
                         >
                           <TouchableOpacity
                             style={{}}
-                            onPress={eliminarDatos}
+                            onPress={ ()=>{} }
                           >
                             <Icon
                               size={20}
@@ -122,8 +139,17 @@ export default function LuminariasEstados(props: any) {
                           setItems = {setListaLuminarias}
                           value = { seleccionLuminaria }
                           setValue = { setSeleccionLuminaria }
+                          searchable = { true }
                           language = {"ES"} />
-
+                        <DropDownPicker
+                          open = { mostrarPickerTipoLuminaria }
+                          setOpen = { setMostrarPickerTipoLuminaria }
+                          items = { listaTipoLuminaria}
+                          setItems = { setListaTipoLuminaria }
+                          value = { seleccionTipoLuminaria }
+                          setValue = { setSeleccionTipoLuminaria }
+                          searchable = { true }
+                          language = { "ES" } />
                         <TextInput
                           autoCorrect = { false }
                           placeholder = {"Pruebas"}

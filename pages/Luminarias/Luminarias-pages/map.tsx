@@ -4,7 +4,9 @@ import Styles from "../../../Styles/styles";
 import MyLocation from '../../components/map-request';
 import  * as Location from 'expo-location';
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { StorageService } from '../../controller/storage-controller';
 export default function HistorialUsuario (props:any){
+    const storage = new StorageService();
     const [enableLocation, setLocationEnable ] = useState(false);
     const [location,setLocation] = useState(null);
     const [region,setRegion] = useState(null);
@@ -31,19 +33,18 @@ export default function HistorialUsuario (props:any){
         setLocationEnable(status == "granted");
 
     }
+    const CerrarSecion = async () =>{
+        await storage.clearUser();
+    }
     return(
         <View style = {[Styles.TabContainer]} >
             <ImageBackground source={image} resizeMode="center" style = {Styles.backgroundimage} imageStyle = {{opacity:.05}} >
             {
-                enableLocation ? 
-                <MyLocation
-                region = {region}
-                /> : 
                 <View>
                     <TouchableOpacity 
                     style = {[,Styles.btnButton,{marginLeft:"25%",marginRight:"25%"}]}
-                    onPress = {requestPermisions}>
-                        <Text style = {Styles.btnTexto} > Activar Permisos </Text>
+                    onPress = {CerrarSecion}>
+                        <Text style = {Styles.btnTexto} > {` Cerrar Sesion `} </Text>
                     </TouchableOpacity>
                 </View>
             }

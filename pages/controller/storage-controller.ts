@@ -296,6 +296,14 @@ export class StorageService{
             },(error)=>{reject(`Mensaje de error: ${error.message}`)});
         });
     }
+    buscarLuminariaPadron(key:string){
+        return new Promise((resolve, reject)=>{
+            db.transaction((commad)=>{
+                commad.executeSql(`SELECT * FROM CatalogoLuminaria WHERE Padron = ?`,[key],
+                (_,{rows})=>{ resolve(JSON.stringify(rows._array))});
+            },(error)=>{reject(`Mensaje de error: ${error.message } - ${error.code}`)});
+        });
+    }
     async insertarHistoral(data: any){
         db = SQLite.openDatabase("data.db");
         let usuarios = await this.getItem('User');
