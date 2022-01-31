@@ -35,7 +35,7 @@ export default function MenuLuminarias(props:any ){
                         props.navigation.navigate("Luminarias");
                     }else{
                         lanzarMensaje("Favor de iniciar session","Session Finalizada",LOGINEXIT[0],LOGINEXIT[1]);
-                        setLoading(true);
+                        setLoading(false);
                     }
                 })
                 .catch(( error )=>{ setLoading(false) });
