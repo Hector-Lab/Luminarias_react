@@ -13,6 +13,7 @@ import { BlueColor, DarkPrimaryColor } from "../../../Styles/BachesColor";
 import { Text, Icon, Card, Button } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
 import { Camera } from "expo-camera";
+import DropDownPicker from "react-native-dropdown-picker";
 import {
   checkConnection,
   CordenadasActualesNumerico,
@@ -20,10 +21,7 @@ import {
 } from "../../../utilities/utilities";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../../Styles/Color";
 import * as Location from "expo-location";
-import {
-  
-  EnviarReportes,
-} from "../../controller/api-controller";
+import { EnviarReportes } from "../../controller/api-controller";
 import { StorageBaches } from "../../controller/storage-controllerBaches";
 import Loading from "../../components/modal-loading";
 import Message from "../../components/modal-message";
@@ -37,11 +35,12 @@ import {
 } from "../../../Styles/Iconos";
 import ImageView from "react-native-image-viewing";
 import ImageViewer from "../../components/image-view";
+import { StorageService } from "../../controller/storage-controller";
 export default function Luminarias(props: any) {
   const storage = new StorageBaches();
   const [cameraPermissions, setCameraPermision] = useState(false);
   const [arrayImageEncode, setArrayImageEncode] = useState([]);
-  const [arrayDataList, setArrayDataList] = useState([]);
+
   const SLIDER_WIDTH = Dimensions.get("window").width;
   const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.9);
   const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
@@ -53,12 +52,12 @@ export default function Luminarias(props: any) {
   const [habilitarBotonFotos, setHabilitarBotonFotos] = useState(false);
   const { width: viewportWidth, height: viewportHeight } =
     Dimensions.get("window");
-  const [catalogoSolicitud, setCatalogoSolicitud] = useState([]);
+
   const [seleccionSolicitud, setSeleccionSolicitud] = useState("-1");
   const [contrato, setContrato] = useState(String);
   const [clasificacion, setClasificacion] = useState(String);
   const [clave, setClave] = useState(String);
-  const [voltaje, setVoltaje] = useState(String);  
+  const [voltaje, setVoltaje] = useState(String);
   const [direccionEnviar, setDireccionEnviar] = useState(String);
   const [errorUi, setErrorUi] = useState(String);
   const [iconSource, setIconSource] = useState(String);
@@ -72,11 +71,52 @@ export default function Luminarias(props: any) {
   const [imagenSeleccionada, setImagenSeleccionada] = useState("");
   const [indexImagenSeleccionada, setIndexImagenSeleccionada] = useState(-1);
   const [modalImagenVisible, setModalImagenVisible] = useState(false);
-  let camera: Camera;  
+  const getData = new StorageService();
+
+  //NOTE: Controladores de la seleccion de luminaria
+  const [listaLuminarias, setListaLuminarias] = useState([]);
+  const [seleccionLuminaria, setSeleccionLuminaria] = useState(String);
+  const [mostrarPickerLuminaria, setMostrarPickerLuminaria] = useState(false);
+  //NOTE: controladore de tipo de luminaria
+  const [listaTipoLuminaria, setListaTipoLuminaria] = useState([]);
+  const [seleccionTipoLuminaria, setSeleccionTipoLuminaria] = useState(String);
+  const [mostrarPickerTipoLuminaria, setMostrarPickerTipoLuminaria] =
+    useState(false);
+  const [showCarousel, setShowCarousel] = useState(true);
+
+  let camera: Camera;
   const [Color, setColor] = useState("");
+
+  useEffect(() => {
+    if (mostrarPickerLuminaria) {
+      setMostrarPickerTipoLuminaria(false);
+    }
+    if (mostrarPickerTipoLuminaria) {
+      setMostrarPickerLuminaria(false);
+    }
+  }, [mostrarPickerLuminaria, mostrarPickerTipoLuminaria]);
+
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();                        
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      let jsonData = await getData.leerEstadoFisco();
+      let luminarias = JSON.parse(String(jsonData));
+      console.log(luminarias);
+      let arregloLuminarias = [];
+      luminarias.map((item, index) => {
+        let datos = { label: item.Descripcion, value: item.clave };
+        arregloLuminarias.push(datos);
+      });
+      setListaTipoLuminaria(arregloLuminarias);
+      jsonData = await getData.leerLuminarias();
+      let tipoLuminaria = JSON.parse(String(jsonData));
+      let arregloTipoLuminarias = [];
+      tipoLuminaria.map((item, index) => {
+        let datos = { label: item.Descripcion, value: item.clave };
+        arregloTipoLuminarias.push(datos);
+      });
+      setListaLuminarias(arregloTipoLuminarias);
+
       if (status !== "granted") {
         setErrorMsg("Permisos negados");
         return;
@@ -85,9 +125,19 @@ export default function Luminarias(props: any) {
   }, []);
 
   const iniciarCamara = async () => {
+    
+
+
+
     let { status } = await Camera.requestCameraPermissionsAsync();
     if (status === "granted") {
+      verificarTomarEvidencia();
+      
+      //Iniciar camara
       setOnCamera(true);
+      
+
+
     }
   };
 
@@ -102,12 +152,11 @@ export default function Luminarias(props: any) {
   const itemWidth = slideWidth + itemHorizontalMargin * 2;
 
   const __takePicture = async () => {
+    
     if (arrayImageEncode.length <= 2) {
-      
-      if(direccion==''){
-        obtenerDireccionActuales
+      if (direccion == "") {
+        obtenerDireccionActuales;
       }
-
       if (cameraPermissions) {
         if (!camera) {
           __takePicture();
@@ -119,7 +168,6 @@ export default function Luminarias(props: any) {
         });
         setImagenSeleccionada(photo.uri);
         setArrayImageEncode((arrayImageEncode) => [...arrayImageEncode, photo]);
-      
         setOnCamera(false);
         let coordenadas = await CordenadasActualesNumerico();
         setCoords(coordenadas);
@@ -199,6 +247,7 @@ export default function Luminarias(props: any) {
       arrayImageEncode.map((item, index) => {
         console.log("Se hizo push");
         arrayImages.push("data:image/jpeg;base64," + item.base64);
+        verificarTomarEvidencia();
       });
     } else {
       arrayImageEncode.map((item, index) => {
@@ -211,7 +260,7 @@ export default function Luminarias(props: any) {
       //Descripcion: observaciones,
       gps: JSON.stringify(coords),
       direccion: direccionEnviar,
-      
+
       Ciudadano: ciudadano,
       Cliente: cliente,
       Evidencia: arrayImages,
@@ -245,6 +294,15 @@ export default function Luminarias(props: any) {
         setLoading(false);
       });
   };
+
+  const verificarTomarEvidencia = () => {
+    if (arrayImageEncode.length == 0) {
+      setShowCarousel(true);
+    }else{
+      setShowCarousel(false);
+    }
+  };
+
   const verificarDatos = async () => {
     //NOTE: verificamos los datos antes de enviar
     //REVIEW: el tema, la direccion, la foto, la descripcion
@@ -252,7 +310,7 @@ export default function Luminarias(props: any) {
     let error = "";
     //seleccionSolicitud == "-1" ? (error += "T,") : error;
     arrayImageEncode.length == 0 ? (error += error += "E,") : error;
-    
+
     clave == "" ? (error += "R,") : error;
     clasificacion == "" ? (error += "R,") : error;
     voltaje == "" ? (error += "R,") : error;
@@ -269,17 +327,16 @@ export default function Luminarias(props: any) {
     } else {
       //INDEV: mandamos los datos a la API
       setErrorMsg("");
-     // GuardarReporte();
+      // GuardarReporte();
     }
   };
-  const limpiarPantalla = () => {    
-    setContrato('');
-    setClave('');
-    setClasificacion('');
-    setVoltaje('');
-    setDireccion('');    
+  const limpiarPantalla = () => {
+    setContrato("");
+    setClave("");
+    setClasificacion("");
+    setVoltaje("");
+    setDireccion("");
     setArrayImageEncode([]);
-    
   };
   const solicitarPermisosCamara = async () => {
     //NOTE: pedir Persmisos antes de lanzar la camara
@@ -302,10 +359,13 @@ export default function Luminarias(props: any) {
   const _renderItem = () => {
     let Imagenes = [];
     let direccion = null;
+    
     for (let index = 0; index < 3; index++) {
+      
       //NOTE: Obtenemos la direccion de la imagen
       if (arrayImageEncode.length > index) {
         direccion = arrayImageEncode[index].uri;
+        
         Imagenes.push(
           <TouchableOpacity
             key={direccion}
@@ -392,6 +452,7 @@ export default function Luminarias(props: any) {
                   borderRadius: 50,
                 }}
                 onPress={() => {
+                  
                   setOnCamera(false);
                 }}
               >
@@ -462,7 +523,6 @@ export default function Luminarias(props: any) {
               ]}
             >
               {/* NOTE:: Area Administrativa */}
-              
             </View>
 
             <View
@@ -537,10 +597,7 @@ export default function Luminarias(props: any) {
               </View>
             </View>
 
-
-            
             <View style={{ flex: 6 }}>
-        
               <View style={{ flex: 1, padding: 20 }}>
                 <View>
                   <TextInput
@@ -604,23 +661,69 @@ export default function Luminarias(props: any) {
                   ></TextInput>
                 </View>
 
-<Picker></Picker>
+                <View style={{ flex: 6 }}>
+                  <View style={{ marginTop: 20 }}>
+                    <DropDownPicker
+                      open={mostrarPickerLuminaria}
+                      setOpen={setMostrarPickerLuminaria}
+                      items={listaLuminarias}
+                      setItems={setListaLuminarias}
+                      value={seleccionLuminaria}
+                      setValue={setSeleccionLuminaria}
+                      searchable={true}
+                      language={"ES"}
+                      zIndex={2000}
+                      zIndexInverse={1000}
+                      listMode={"SCROLLVIEW"}
+                      placeholder={"Seleccione clave de luminaria"}
+                    />
+                    <DropDownPicker
+                      style={{ marginTop: 20 }}
+                      open={mostrarPickerTipoLuminaria}
+                      setOpen={setMostrarPickerTipoLuminaria}
+                      items={listaTipoLuminaria}
+                      setItems={setListaTipoLuminaria}
+                      value={seleccionTipoLuminaria}
+                      setValue={setSeleccionTipoLuminaria}
+                      searchable={true}
+                      zIndex={1000}
+                      zIndexInverse={2000}
+                      language={"ES"}
+                      listMode={"SCROLLVIEW"}
+                      placeholder={" Seleccione el tipo de luminaria"}
+                    />
+                  </View>
+                </View>
 
-           
-                      {/* NOTE: Seccion de galeria */}
-              <View style={Styles.cardTextView}>
-                {/* INDEV: Lista de imagenes */}
-                <ImageViewer
-                  RenderItem={_renderItem()}
-                  Selected={imagenSeleccionada}
-                  EliminarImagen={eliminarFoto}
-                  AgregarImagen={iniciarCamara}
-                  MaximizarImagen={() => {
-                    setModalImagenVisible(true);
-                  }}
-                  MostrarMensaje={arrayImageEncode.length == 0}
-                />
-              </View>
+                {/* NOTE: Seccion de galeria */}
+              
+
+                {showCarousel ? (
+                  <Button
+                    icon={{
+                      name: "camera",
+                      type: "font-awesome",
+                      size: 15,
+                      color: "white",
+                    }}
+                    title={" Tomar Evidencia "}
+                    buttonStyle={[Styles.btnButtonLoginSuccess]}
+                    onPress={iniciarCamara}
+                  />
+                ) : (
+                  <View style={Styles.cardTextView}>
+                  {/* INDEV: Lista de imagenes */}
+                  <ImageViewer
+                    RenderItem={_renderItem()}
+                    Selected={imagenSeleccionada}
+                    EliminarImagen={eliminarFoto}
+                    AgregarImagen={iniciarCamara}
+                    MaximizarImagen={() => {
+                      setModalImagenVisible(true);
+                    }}
+                    MostrarMensaje={arrayImageEncode.length == 0}
+                  />
+                </View>                )}
                 <Button
                   icon={{
                     name: "save",
