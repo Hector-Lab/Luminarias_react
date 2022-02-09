@@ -41,6 +41,7 @@
     "react-native-screens": "~3.8.0",
     "react-native-select-dropdown": "^1.7.0",
     "react-native-snap-carousel": "^3.9.1",
+    "react-native-touchable-scale": "^2.1.2",
     "react-native-web": "0.17.1",
     "simple-carousel-react-native": "^1.0.2"
   },

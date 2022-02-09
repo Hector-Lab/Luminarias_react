@@ -23,7 +23,7 @@ export default class ImageViewer extends React.Component<
     render(){
         console.log(this.props.Selected);
         return(
-            <View style = {{ flex:1 , marginTop:25}} >
+            <View style = {{ flex:1 , marginTop:25,elevation:0}} >
                 <Card >
                     <View style = {{flex:1, flexDirection: this.props.MostrarMensaje ? "column" : "row" }}  >
                         {
