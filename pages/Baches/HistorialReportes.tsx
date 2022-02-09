@@ -132,7 +132,6 @@ export default function HistorialReporte(props: any) {
     .catch((error)=>{
       let message = String(error.message);
       if(message.includes("encontrados")){
-        console.log(JSON.stringify(INFO));
         setTituloMensaje("Mensaje");
         setIconSource(INFO[1]);
         setIcono(INFO[0]);

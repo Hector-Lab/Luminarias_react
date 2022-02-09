@@ -20,6 +20,7 @@ export default class Evidencias extends React.Component<
     arrayLength: number,
     activeIndexFunction: Function
 }>{
+  //INDEV: agregar la vista de la evidencia
     render(){
         const _renderItem = ({ item, index }) => {
             return (

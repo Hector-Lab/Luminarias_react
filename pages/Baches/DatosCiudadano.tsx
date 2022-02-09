@@ -33,7 +33,7 @@ export default function CustomMapBaches(props:any){
     const [ tipoBoton , setTipoBoton ] = useState(true); // NOTE: true - Agregar, false - Editar
     const [iconSource, setIconSource ] = useState("");
     const [mostrarPicker, setMostrarPicker ] = useState(true);
-    const curpError = ["","Favor de revisar la CURP ingresada","Formato de CURP no valido"];
+    const curpError = ["","CURP no valida","Formato de CURP no valido"];
     const storage = new StorageBaches();
     useEffect(() => {
         (async () => {
@@ -134,6 +134,8 @@ export default function CustomMapBaches(props:any){
                         setShowMessage(true);
                         //NOTE: mostramos los datos
                         setMostrarPicker(false);
+                        RestaurarDatos();
+
                     }
                     setLoading(false);
                 }else{
@@ -194,7 +196,7 @@ export default function CustomMapBaches(props:any){
             }
 
         }else{
-            errorCURP != "" ? setErrorMsg(errorCURP + "\n\n- Favor de ingresar los datos requeridos") : setErrorMsg("Favor de ingresar los datos requeridos");
+            errorCURP != "" ? setErrorMsg(errorCURP + "\n\n- Favor de revisar los datos requeridos") : setErrorMsg("Favor de revisar los datos requeridos");
             setIconModal(USER_COG[0]);
             setIconSource(USER_COG[1]);
             setShowMessage(true);
@@ -232,9 +234,8 @@ export default function CustomMapBaches(props:any){
     //NOTE: este metodo es para recuperarlo desde el storage
     const RestaurarDatos = async () =>{
         try{
-            console.log("Es al cargar los datos del empleado");
+            setLoading(true);
             let persona = await storage.obtenerDatosPersona();
-            console.log(persona);
             if(persona != null ){
                 setTipoBoton(false);
                 let datos = JSON.parse(persona);                
@@ -248,11 +249,6 @@ export default function CustomMapBaches(props:any){
                 setEmail(datos['Email']);
                 setSolicitarDatos(false);
                 setLoading(false);
-                //NOTE: mostramos un mensaje de ok
-                setErrorMsg("Datos Recuperados");
-                setIconModal(OK[0]);
-                setIconSource(OK[1]);
-                setShowMessage(true);
                 setMostrarPicker(false);
             }else{
                 setTipoBoton(true);
@@ -338,6 +334,7 @@ export default function CustomMapBaches(props:any){
 
     }
     const handleRegistrar = async () => {
+        setErrorUI("");
         setSolicitarDatos(false); 
         setLoading(false);
         setMostrarPicker(true);
@@ -367,6 +364,7 @@ export default function CustomMapBaches(props:any){
                         mostrarPicker ? 
                         <View style = {{borderColor:"red",borderWidth: String(errorUI).includes("CL,") ? 2 : 0 }} >
                         <Picker
+                        enabled = {!solicitarDatos}
                         selectedValue={cliente} 
                         onValueChange = {(itemValue, itemIndex)=>{setCliente(itemValue)}}
                         style = {[{backgroundColor:cardColor+55}]}
@@ -387,7 +385,7 @@ export default function CustomMapBaches(props:any){
                                 keyboardType="default"
                                 value= { CURP}
                                 label={ "CURP"}
-                                editable={false}
+                                editable={tipoBoton}
                                 onChangeText={ text => { setCURP(text);}}
                                 autoCapitalize = {"characters"}
 
@@ -398,7 +396,7 @@ export default function CustomMapBaches(props:any){
                                 style = { [Styles.inputs]} 
                                 keyboardType="default"
                                 value= { RFC }
-                                editable={false}
+                                editable={tipoBoton}
                                 label={ "RFC: XAXX010101000" }
                                 onChangeText={ text => { setRFC(text); }}
                                 autoCompleteType={undefined}
@@ -409,14 +407,14 @@ export default function CustomMapBaches(props:any){
                                 style={[Styles.inputs, { borderWidth: String(errorUI).includes("N,") ? 1 : 0, borderColor: "red" }]}
                                 label={"Nombres"}
                                 onChangeText={text => setNombres(text)} 
-                                editable={false}
+                                editable={tipoBoton}
                                 autoCompleteType={undefined}                        />
                             <Input
                                 value = { paterno }
                                 keyboardType="twitter"
                                 style = {[Styles.inputs,{borderWidth: String(errorUI).includes("M,") ? 1 : 0 ,borderColor:"red"}]}
                                 label={ "Apellido Paterno" }
-                                editable={false}
+                                editable={tipoBoton}
                                 onChangeText={text => setPaterno(text)}
                                 autoCompleteType={undefined}
                             />
@@ -425,7 +423,7 @@ export default function CustomMapBaches(props:any){
                                 keyboardType="twitter"
                                 style = {[Styles.inputs,{borderWidth: String(errorUI).includes("P,") ? 1 : 0 ,borderColor:"red"}]}
                                 label={ "Apellido Materno" }
-                                editable={false}
+                                editable={tipoBoton}
                                 onChangeText={ text => setMaterno(text)}
                                 autoCompleteType={undefined}
                             />

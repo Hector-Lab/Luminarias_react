@@ -159,7 +159,7 @@ export default function LuminariasEstados(props: any) {
                           style = {{ marginTop:20 }}
                           open = { mostrarPickerTipoLuminaria }
                           setOpen = { setMostrarPickerTipoLuminaria }
-                          items = { listaTipoLuminaria}
+                          items = { listaTipoLuminaria }
                           setItems = { setListaTipoLuminaria }
                           value = { seleccionTipoLuminaria }
                           setValue = { setSeleccionTipoLuminaria }

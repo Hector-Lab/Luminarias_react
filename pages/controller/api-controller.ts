@@ -49,7 +49,6 @@ export async function Auth(user:string,pass:string){
 export async function CatalogoLuminarias() {
     let token = await storage.getItem("Token");
     let cliente = await storage.getItem("Cliente");
-    console.log(cliente);
     if( token != null ){
         let data = {
             Cliente : cliente
@@ -127,8 +126,7 @@ export async function ClavesMedidor() {
         };
         let rawData = await service.obtenerMedidores(data,token);
         let result = await rawData.json();
-        if(result['Status']){
-            console.log(result);
+        if(result['Status']){            
             storage.insertClavesMedidores(result['result']);
         }else{
             console.log("Sin datos que descargar");
@@ -185,11 +183,8 @@ export async function ObtenerMisReportes (){
                 "Cliente": cliente,
                 "Ciudadano": ciudadano
             };
-            console.log(datos);
             let rawData = await service.obtenerreportesCiudadano(datos);
             let jsonData = await rawData.json();
-            
-            console.log(jsonData);
             if(jsonData.Code == 200){
                 return jsonData.Mensaje;
             }else if(jsonData.Code == 404){
@@ -210,7 +205,6 @@ export async function RecuperarDatos(inputCliente: string, inputCurp: string ){
         };
         let rawData = await service.recuperarDatosCiudadano(datos);
         let ciudadano = await rawData.json();
-        console.log(ciudadano.Code == 200 + " - " +ciudadano.Code);
         if(ciudadano.Code == 200){
             return JSON.stringify(ciudadano.Mensaje[0]);
         }else if (ciudadano.Code == 404){
@@ -234,7 +228,6 @@ export async function editarDatosCiudadano( curp:string, telefono:string, email:
         };
         let rawData = await service.editarDatosCiudadano(datos);
         let ciudadanoDatos = await rawData.json();
-        console.log(ciudadanoDatos);
         if(ciudadanoDatos.Code == 200){
             return JSON.stringify(ciudadanoDatos.Mensaje);
         }else if( ciudadanoDatos.Code == 403 ){
@@ -258,7 +251,6 @@ export async function RefrescarReporte (reporte: string){
             };
             let rawData = await service.ObtenerReporte(data);
             let reportData = await rawData.json();
-            console.log(reportData);
             if(reportData.code == 200){
                 console.log("Todo esta bien");
                 return JSON.stringify(reportData.Mensaje[0]);
@@ -295,7 +287,6 @@ export async function VerificarSession (){
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
-    console.log(message);
     if(message.includes("Usuario")){
         return userNotFound;
     }else{

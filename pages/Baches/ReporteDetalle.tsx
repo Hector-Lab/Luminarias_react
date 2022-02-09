@@ -8,6 +8,8 @@ import Evidencias from '../components/modalEvidencia';
 import Message from '../components/modal-message';
 import { WIFI_OFF,ERROR,  } from '../../Styles/Iconos';
 import { RefrescarReporte } from '../controller/api-controller';
+import ImageView from "react-native-image-viewing";
+import { color } from "react-native-elements/dist/helpers";
 
 export default function DetallesReporte(props:any){
     const [ Reporte, setReporte ] = useState(null); 
@@ -33,7 +35,6 @@ export default function DetallesReporte(props:any){
     let estatusColor = cardColor;
     useEffect(()=>{
         let { Reporte } = props.route.params;
-        console.log(Reporte.id);
         setRechazada(Reporte.FechaRechazada != null);
         //NOTE: Seleccionamos el icono
         if(Reporte.Area.includes("Alumbrado"))
@@ -54,10 +55,14 @@ export default function DetallesReporte(props:any){
             setEvidenciaBloqueo(true);
         }else{
             let arrayImagenes = String(Reporte.Rutas).split(",");
-            setArrayImagenes(arrayImagenes);
+            //NOTE: agregamos los la direccion
+            let arrayImagenEncode = arrayImagenes.map(function( item ){
+                return {uri:`https:/suinpac.com/${item}`};
+            });
+            console.log(arrayImagenEncode);
+            setArrayImagenes(arrayImagenEncode);
             setMapaBloqueado(false);
         }
-        
         setReporte(Reporte);
     },[]);
     useEffect(()=>{
@@ -84,7 +89,6 @@ export default function DetallesReporte(props:any){
         props.navigation.pop();
     }
     const activeIndexFunction = (index) =>{
-        console.log(index);
         setActiveIndex(index);
     }
     const ActualizarReporte = async () =>{
@@ -233,7 +237,7 @@ export default function DetallesReporte(props:any){
                                 size: 15,
                                 color: 'white',
                             }}
-                            onPress = { ()=>{setModalEvidenciasVisible(true)} }
+                            onPress = { ()=>{setModalEvidenciasVisible(true); console.log(arrayImagenes) } }
                             title={" Evidencia"}
                             buttonStyle = {[Styles.btnButtonSuccessSinPading]} />
                         <Button 
@@ -261,7 +265,7 @@ export default function DetallesReporte(props:any){
                 onCancelLoad={()=>{}}
                 tittle="Mensaje"
             />
-            <Evidencias
+            {/*<Evidencias
                 transparente = {false}
                 visible = {modalEvidenciasVisible}
                 itemWidth={ itemWidth }
@@ -272,7 +276,7 @@ export default function DetallesReporte(props:any){
                 activeIndex={activeIndex}
                 arrayLength={ arrayImagenes.length }
                 activeIndexFunction = {activeIndexFunction}
-            />
+            /> */}
             <Message
                 tittle="Mensaje"
                 transparent = {true}
@@ -284,6 +288,23 @@ export default function DetallesReporte(props:any){
                 loading = {mostrarMensaje} //NOTE: lo mostramos cuando 
                 message = {message}
                 onCancelLoad={()=>{ setMostrarMensaje(false)}}
+            />
+            <ImageView
+                images={arrayImagenes}
+                imageIndex={activeIndex}
+                visible={modalEvidenciasVisible}
+                onRequestClose={() => {
+                setModalEvidenciasVisible(false);
+                }}
+                swipeToCloseEnabled={false}
+                FooterComponent={({ imageIndex }) => (
+                    <View style = {{flex:1, alignItems:"center", marginBottom:"5%"}} >
+                        <View >
+                            <Text style = {{color:"white", fontWeight:"bold", fontSize:16}} >{`${ imageIndex + 1 }/${arrayImagenes.length}`}</Text>
+                        </View>
+                    </View>
+                )}
+                animationType = "fade"
             />
         </ScrollView>
     );

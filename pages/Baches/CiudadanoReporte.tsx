@@ -290,6 +290,7 @@ export default function Reportar(props: any) {
     }
   };
   const limpiarPantalla = () => {
+    setImagenSeleccionada("");
     setSeleccionSolicitud("");
     setDireccion("");
     setCoords(null);
@@ -677,6 +678,14 @@ export default function Reportar(props: any) {
         onRequestClose={() => {
           setModalImagenVisible(false);
         }}
+        swipeToCloseEnabled={false}
+        FooterComponent={({ imageIndex }) => (
+          <View style = {{flex:1, alignItems:"center", marginBottom:"5%"}} >
+              <View >
+                  <Text style = {{color:"white", fontWeight:"bold", fontSize:16}} >{`${ imageIndex + 1 }/${arrayImageEncode.length}`}</Text>
+              </View>
+          </View>
+      )}
       />
     </View>
   );
