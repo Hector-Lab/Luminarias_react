@@ -203,6 +203,7 @@ export async function RecuperarDatos(inputCliente: string, inputCurp: string ){
             "Cliente": inputCliente,
             "Curp": inputCurp
         };
+        console.log(datos);
         let rawData = await service.recuperarDatosCiudadano(datos);
         let ciudadano = await rawData.json();
         if(ciudadano.Code == 200){
@@ -275,9 +276,10 @@ export async function VerificarSession (){
         };
         let rawData = await service.VerificaToken(datos,token);
         let jsonResult = await rawData.json();
+        console.log(jsonResult);
         if(jsonResult['code'] == 200 && jsonResult['Status']){
             return jsonResult['Mensaje'][0]['Estatus'] == 1;
-        }else if ( jsonResult['Error'] == "Falta Token"){
+        }else if ( jsonResult['Message'] == "Token has expired"){
             return false;
         }
     }catch(error){

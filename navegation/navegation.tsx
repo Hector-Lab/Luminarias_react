@@ -24,13 +24,6 @@ function Nav() {
                 <Stack.Screen name='Menu'>
                     {props => <MenuLuminarias {...props} ></MenuLuminarias>}
                 </Stack.Screen> 
-                <Stack.Screen name='Luminarias'>
-                    {props => <MainLuminaria {...props} ></MainLuminaria>}
-                </Stack.Screen> 
-                <Stack.Screen name='Medidores'>
-                    {props => <MedidoresHome {...props} ></MedidoresHome>}
-                </Stack.Screen> 
-        
             </Stack.Navigator>
         </NavigationContainer>
     )

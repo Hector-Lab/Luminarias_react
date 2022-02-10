@@ -1,102 +1,240 @@
-import React, { Component,useEffect, useState } from "react";
-import { View, TouchableOpacity, Text,Image, ImageBackground ,StyleSheet,
-  
-    Dimensions} from  'react-native';
-import { Card, Icon } from 'react-native-elements';
-import { BlueColor, DarkPrimaryColor } from "../Styles/BachesColor";
+import { Picker } from "@react-native-picker/picker";
+import React, { useEffect, useState } from "react";
+import { View, TouchableOpacity, Text } from  'react-native';
+import {  Input, Avatar } from 'react-native-elements';
+import { ScrollView } from "react-native-gesture-handler";
+import { BlueColor, cardColor, DarkPrimaryColor } from "../Styles/BachesColor";
 import Styles from "../Styles/BachesStyles";
-import { ALERTMENU, ENGINNERMENU, PERSONPINMENU, SETTINGMENU } from '../Styles/Iconos';
+import { DESCONOCIDO, USER_COG, WIFI_OFF,LOGINEXIT } from '../Styles/Iconos';
+import { checkConnection, CordenadasActualesNumerico, ObtenerDireccionActual, verificarcurp } from "../utilities/utilities";
+import Message from "./components/modal-message";
+import { ObtenerMunicipios, RecuperarDatos, VerificarSession } from "./controller/api-controller";
+import { StorageBaches } from './controller/storage-controllerBaches';
 export default function Log(props: any) {
+
+    const storage = new StorageBaches();
+    const [CURP, setCURP ] = useState(String);
     const imagenRequiered = require("../resources/logo.png");
-    const AplicacionReportes = () => {
-        props.navigation.navigate("Reportes");
+    const [arregloMunicipios,setArregloMunicipios ] = useState<any[]>([]);
+    const [errorUI,  setErrorUI ] = useState("");
+    const curpError = ["","CURP no valida","Formato de CURP no valido"];
+    const [ errorMsg, setErrorMsg] = useState(String);
+    const [cliente, setCliente ] = useState( -1 );
+    const [ iconModal, setIconModal ] = useState(String);
+    const [ iconSource, setIconSource ] = useState(String);
+    const [ showMessage, setShowMessage ] = useState(false);
+    const [loading, setLoading ] = useState(true); 
+    const [ tittleMesage, setTittleMesaje ] = useState("Mensaje");
+    //INDEV: verificamos las session y la validez del token
+    useEffect(()=>{
+        (async ()=>{
+            //INDEV: obtenemos la lista de los municipios
+            
+            await VerificarSession()
+            .then( async (status)=>{ 
+                if(status){
+                    setLoading(false);
+                    await storage.setModoPantallaDatos("0");
+                    props.navigation.navigate("Reportes");
+                }else{
+                    lanzarMensaje("Favor de iniciar session","Session Finalizada",LOGINEXIT[1],LOGINEXIT[0]);
+                    let coords = await CordenadasActualesNumerico();
+                    let jsonUbicacion = await ObtenerDireccionActual(coords);
+                    if(jsonUbicacion != null && jsonUbicacion != undefined )
+                    {
+                        let ubicacionActual = JSON.parse(jsonUbicacion);
+                        let indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        Municipios(indicioFormato);
+                    }else{
+                        Municipios("");
+                    }
+                    setLoading(true);
+                }
+            })
+            .catch(( error )=>{ setLoading(false) });
+        })();
+    },[]);
+    
+    const Municipios = async ( indicio:string ) =>{
+        let internetAviable = await checkConnection();
+        if(internetAviable){
+            //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
+            let listaMunicipio = await ObtenerMunicipios();
+            let municipiosAuxiliar = [];
+            listaMunicipio.map((item,index)=>{
+                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
+                    municipiosAuxiliar.push(item);
+                }
+            });
+            setArregloMunicipios(municipiosAuxiliar);
+            storage.LimpiarTabla("CatalogoClientes");
+            await storage.InsertarMunicipios(listaMunicipio);
+        }else{
+            //NOTE: Obtenemos los desde la db
+            let listaMunicipio = await storage.ObtenerMunicipiosDB();
+            let municipiosAuxiliar = [];
+            listaMunicipio.map((item,index)=>{
+                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
+                    municipiosAuxiliar.push(item);
+                }
+            });
+            setArregloMunicipios(municipiosAuxiliar);
+        }
+    } 
+    const validarDato = async () =>{
+        let error = "";
+        if( CURP == "" ){
+            error += "C,";
+        }else{
+            let curpValida = verificarcurp( CURP );
+            if( curpValida != 0 ){
+                setErrorMsg(curpError[curpValida]);
+                error +="C,"
+            }
+        }
+        if(cliente == -1 ){
+            error += "CL,"
+        }
+        if( error != "" ){
+            setIconModal(USER_COG[0]);
+            setIconSource(USER_COG[1]);
+            setErrorMsg("Favor de ingresar los datos requeridos");
+            setShowMessage(true);
+        }
+        error == "" ? AutentificarUsuario() : setErrorUI(error);
     }
-    const AplicacionLuminaria = () =>{
-        props.navigation.navigate("Menu");
+    const AutentificarUsuario = async () =>{
+        //FIXME: validar los campos 
+        setLoading(true);
+        await RecuperarDatos(String(cliente),CURP)
+        .then( async (rawCiudadano)=>{
+            let ciudadano = JSON.parse(rawCiudadano);//FIXME: aqui es el error
+            let estructuraCiudadano = {
+                curp:ciudadano.Curp,
+                Nombres:ciudadano.Nombre,
+                Paterno:ciudadano.ApellidoPaterno,
+                Materno: ciudadano.ApellidoMaterno,
+                Telefono:ciudadano.Telefono,
+                Email: ciudadano.CorreoElectronico,
+                Cliente: String(cliente),
+                rfc:ciudadano.rfc
+            };
+            await storage.GuardarDatosPersona(estructuraCiudadano);
+            await storage.guardarIdCiudadano(ciudadano.id);
+            await storage.setModoPantallaDatos("0")
+            .then(()=>{
+                props.navigation.navigate("Reportes");
+            }).catch(( error )=>{
+                console.log(error);
+            })
+        })
+        .catch((error)=>{
+            let apiError = String(error.message);
+            setErrorMsg(apiError);
+            if(apiError.includes("500")){ //NOTE: Error desconocido
+                setErrorMsg("Error desconocido");
+                setIconModal(DESCONOCIDO[0]);
+                setIconSource(DESCONOCIDO[1]);
+            }else if(apiError.includes("interner")){
+                setIconModal(WIFI_OFF[0]);
+                setIconSource(WIFI_OFF[1]);
+            }else {
+                setIconModal(USER_COG[0]);
+                setIconSource(USER_COG[1]);
+            }
+            setShowMessage(true);
+        }).finally(()=>{
+            setLoading(false);
+        })
+    }
+    const RegistrarUsuario = async () =>{
+        storage.setModoPantallaDatos("1")
+        .then(()=>{
+            props.navigation.navigate("Reportes");
+        }).catch((erro)=>{
+            console.log("Error en el storage");
+        })
+    }
+    const lanzarMensaje =  ( mensaje:string, titulo:string , fuenteIconos: string, nombreIcono:string )=>{
+        setErrorMsg(mensaje);
+        setIconSource(fuenteIconos);
+        setIconModal(nombreIcono);
+        setTittleMesaje(titulo)
+        setShowMessage(true);
     }
     return(                
-        <View style = {{flex:1, backgroundColor:'#FFFF'}} >
-         
-                <View style = {{flex:1, marginTop:12, justifyContent:"center" , alignItems:"center", marginLeft:0}} >               
-
-             <Image
-              source={imagenRequiered}
-              style={{ 
-                resizeMode: 'center', marginTop:15}}
-          
+        <ScrollView contentContainerStyle = {{flexGrow:1}} >
+            <View style = {{flex:1, flexDirection:"column", backgroundColor:"white"}}  >
+                {/**NOTE: cabecera de la pagina logo de suinpac o del municipio */}
+                <View style={[Styles.avatarView,{flex:3}]} >
+                <View style={Styles.avatarElement}>
+                    <Avatar 
+                        rounded
+                        size = "xlarge"
+                        containerStyle = {{height:100,width:200}}
+                        source = {require("../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
+                    />
+                </View>
+            </View>
+                {/**NOTE: contenido prinpal de la pagina */}
+                <View style = {[{flex:8}]} >
+                    <View style = {{marginTop:50, padding:20}} >
+                        <Input
+                            label = "CURP"
+                            autoCompleteType={undefined}
+                            placeholder = {"CURP"} 
+                            autoCapitalize="characters"
+                            maxLength={ 18 }
+                            onChangeText = { ( text ) => {setCURP( text );}}
+                            style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
+                        <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red' }} >
+                            <Picker
+                                selectedValue = { cliente }
+                                onValueChange = { ( cl )=>{ setCliente(cl); }}
+                                style = {{backgroundColor:cardColor+55,}}
+                                >
+                                    <Picker.Item  label="Seleccione el municipio al que pertenece" value={-1} ></Picker.Item>
+                                    {
+                                        arregloMunicipios.map((item,index)=>{
+                                            return <Picker.Item key={ item.id } label = { item.Municipio } value={ item.id } ></Picker.Item>
+                                        })
+                                    }
+                            </Picker>
+                        </View>
+                    </View>
+                    <View style = {{flex: 1, padding:20}} >
+                        <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress = {validarDato} >
+                            <Text style = {{color:"white"}}> Iniciar Sesión </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style = {{ alignItems: "center", marginTop:30 }} onPress = { RegistrarUsuario }  >
+                            <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                {/**NOTE: Pie de pagina marca de suinpac */}
+                <View style = {{flex:1}}>
+                    <View style = {{ alignItems: "center" }} >
+                        <Text 
+                        style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}
+                        > Suinpac </Text>
+                    </View>
+                </View>
+            </View>
+            <Message
+                transparent = {true}
+                loading = {showMessage} //NOTE: con esta propiedad se mustra el componente
+                buttonText="Aceptar"
+                onCancelLoad={()=>{ setErrorMsg(""); setShowMessage(false);}}
+                color={BlueColor}
+                loadinColor = {BlueColor}
+                iconsource = {iconSource}
+                icon = { iconModal /*"user-cog"*/}
+                message = {errorMsg}
+                tittle = {tittleMesage}
             />
-                </View>
-                <View style = {{flex:7}} >
-                
-              
-
-                <TouchableOpacity
-                                onPress={ AplicacionReportes } >        
-                  
-                <Card containerStyle={{backgroundColor:'#045688',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:40,marginRight:2}}>                  
-                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
-                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Atención Ciudadana</Text>
-                            <Icon
-                                        color = {'#FFFF'}
-                                        name = { ENGINNERMENU[0] } 
-                                        type = {ENGINNERMENU[1]} 
-                                        size = {70}
-                                        tvParallaxProperties></Icon>
-                        </View>                                             
-                </Card>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                onPress={AplicacionLuminaria}>
-
-                
-                <Card containerStyle={{backgroundColor:'#912307',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
-                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
-                        <Icon style={{marginLeft:20}}
-                                        color = {"#FFFF"}
-                                        name = { ALERTMENU[0] } 
-                                        type = {ALERTMENU[1]} 
-                                        size = {70}
-                                        tvParallaxProperties></Icon>
-                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Luminaria</Text>
-                       
-                        </View>                                             
-                </Card>
-                </TouchableOpacity>
-                <Card containerStyle={{backgroundColor:'#f4542c',borderRadius:10,marginBottom:0,marginTop:0,marginLeft:2,marginRight:2}}>                  
-                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>               
-                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:50, marginLeft:30}}> Agua Potable </Text>
-                            <Icon 
-                                    color = {"#FFFF"}
-                                        name = { PERSONPINMENU[0] } 
-                                        type = {PERSONPINMENU[1]} 
-                                        size = {70}
-                                        tvParallaxProperties></Icon>
-                        </View>                                             
-                </Card>
-                <TouchableOpacity
-                                onPress={ AplicacionLuminaria }
-                            >
-                <Card containerStyle={{backgroundColor:'#e61723',borderRadius:10,marginLeft:2,marginBottom:0,marginTop:0,marginRight:2}}>                  
-                        
-                        <View  style={{   flexDirection: 'row',marginBottom: 6,}}>                                       
-                        <Icon style={{marginLeft:20}}
-                                        color = {"#FFFF"}
-                                        name = { SETTINGMENU[0] } 
-                                        type = {SETTINGMENU[1]} 
-                                        size = {70}
-                                        tvParallaxProperties></Icon>
-                            <Text style={{color:('#FFFF'),fontSize:18,marginTop:30, marginRight:20, marginLeft:20}}> Botón de pánico </Text>                         
-                        </View>                                             
-                </Card>
-                </TouchableOpacity>
-                </View>
-                <View style = {{flex:1,  justifyContent:"center", alignItems:"center"}} >
-                    <Text style = {{color: DarkPrimaryColor}} >
-                        Suinpac
-                    </Text>
-                </View>
-             
-
-        </View>
-    );
+        </ScrollView>        
+        );
 }

@@ -58,7 +58,6 @@ export class StorageBaches {
             },(error)=>{reject("Error: " + error.message)})
         })
     }
-
     //NOTE: metodos del async storage
     async GuardarDatosPersona ( Persona: 
         {  
@@ -96,6 +95,11 @@ export class StorageBaches {
     }
     async borrarDatosCiudadano(){
         await AsyncStorage.removeItem(root+"Persona");
-        console.log("Ciudadano eliminado");
+    }
+    async setModoPantallaDatos( tipo: string ){
+        await AsyncStorage.setItem( root+"TipoPantalla", tipo);
+    }
+    async getModoPantallaDatos( ){
+        return await AsyncStorage.getItem( root+"TipoPantalla" );
     }
 }

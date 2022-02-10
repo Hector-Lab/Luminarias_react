@@ -24,19 +24,23 @@ export default function CustomMapBaches(props:any){
     const [ email,setEmail ] = useState(String);
     const [ errorUI, setErrorUI] = useState(String);
     const [ errorMsg,setErrorMsg ] = useState(String);
-    const [ arregloMunicipios, setArregloMunicipios ] = useState([]);
-    const [ cliente, setCliente ] = useState(-1);
     const [ showMessage, setShowMessage ] = useState(false);
-    const [ solicitarDatos, setSolicitarDatos ] = useState(false);
     const [ loading, setLoading ] = useState(true);
     const [ iconModal, setIconModal ] = useState("info");
     const [ tipoBoton , setTipoBoton ] = useState(true); // NOTE: true - Agregar, false - Editar
     const [iconSource, setIconSource ] = useState("");
     const [mostrarPicker, setMostrarPicker ] = useState(true);
+    //NOTE: dato para el registro de ciudadanos
+    const [ cliente, setCliente ] = useState( -1 );
+    const [ solicitarDatos, setSolicitarDatos ] = useState(false);
+    const [ arregloMunicipios, setArregloMunicipios ] = useState<any[]>([]);
     const curpError = ["","CURP no valida","Formato de CURP no valido"];
     const storage = new StorageBaches();
     useEffect(() => {
         (async () => {
+            //NOTE: obtenemos los datos de storage
+            console.log(await storage.getModoPantallaDatos() + "Estatus de la pantalla") ;
+            setSolicitarDatos( await storage.getModoPantallaDatos() == "1" );
             let { status } = await Location.requestForegroundPermissionsAsync();
             await RestaurarDatos();
             storage.createTablasBaches();
@@ -203,57 +207,29 @@ export default function CustomMapBaches(props:any){
             setLoading(false);
         }
     }
-    const Municipios = async ( indicio:string ) =>{
-        let internetAviable = await checkConnection();
-        if(internetAviable){
-            //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
-            let listaMunicipio = await ObtenerMunicipios();
-            let municipiosAuxiliar = [];
-            listaMunicipio.map((item,index)=>{
-                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                    municipiosAuxiliar.push(item);
-                }
-            });
-            setArregloMunicipios(municipiosAuxiliar);
-            storage.LimpiarTabla("CatalogoClientes");
-            await storage.InsertarMunicipios(listaMunicipio);
-        }else{
-            //NOTE: Obtenemos los desde la db
-            let listaMunicipio = await storage.ObtenerMunicipiosDB();
-            let municipiosAuxiliar = [];
-            listaMunicipio.map((item,index)=>{
-                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                    municipiosAuxiliar.push(item);
-                }
-            });
-            setArregloMunicipios(municipiosAuxiliar);
-        }
-    } 
     //NOTE: este metodo es para recuperarlo desde el storage
     const RestaurarDatos = async () =>{
         try{
             setLoading(true);
-            let persona = await storage.obtenerDatosPersona();
-            if(persona != null ){
-                setTipoBoton(false);
-                let datos = JSON.parse(persona);                
-                setCliente(datos['Cliente']);
-                setCURP(datos['curp']);
-                setRFC(String(datos['rfc']).includes("XAXX010101000") ? "" : datos['rfc']);
-                setNombres(datos['Nombres']);
-                setMaterno(datos['Materno']);
-                setPaterno(datos['Paterno']);
-                setTelefono(datos['Telefono']);
-                setEmail(datos['Email']);
-                setSolicitarDatos(false);
-                setLoading(false);
-                setMostrarPicker(false);
-            }else{
-                setTipoBoton(true);
-                setSolicitarDatos(true);
+            if(!solicitarDatos){
+                let persona = await storage.obtenerDatosPersona();
+                if(persona != null ){
+                    setTipoBoton(false);
+                    let datos = JSON.parse(persona);                
+                    setCliente(datos['Cliente']);
+                    setCURP(datos['curp']);
+                    setRFC(String(datos['rfc']).includes("XAXX010101000") ? "" : datos['rfc']);
+                    setNombres(datos['Nombres']);
+                    setMaterno(datos['Materno']);
+                    setPaterno(datos['Paterno']);
+                    setTelefono(datos['Telefono']);
+                    setEmail(datos['Email']);
+                    setMostrarPicker(false);
+                }else{
+                    setTipoBoton(true);
+                }
             }
+            setLoading(false);
         }catch(error){
             //NOTE: captura la expecion al convertir el json ( no se por que lo lanza )
             console.log(error);
@@ -309,33 +285,8 @@ export default function CustomMapBaches(props:any){
             setMostrarPicker(true);
         },500);
     }
-    const validarDato = async () =>{
-        let error = "";
-        if( CURP == "" ){
-            error += "C,";
-        }else{
-            let curpValida = verificarcurp( CURP );
-            if( curpValida != 0 ){
-                setErrorMsg(curpError[curpValida]);
-                error +="C,"
-            }
-        }
-        if(cliente == -1 ){
-            error += "CL,"
-        }
-        console.log(error + "Errores en los campos");
-        if( error != "" ){
-            setIconModal(USER_COG[0]);
-            setIconSource(USER_COG[1]);
-            setErrorMsg("Favor de ingresar los datos requeridos");
-            setShowMessage(true);
-        }
-        error == "" ? RestaurarDatosModal() : setErrorUI(error);
-
-    }
     const handleRegistrar = async () => {
         setErrorUI("");
-        setSolicitarDatos(false); 
         setLoading(false);
         setMostrarPicker(true);
         setTipoBoton(true);
@@ -355,11 +306,37 @@ export default function CustomMapBaches(props:any){
     const mostrarModalSolicitar = () =>{
         setSolicitarDatos(true);
     }
+    const Municipios = async ( indicio:string ) =>{
+        let internetAviable = await checkConnection();
+        if(internetAviable){
+            //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
+            let listaMunicipio = await ObtenerMunicipios();
+            let municipiosAuxiliar = [];
+            listaMunicipio.map((item,index)=>{
+                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
+                    municipiosAuxiliar.push(item);
+                }
+            });
+            setArregloMunicipios(municipiosAuxiliar);
+            storage.LimpiarTabla("CatalogoClientes");
+            await storage.InsertarMunicipios(listaMunicipio);
+        }else{
+            //NOTE: Obtenemos los desde la db
+            let listaMunicipio = await storage.ObtenerMunicipiosDB();
+            let municipiosAuxiliar = [];
+            listaMunicipio.map((item,index)=>{
+                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
+                    municipiosAuxiliar.push(item);
+                }
+            });
+            setArregloMunicipios(municipiosAuxiliar);
+        }
+    } 
     return(
         <ScrollView contentContainerStyle = {{flexGrow:1}} >
-            {
-                !solicitarDatos ? 
-                <View style = {Styles.cardContainer} >
+            <View style = {Styles.cardContainer} >
                     {
                         mostrarPicker ? 
                         <View style = {{borderColor:"red",borderWidth: String(errorUI).includes("CL,") ? 2 : 0 }} >
@@ -388,7 +365,6 @@ export default function CustomMapBaches(props:any){
                                 editable={tipoBoton}
                                 onChangeText={ text => { setCURP(text);}}
                                 autoCapitalize = {"characters"}
-
                                 autoCompleteType={undefined}
                             />
                             <Input
@@ -465,69 +441,6 @@ export default function CustomMapBaches(props:any){
                         }
                     </View>
             </View>
-            :
-            <Modal style = {{flex:1}}  visible = {solicitarDatos} >
-                <View style = {{flex:1, flexDirection:"column"}} >
-                    {/**NOTE: cabecera de la pagina logo de suinpac o del municipio */}
-                    <View style={[Styles.avatarView,{flex:3}]}>
-                    <View style={Styles.avatarElement}>
-                        <Avatar 
-                            rounded
-                            size = "xlarge"
-                            containerStyle = {{height:100,width:200}}
-                            source = {require("../../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
-                        />
-                    </View>
-                </View>
-                    {/**NOTE: contenido prinpal de la pagina */}
-                    <View style = {[{flex:8}]} >
-                        <View style = {{marginTop:50, padding:20}} >
-                            <Input
-                                label = "CURP"
-                                autoCompleteType={undefined}
-                                placeholder = {"CURP"} 
-                                autoCapitalize="characters"
-                                onChangeText = {text =>{setCURP(text)}}
-                                maxLength={ 18 }
-                                style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
-                            <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red' }} >
-                                <Picker
-                                    selectedValue={cliente} 
-                                    onValueChange = {(itemValue, itemIndex)=>{setCliente(itemValue)}}
-                                    style = {{backgroundColor:cardColor+55,}}
-                                    >
-                                        <Picker.Item  label="Seleccione el municipio al que pertenece" value={-1} ></Picker.Item>
-                                        {
-                                            arregloMunicipios.map((item,index)=>{
-                                                return <Picker.Item key={ item.id } label = { item.Municipio } value={ item.id } ></Picker.Item>
-                                            })
-                                        }
-                                </Picker>
-                            </View>
-                        </View>
-                        <View style = {{flex: 1, padding:20}} >
-                            <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress={ validarDato } >
-                                <Text style = {{color:"white"}}> Iniciar Sesión </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                                style = {{ alignItems: "center", marginTop:30 }} 
-                                onPress={ handleRegistrar } >
-                                <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    {/**NOTE: Pie de pagina marca de suinpac */}
-                    <View style = {{flex:1}}>
-                        <View style = {{ alignItems: "center" }} >
-                            <Text 
-                            style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}
-                            onPress={ EliminarDatosPrueba }
-                            > Suinpac </Text>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-            }
             <Message
                 transparent = {true}
                 loading = {showMessage} //NOTE: con esta propiedad se mustra el componente
