@@ -7,6 +7,7 @@ import { BlueColor, cardColor, DarkPrimaryColor } from "../Styles/BachesColor";
 import Styles from "../Styles/BachesStyles";
 import { DESCONOCIDO, USER_COG, WIFI_OFF,LOGINEXIT } from '../Styles/Iconos';
 import { checkConnection, CordenadasActualesNumerico, ObtenerDireccionActual, verificarcurp } from "../utilities/utilities";
+import Loading from "./components/modal-loading";
 import Message from "./components/modal-message";
 import { ObtenerMunicipios, RecuperarDatos, VerificarSession } from "./controller/api-controller";
 import { StorageBaches } from './controller/storage-controllerBaches';
@@ -28,30 +29,28 @@ export default function Log(props: any) {
     //INDEV: verificamos las session y la validez del token
     useEffect(()=>{
         (async ()=>{
-            //INDEV: obtenemos la lista de los municipios
-            
-            await VerificarSession()
-            .then( async (status)=>{ 
-                if(status){
-                    setLoading(false);
-                    await storage.setModoPantallaDatos("0");
-                    props.navigation.navigate("Reportes");
+            setTimeout( async ()=>{
+                            //INDEV: obtenemos la lista de los municipios
+            let ciudadano = await storage.obtenerDatosPersona(); //NOTE: la aplicacion no tiene sessiones, solo necetia la curp de ciudadano
+            console.log(ciudadano);
+            if(ciudadano != null){
+                setLoading(false);
+                await storage.setModoPantallaDatos("0");
+                props.navigation.navigate("Reportes");
+            }else{
+                let coords = await CordenadasActualesNumerico();
+                let jsonUbicacion = await ObtenerDireccionActual(coords);
+                if(jsonUbicacion != null && jsonUbicacion != undefined )
+                {
+                    let ubicacionActual = JSON.parse(jsonUbicacion);
+                    let indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    Municipios(indicioFormato);
                 }else{
-                    lanzarMensaje("Favor de iniciar session","Session Finalizada",LOGINEXIT[1],LOGINEXIT[0]);
-                    let coords = await CordenadasActualesNumerico();
-                    let jsonUbicacion = await ObtenerDireccionActual(coords);
-                    if(jsonUbicacion != null && jsonUbicacion != undefined )
-                    {
-                        let ubicacionActual = JSON.parse(jsonUbicacion);
-                        let indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                        Municipios(indicioFormato);
-                    }else{
-                        Municipios("");
-                    }
-                    setLoading(true);
+                    Municipios("");
                 }
-            })
-            .catch(( error )=>{ setLoading(false) });
+                setLoading(false);
+            }
+            },500);
         })();
     },[]);
     
@@ -234,6 +233,14 @@ export default function Log(props: any) {
                 icon = { iconModal /*"user-cog"*/}
                 message = {errorMsg}
                 tittle = {tittleMesage}
+            />
+            <Loading 
+                transparent = {true}
+                loading = {loading}
+                loadinColor = {DarkPrimaryColor}
+                message="Cargando..."
+                tittle="Mensaje"
+                onCancelLoad={()=>{ }} //NOTE: Eliminar el boton de cancelar
             />
         </ScrollView>        
         );

@@ -183,7 +183,7 @@ export class APIServices {
             body:jsonData
         });
     }
-    VerificaToken (data: any, token: string){
+    VerificaToken (data: any){
         let jsonData = JSON.stringify(data);
         return fetch('https://api.servicioenlinea.mx/api-movil/VerificaSession',{
             method: "POST",

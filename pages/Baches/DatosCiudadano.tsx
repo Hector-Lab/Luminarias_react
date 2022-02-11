@@ -13,6 +13,7 @@ import  * as Location from 'expo-location';
 import { WIFI_OFF,USER_COG,DESCONOCIDO, WIFI, OK} from '../../Styles/Iconos'; 
 import Message from '../components/modal-message';
 import Loading from '../components/modal-loading';
+import { DrawerActions } from "@react-navigation/native";
 
 export default function CustomMapBaches(props:any){
     const [ RFC, setRFC ] = useState("");
@@ -283,6 +284,7 @@ export default function CustomMapBaches(props:any){
             setLoading(false);
             setSolicitarDatos(true);
             setMostrarPicker(true);
+            props.navigation.dispatch(DrawerActions.closeDrawer());
         },500);
     }
     const handleRegistrar = async () => {
@@ -336,6 +338,65 @@ export default function CustomMapBaches(props:any){
     } 
     return(
         <ScrollView contentContainerStyle = {{flexGrow:1}} >
+            {
+                solicitarDatos ? <View style = {{flex:1, flexDirection:"column", backgroundColor:"white"}}  >
+                {/**NOTE: cabecera de la pagina logo de suinpac o del municipio */}
+                <View style={[Styles.avatarView,{flex:3}]} >
+                <View style={Styles.avatarElement}>
+                    <Avatar 
+                        rounded
+                        size = "xlarge"
+                        containerStyle = {{height:100,width:200}}
+                        source = {require("../../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
+                    />
+                </View>
+            </View>
+                {/**NOTE: contenido prinpal de la pagina */}
+                <View style = {[{flex:8}]} >
+                    <View style = {{marginTop:50, padding:20}} >
+                        <Input
+                            label = "CURP"
+                            autoCompleteType={undefined}
+                            placeholder = {"CURP"} 
+                            autoCapitalize="characters"
+                            maxLength={ 18 }
+                            onChangeText = { ( text ) => {setCURP( text );}}
+                            style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
+                        <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red' }} >
+                            <Picker
+                                selectedValue = { cliente }
+                                onValueChange = { ( cl )=>{ setCliente(cl); }}
+                                style = {{backgroundColor:cardColor+55,}}
+                                >
+                                    <Picker.Item  label="Seleccione el municipio al que pertenece" value={-1} ></Picker.Item>
+                                    {
+                                        arregloMunicipios.map((item,index)=>{
+                                            return <Picker.Item key={ item.id } label = { item.Municipio } value={ item.id } ></Picker.Item>
+                                        })
+                                    }
+                            </Picker>
+                        </View>
+                    </View>
+                    <View style = {{flex: 1, padding:20}} >
+                        <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress = {RestaurarDatosModal} >
+                            <Text style = {{color:"white"}}> Iniciar Sesión </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style = {{ alignItems: "center", marginTop:30 }} onPress = { GuardarDatos }  >
+                            <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                {/**NOTE: Pie de pagina marca de suinpac */}
+                <View style = {{flex:1}}>
+                    <View style = {{ alignItems: "center" }} >
+                        <Text 
+                        style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}
+                        > Suinpac </Text>
+                    </View>
+                </View>
+            </View> : <></>
+            }
             <View style = {Styles.cardContainer} >
                     {
                         mostrarPicker ? 
@@ -428,7 +489,7 @@ export default function CustomMapBaches(props:any){
                                 <View style = {{flex:1, marginRight:5}} >
                                     <TouchableOpacity style = {[Styles.btnButtonSuccess,{ backgroundColor:  tipoBoton ? buttonSuccess : BlueColor }]} onPress={ GuardarDatos }>                                    
                                         <Icon name = {  tipoBoton ? "save" :"edit" } tvParallaxProperties color = {"white"} > </Icon>
-                                        <Text style = {{color:"white"}} > { tipoBoton ? "Guardar" : "Editar" } </Text>
+                                         <Text style = {{color:"white"}} > { tipoBoton ? "Guardar" : "Editar" } </Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View style = {{flex:1, marginLeft:5}} >

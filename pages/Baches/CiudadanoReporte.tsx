@@ -475,40 +475,39 @@ export default function Reportar(props: any) {
             <View
               style={[
                 errorUi.includes("T,") ? Styles.errorDatos : {},
-                { flex: 0.2 },
+                { flex: .2 },
               ]}
             >
               {/* NOTE:: Area Administrativa */}
               <Picker
-                style={{
-                  backgroundColor: BlueColor,
-                  color: "#FFFF",
-                  marginLeft: 15,
-                  marginRight: 15,
-                  borderRadius: 90,
+                style = {{
+                  marginTop:15,
+                  backgroundColor: BlueColor+30,
+                  color: "#000000ff",
+                  borderRadius: 4,
                   height: 10,
                   marginBottom: 50,
                 }}
-                selectedValue={seleccionSolicitud}
-                onValueChange={(itemValue, itemIndex) => {
-                  setSeleccionSolicitud(String(itemValue));
-                }}
-              >
-                <Picker.Item
-                  //style={{color:'#FFFF', backgroundColor:BlueColor,margin:0}}
-                  label=" Temario de solicitud "
-                  value={-1}
-                ></Picker.Item>
-                {catalogoSolicitud.map((item, index) => {
-                  return (
-                    <Picker.Item
-                      key={item.id}
-                      label={item.descripci_on}
-                      value={item.id}
-                    ></Picker.Item>
-                  );
-                })}
-              </Picker>
+                  selectedValue={seleccionSolicitud}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setSeleccionSolicitud(String(itemValue));
+                  }}
+                >
+                  <Picker.Item
+                    //style={{color:'#FFFF', backgroundColor:BlueColor,margin:0}}
+                    label=" Temario de solicitud "
+                    value={-1}
+                  ></Picker.Item>
+                  {catalogoSolicitud.map((item, index) => {
+                    return (
+                      <Picker.Item
+                        key={item.id}
+                        label={item.descripci_on}
+                        value={item.id}
+                      ></Picker.Item>
+                    );
+                  })}
+                </Picker>
             </View>
 
             <View
