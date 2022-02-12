@@ -111,7 +111,6 @@ export default function Reportar(props: any) {
     if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
         if (!camera) {
-          __takePicture();
           return;
         }
         const photo = await camera.takePictureAsync({
@@ -358,10 +357,9 @@ export default function Reportar(props: any) {
     }
     if (arrayImageEncode.length == 0) {
       Imagenes.push(
-        <View style={{ flex: 1 }} key={"-1"}>
-          <Text style={{ textAlign: "center", fontWeight: "bold" }}>
-            {" "}
-            Sin Evidencias{" "}
+        <View style={{ flex: 1, }} key={"-1"}>
+          <Text style={{ fontWeight: "bold" }}>
+            Sin Evidencias
           </Text>
         </View>
       );
@@ -581,18 +579,17 @@ export default function Reportar(props: any) {
                 </View>
               </View>
             </View>
-
-
             
             <View style={{ flex: 6 }}>
               {/* NOTE: Seccion de galeria */}
               <View style={Styles.cardTextView}>
                 {/* INDEV: Lista de imagenes */}
                 <ImageViewer
-                  RenderItem={_renderItem()}
+                  RenderItem={ _renderItem() }
                   Selected={imagenSeleccionada}
                   EliminarImagen={eliminarFoto}
                   AgregarImagen={iniciarCamara}
+                  Mostrar = { true }
                   MaximizarImagen={() => {
                     setModalImagenVisible(true);
                   }}
@@ -644,48 +641,48 @@ export default function Reportar(props: any) {
               </View>
             </View>
           </View>
+          <Message
+            transparent={true}
+            loading={showMessage}
+            loadinColor={BlueColor}
+            onCancelLoad={() => {
+              setSHowMessage(false);
+            }}
+            icon={messageIcon}
+            iconsource={"font-awesome-5"}
+            color={BlueColor}
+            message={errorMsg}
+            tittle={headerMessage}
+            buttonText={"Aceptar"}
+          />
+          <Loading
+            loading={loading}
+            loadinColor={DarkPrimaryColor}
+            message={loadingMessage}
+            onCancelLoad={() => {
+              setLoading(false);
+            }}
+            tittle={"Cargando"}
+            transparent={true}
+          />
+          <ImageView
+            images={arrayImageEncode}
+            imageIndex={indexImagenSeleccionada}
+            visible={modalImagenVisible}
+            onRequestClose={() => {
+              setModalImagenVisible(false);
+            }}
+            swipeToCloseEnabled={false}
+            FooterComponent={({ imageIndex }) => (
+              <View style = {{flex:1, alignItems:"center", marginBottom:"5%"}} >
+                  <View >
+                      <Text style = {{color:"white", fontWeight:"bold", fontSize:16}} >{`${ imageIndex + 1 }/${arrayImageEncode.length}`}</Text>
+                  </View>
+              </View>
+          )}
+          />
         </ScrollView>
       )}
-      <Message
-        transparent={true}
-        loading={showMessage}
-        loadinColor={BlueColor}
-        onCancelLoad={() => {
-          setSHowMessage(false);
-        }}
-        icon={messageIcon}
-        iconsource={"font-awesome-5"}
-        color={BlueColor}
-        message={errorMsg}
-        tittle={headerMessage}
-        buttonText={"Aceptar"}
-      />
-      <Loading
-        loading={loading}
-        loadinColor={DarkPrimaryColor}
-        message={loadingMessage}
-        onCancelLoad={() => {
-          setLoading(false);
-        }}
-        tittle={"Cargando"}
-        transparent={true}
-      />
-      <ImageView
-        images={arrayImageEncode}
-        imageIndex={indexImagenSeleccionada}
-        visible={modalImagenVisible}
-        onRequestClose={() => {
-          setModalImagenVisible(false);
-        }}
-        swipeToCloseEnabled={false}
-        FooterComponent={({ imageIndex }) => (
-          <View style = {{flex:1, alignItems:"center", marginBottom:"5%"}} >
-              <View >
-                  <Text style = {{color:"white", fontWeight:"bold", fontSize:16}} >{`${ imageIndex + 1 }/${arrayImageEncode.length}`}</Text>
-              </View>
-          </View>
-      )}
-      />
     </View>
   );
 }

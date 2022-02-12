@@ -8,11 +8,11 @@ import {
 import Styles from '../../Styles/BachesStyles';
 import { StorageService } from "../controller/storage-controller";
 import { ObtenerMisReportes } from '../controller/api-controller';
-import { Icon, ListItem, Text, Button } from 'react-native-elements';
+import { Icon, ListItem, Text, Button, getIconType } from 'react-native-elements';
 import { BlueColor, buttonSuccess, cardColor, DarkPrimaryColor, PrimaryColor } from "../../Styles/BachesColor";
 import Message from '../components/modal-message';
 import Loading, {} from '../components/modal-loading'; 
-import { DESCONOCIDO,ERROR,INFO,OK, WIFI, WIFI_OFF } from '../../Styles/Iconos';
+import { DESCONOCIDO,ERROR,INFO,OK, WIFI, WIFI_OFF, ICONLIST } from '../../Styles/Iconos';
 
 import { Badge } from "react-native-elements/dist/badge/Badge";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -39,21 +39,26 @@ export default function HistorialReporte(props: any) {
         })
         .catch((error)=>{
           let message = String(error.message);
-          if(message.includes("encontrados")){
-            setTituloMensaje("Mensaje");
+          if(message.includes("encontrados") ||  message.includes("no tiene registros")){
+            /*setTituloMensaje("Mensaje");
             setIconSource(INFO[1]);
-            setIcono(INFO[0]);
+            setIcono(INFO[0]);*/
+            setShowMessage(false);
+            setErrorMensaje("");
           }else if(message.includes("interner")){
             setTituloMensaje("Error");
             setIconSource(WIFI_OFF[1]);
             setIcono(WIFI_OFF[0]);
+            setShowMessage(true);
+            setErrorMensaje(message);
           }else{
             setTituloMensaje("Mensaje");
             setIcono(ERROR[0]);
             setIconSource(ERROR[1]);
+            setShowMessage(true);
+            setErrorMensaje(message);
           }
-          setErrorMensaje(message);
-          setShowMessage(true);
+          
         }).finally(()=>{
           setLoading(false);
         })
@@ -131,45 +136,50 @@ export default function HistorialReporte(props: any) {
     })
     .catch((error)=>{
       let message = String(error.message);
-      if(message.includes("encontrados")){
-        setTituloMensaje("Mensaje");
-        setIconSource(INFO[1]);
-        setIcono(INFO[0]);
+      console.log(message);
+      if(message.includes("encontrados") || message.includes("no tiene registros")){
+        setErrorMensaje("");
+        setShowMessage(false);
       }else if(message.includes("interner")){
         setTituloMensaje("Error");
         setIconSource(WIFI_OFF[1]);
         setIcono(WIFI_OFF[0]);
+        setErrorMensaje(message);
+      setShowMessage(true);
       }else{
         setTituloMensaje("Mensaje");
         setIcono(ERROR[0]);
         setIconSource(ERROR[1]);
-      }
-
-      setErrorMensaje(message);
+        setErrorMensaje(message);
       setShowMessage(true);
+      }
+      setReportes([]);
+      
     })
     .finally(()=>{setLoading(false)})
   }
   return (
         <View style = {{flex:1}} >
           <View style = { Styles.cardContainer } >
-            <View style = {Styles.cardHeader}>
+            <View style = {[Styles.cardHeader,{flex:.7}]}>
               <View style = {Styles.cardLeftIcon}>
                 <View style = {Styles.cardRpundedIcon} >
-                  <Icon color = {"white"}  tvParallaxProperties  name = "street-view" type ="font-awesome-5" style = {{margin:3}} />
+                  {/*<Icon color = {"white"}  tvParallaxProperties  name = "street-view" type ="font-awesome-5" style = {{margin:3}} />*/}
                 </View>
               </View>
               <View style = {Styles.cardHeaderText}>
-                <Text style = {{textAlign:"center"}} >Mis reportes</Text> 
+                <Text style = {{textAlign:"center", fontWeight:"bold"}}  >Mis reportes</Text> 
               </View>
               <View style = {Styles.cardRigthIcon}>
               <View style = {Styles.cardRpundedIcon} >
-                  <Icon color = {"white"}  tvParallaxProperties  name = "map" type ="feather" style = {{margin:3}} />
+                  {/*<Icon color = {"white"}  tvParallaxProperties  name = "map" type ="feather" style = {{margin:3}} />*/}
                 </View> 
               </View>
             </View>
             <View style = {Styles.cardConteinerFlex8} >
-                <FlatList
+              {
+                 (reportes.length > 0) ?
+                 <FlatList
                   refreshControl={
                     <RefreshControl
                     refreshing={refreshing}
@@ -180,7 +190,18 @@ export default function HistorialReporte(props: any) {
                   data={reportes}
                   keyExtractor={(a: reporteCiudadano, index: number) => index.toString()}
                   renderItem={renderRow}
-                />
+                /> : 
+                <View style = {{flex:1, justifyContent:"center"}} >
+                    <Icon tvParallaxProperties  name = {ICONLIST[0]} type = {ICONLIST[1]} size = {100}  color = {"white"} ></Icon>
+                    <Text></Text>
+                    <Text></Text>
+                    <Text style = {{ fontWeight:"bold", textAlign:"center"}} > Aun no tienes Reportes </Text>
+                    <Text></Text>
+                    <TouchableOpacity style = {{backgroundColor:PrimaryColor, padding:10, marginLeft:20, marginRight:20}} onPress = { refrescarLista } >
+                      <Text style = { {textAlign:"center" , color:"white", fontWeight:"bold"}}  >Actualizar</Text>
+                    </TouchableOpacity>
+                </View>
+              }  
             <Message
               transparent = { true }
               loading = {showMessage}

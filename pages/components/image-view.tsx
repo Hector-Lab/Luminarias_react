@@ -1,3 +1,4 @@
+import { BottomTabNavigationHelpers } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
 import { CardStyleInterpolators } from '@react-navigation/stack';
 import { Camera } from 'expo-camera';
 import React,{Component} from 'react';
@@ -15,17 +16,18 @@ export default class ImageViewer extends React.Component<
     AgregarImagen: Function,
     EliminarImagen: Function,
     MaximizarImagen: Function,
-    MostrarMensaje: boolean
+    MostrarMensaje: boolean,
+    Mostrar: boolean,
+
 }
 >{
 
   //NOTE: el flex siempre es 3   
-    render(){
-        console.log(this.props.Selected);
+    render(){        
         return(
-            <View style = {{ flex:1 , marginTop:25,elevation:0}} >
-                <Card >
-                    <View style = {{flex:1, flexDirection: this.props.MostrarMensaje ? "column" : "row" }}  >
+            this.props.Mostrar ? 
+            <View style = {{ flex:1 , marginTop:25,elevation:0, alignItems:"center"}} >
+                    <View style = {{flex:1, flexDirection: this.props.MostrarMensaje ? "column" : "row", marginLeft: this.props.MostrarMensaje ? 0 : 25 }}  >
                         {
                             this.props.RenderItem
                         }
@@ -44,7 +46,7 @@ export default class ImageViewer extends React.Component<
                                 </TouchableOpacity>
                             </View>
                     }
-                    <View style = {{flex:1,flexDirection:"row", marginTop:15}}>
+                    <View style = {{flex:1,flexDirection:"row", marginTop:15, marginLeft:20, marginRight:20}}>
                         <TouchableOpacity style = {{flex:1}} onPress = { ()=>{this.props.AgregarImagen()} } >
                             <View style = { [Style.btnButton,{ backgroundColor:BlueColor, borderColor:BlueColor}] } >
                                     <Icon type = {ADDPHOTO[1]} name = {ADDPHOTO[0]} color = {"white"} tvParallaxProperties />
@@ -57,8 +59,7 @@ export default class ImageViewer extends React.Component<
                             </View>
                         </TouchableOpacity>
                     </View>
-                </Card>
-            </View>
+            </View> : <></>
         )
     }
 }

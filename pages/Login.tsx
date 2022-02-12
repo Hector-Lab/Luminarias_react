@@ -11,6 +11,7 @@ import Loading from "./components/modal-loading";
 import Message from "./components/modal-message";
 import { ObtenerMunicipios, RecuperarDatos, VerificarSession } from "./controller/api-controller";
 import { StorageBaches } from './controller/storage-controllerBaches';
+import * as Location from 'expo-location';
 export default function Log(props: any) {
 
     const storage = new StorageBaches();
@@ -29,15 +30,24 @@ export default function Log(props: any) {
     //INDEV: verificamos las session y la validez del token
     useEffect(()=>{
         (async ()=>{
+            //NOTE: creando las tablas
+            storage.createOpenDB();
+            storage.createTablasBaches();
             setTimeout( async ()=>{
-                            //INDEV: obtenemos la lista de los municipios
+            //INDEV: obtenemos la lista de los municipios
             let ciudadano = await storage.obtenerDatosPersona(); //NOTE: la aplicacion no tiene sessiones, solo necetia la curp de ciudadano
-            console.log(ciudadano);
             if(ciudadano != null){
                 setLoading(false);
-                await storage.setModoPantallaDatos("0");
+                await storage.setModoPantallaDatos("1");
                 props.navigation.navigate("Reportes");
             }else{
+                //NOTE: pedimos permisos 
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    setErrorMsg('Permisos no concedidos por el usuario');
+                    return;
+                }
+
                 let coords = await CordenadasActualesNumerico();
                 let jsonUbicacion = await ObtenerDireccionActual(coords);
                 if(jsonUbicacion != null && jsonUbicacion != undefined )
@@ -122,7 +132,7 @@ export default function Log(props: any) {
             };
             await storage.GuardarDatosPersona(estructuraCiudadano);
             await storage.guardarIdCiudadano(ciudadano.id);
-            await storage.setModoPantallaDatos("0")
+            await storage.setModoPantallaDatos("1")
             .then(()=>{
                 props.navigation.navigate("Reportes");
             }).catch(( error )=>{
@@ -164,19 +174,19 @@ export default function Log(props: any) {
         setShowMessage(true);
     }
     return(                
-        <ScrollView contentContainerStyle = {{flexGrow:1}} >
+        <View style = {{flex:1}} >
             <View style = {{flex:1, flexDirection:"column", backgroundColor:"white"}}  >
                 {/**NOTE: cabecera de la pagina logo de suinpac o del municipio */}
-                <View style={[Styles.avatarView,{flex:3}]} >
-                <View style={Styles.avatarElement}>
-                    <Avatar 
-                        rounded
-                        size = "xlarge"
-                        containerStyle = {{height:100,width:200}}
-                        source = {require("../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
-                    />
+                <View style={[Styles.avatarView,{flex:1}]} >
+                    <View style={Styles.avatarElement}>
+                        <Avatar 
+                            rounded
+                            size = "xlarge"
+                            containerStyle = {{height:100,width:200}}
+                            source = {require("../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
+                        />
+                    </View>
                 </View>
-            </View>
                 {/**NOTE: contenido prinpal de la pagina */}
                 <View style = {[{flex:8}]} >
                     <View style = {{marginTop:50, padding:20}} >
@@ -242,6 +252,6 @@ export default function Log(props: any) {
                 tittle="Mensaje"
                 onCancelLoad={()=>{ }} //NOTE: Eliminar el boton de cancelar
             />
-        </ScrollView>        
+        </View>
         );
 }

@@ -17,3 +17,4 @@ export const ADDPHOTO = ['add-a-photo','material'];
 export const DELETE = [`delete`,'material'];
 export const ADDLUMIN = ['more-time','material'];
 export const LOGINEXIT = ['watch-later','material'];
+export const ICONLIST = ['receipt-long','material'];

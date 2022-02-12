@@ -20,7 +20,12 @@ function Nav() {
             <NavigationContainer independent = {true}  >
                 <Stack.Navigator  screenOptions ={ 
                     { headerTintColor:"white" } } >
-                    <Stack.Screen name='Bienvenido!'>
+                    <Stack.Screen name='Bienvenido!'
+                                        options={({navigation, route}) => ({
+                            title: "Bienvenido!",
+                            headerTitleAlign:"center",
+                            headerTintColor:"#000000",
+                    })}>
                         {props => <Home {...props} ></Home>}
                     </Stack.Screen>  
                     <Stack.Screen name='Reportes'
