@@ -98,7 +98,8 @@ const Styles = StyleSheet.create({
         flex:1, 
         margin:15, 
         borderColor: cardColor, 
-        borderRadius:10
+        borderRadius:10,
+        padding:5
       },
       cardFoteer: {
         flex:.5,
@@ -143,7 +144,7 @@ const Styles = StyleSheet.create({
       borderColor:cardColor, 
       borderWidth:1, 
       marginTop:15,
-      backgroundColor:cardColor+"40"
+      backgroundColor:cardColor+"40",
     },
     cardBackButton: {
       backgroundColor:BlueColor,

@@ -137,9 +137,9 @@ export async function ClavesMedidor() {
 }
 //INDEV: Nuevas funciones para la aplicacion de los baches
 export async function CatalogoSolicitud(){
-    let cliente = await storage.getItem("Cliente");
+    let cliente = await storageBaches.obtenerCliente();
     let data = {
-        Cliente: cliente == null ? "56" : cliente 
+        Cliente: cliente 
     };
     let rawData = await service.ObtenerCatalogoAreas(data);
     let result = await rawData.json();
@@ -203,7 +203,6 @@ export async function RecuperarDatos(inputCliente: string, inputCurp: string ){
             "Cliente": inputCliente,
             "Curp": inputCurp
         };
-        console.log(datos);
         let rawData = await service.recuperarDatosCiudadano(datos);
         let ciudadano = await rawData.json();
         if(ciudadano.Code == 200){

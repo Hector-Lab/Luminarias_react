@@ -54,7 +54,7 @@ export default function CustomMapBaches(props:any){
                 if(jsonUbicacion != null && jsonUbicacion != undefined )
                 {
                     let ubicacionActual = JSON.parse(jsonUbicacion);
-                    let indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    let indicioFormato = "";// String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     Municipios(indicioFormato);
                 }else{
                     Municipios("");
@@ -237,13 +237,13 @@ export default function CustomMapBaches(props:any){
     } 
     //NOTE: este metodo es para recuperarlo desde el storage
     const RestaurarDatos = async () =>{
+        //NOTE: Obtenemos el cartalogo de temas
         try{
             setLoading(true);
             let persona = await storage.obtenerDatosPersona();
             if(persona != null ){
                 setTipoBoton(false);
                 let datos = JSON.parse(persona);
-                console.log(datos['curp']);
                 setCliente(datos['Cliente']);
                 setCURP(datos['curp']);
                 setRFC(String(datos['rfc']).includes("XAXX010101000") ? "" : datos['rfc']);
@@ -255,6 +255,8 @@ export default function CustomMapBaches(props:any){
                 setSolicitarDatos(false);
                 setLoading(false);
                 setMostrarPicker(false);
+                //INDEV:
+                
             }else{
                 setTipoBoton(true);
                 setLoading(false);
@@ -417,7 +419,7 @@ export default function CustomMapBaches(props:any){
                             <Input
                                 value = { paterno }
                                 keyboardType="twitter"
-                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("M,") ? 1 : 0 ,borderColor:"red"}]}
+                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("P,") ? 1 : 0 ,borderColor:"red"}]}
                                 label={ "Apellido Paterno" }
                                 editable={tipoBoton}
                                 onChangeText={text => setPaterno(text)}
@@ -426,7 +428,7 @@ export default function CustomMapBaches(props:any){
                             <Input
                                 value = { materno }
                                 keyboardType="twitter"
-                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("P,") ? 1 : 0 ,borderColor:"red"}]}
+                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("M,") ? 1 : 0 ,borderColor:"red"}]}
                                 label={ "Apellido Materno" }
                                 editable={tipoBoton}
                                 onChangeText={ text => setMaterno(text)}

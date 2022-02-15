@@ -8,10 +8,12 @@ import {
   Alert,
   ScrollView,
   TextInput,
+  Platform,
+  Linking,
 } from "react-native";
-import { BlueColor, DarkPrimaryColor } from "../../Styles/BachesColor";
-import { Text, Icon, Card, Button } from "react-native-elements";
-import { Picker } from "@react-native-picker/picker";
+import { BlueColor, cardColor, DarkPrimaryColor } from "../../Styles/BachesColor";
+import { Text, Icon, Button, Card } from "react-native-elements";
+import Carousel, { ParallaxImage } from 'react-native-snap-carousel';
 import { Camera } from "expo-camera";
 import {
   checkConnection,
@@ -34,25 +36,21 @@ import {
   INFO,
   ERROR,
   CAMERA,
+  APPSETTINGS
 } from "../../Styles/Iconos";
+import DropDownPicker from 'react-native-dropdown-picker';
 import ImageView from "react-native-image-viewing";
 import ImageViewer from "../components/image-view";
+import { SafeAreaView } from "react-native-safe-area-context";
 export default function Reportar(props: any) {
   const storage = new StorageBaches();
   const [cameraPermissions, setCameraPermision] = useState(false);
   const [arrayImageEncode, setArrayImageEncode] = useState([]);
-  const [arrayDataList, setArrayDataList] = useState([]);
-  const SLIDER_WIDTH = Dimensions.get("window").width;
-  const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.9);
-  const ITEM_HEIGHT = Math.round((ITEM_WIDTH * 3) / 4);
   const [flashOn, setFlashOn] = useState(false);
   const [onCamera, setOnCamera] = useState(false);
   const [coords, setCoords] = useState(null);
   const [direccion, setDireccion] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-  const [habilitarBotonFotos, setHabilitarBotonFotos] = useState(false);
-  const { width: viewportWidth, height: viewportHeight } =
-    Dimensions.get("window");
   const [catalogoSolicitud, setCatalogoSolicitud] = useState([]);
   const [seleccionSolicitud, setSeleccionSolicitud] = useState("-1");
   const [referencia, setReferencia] = useState(String);
@@ -70,19 +68,29 @@ export default function Reportar(props: any) {
   const [imagenSeleccionada, setImagenSeleccionada] = useState("");
   const [indexImagenSeleccionada, setIndexImagenSeleccionada] = useState(-1);
   const [modalImagenVisible, setModalImagenVisible] = useState(false);
+  const { width: screenWidth } = Dimensions.get('window')
+  //NOTE: manejadores del picker
+  const [ pickerAbierto, setPikcerAbierto ] = useState(false);
+  const [ FuenteIcono, setFuenteIcono ] = useState(String);
+  
+
+
   let camera: Camera;
   let dataListSolicitudes = [];
-
-  const [Color, setColor] = useState("");
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       let arrayAreasSolicitud = await CatalogoSolicitud();
       dataListSolicitudes = arrayAreasSolicitud.map((elemento) => {
-        return { id: elemento.id, name: elemento.descripci_on };
+        //NOTE: Obtenemos los datos del catalog
+        return  { 
+          label: elemento.descripci_on , 
+          value: elemento.id,
+          key: elemento.id
+      };
+        
       });
-      setArrayDataList(dataListSolicitudes);
-      setCatalogoSolicitud(arrayAreasSolicitud);
+      setCatalogoSolicitud(dataListSolicitudes);
       if (status !== "granted") {
         setErrorMsg("Permisos negados");
         return;
@@ -90,23 +98,12 @@ export default function Reportar(props: any) {
     })();
   }, []);
 
+  //INDEV: render con hooks
+
+
   const iniciarCamara = async () => {
-    let { status } = await Camera.requestCameraPermissionsAsync();
-    if (status === "granted") {
-      setOnCamera(true);
-    }
+    setOnCamera(true);
   };
-
-  function wp(percentage) {
-    const value = (percentage * viewportWidth) / 100;
-    return Math.round(value);
-  }
-
-  const slideHeight = viewportHeight * 0.36;
-  const slideWidth = wp(90);
-  const itemHorizontalMargin = wp(2);
-  const itemWidth = slideWidth + itemHorizontalMargin * 2;
-
   const __takePicture = async () => {
     if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
@@ -132,7 +129,7 @@ export default function Reportar(props: any) {
           Colonia: ${DireccionActual.district}
           Calle: ${DireccionActual.street}
           Codigo Postal: ${DireccionActual.postalCode}
-        `;
+          `;
         setDireccionEnviar(
           `${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
         );
@@ -169,7 +166,8 @@ export default function Reportar(props: any) {
         Ciudad: ${DireccionActual.city}
         Colonia: ${DireccionActual.district}
         Calle: ${DireccionActual.street}
-        Codigo Postal: ${DireccionActual.postalCode}`;
+        Codigo Postal: ${DireccionActual.postalCode}
+        `;
       setDireccion(formatoDireccion);
       setDireccionEnviar(
         `${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
@@ -275,6 +273,7 @@ export default function Reportar(props: any) {
     observaciones == "" ? (error += "D,") : error;
     direccion == "" ? (error += "S,") : error;
     if (error != "") {
+      console.log(error);
       setErrorUi(error);
       setErrorMsg("Favor de capturar los campos requeridos");
       setHeaderMessage("Mensaje");
@@ -304,67 +303,19 @@ export default function Reportar(props: any) {
       if (status === "granted") {
         await __takePicture();
       } else {
-        //NOTE: lanzamos un un mensaje de permisos
-        setHeaderMessage("Mensaje");
-        setErrorMsg("Favor de conceder permisos");
-        setIconSource(CAMERA[1]);
+        //NOTE: lanzamos un un mensaje de permisos 
+        console.log( status );
         setMessageIcon(CAMERA[0]);
+        setFuenteIcono(CAMERA[1]);
+        setErrorMsg("La apliacion necesita permisos para acceder a la camara");
+        setHeaderMessage("Mensaje");
         setSHowMessage(true);
+        setOnCamera(false);
+        
       }
     } catch (error) {
       console.log(error);
     }
-  };
-  const _renderItem = () => {
-    let Imagenes = [];
-    let direccion = null;
-    for (let index = 0; index < 3; index++) {
-      //NOTE: Obtenemos la direccion de la imagen
-      if (arrayImageEncode.length > index) {
-        direccion = arrayImageEncode[index].uri;
-        Imagenes.push(
-          <TouchableOpacity
-            key={direccion}
-            onPress={() => {
-              setIndexImagenSeleccionada(index);
-              setImagenSeleccionada(arrayImageEncode[index].uri);
-            }}
-            style={{
-              backgroundColor:
-                imagenSeleccionada == arrayImageEncode[index].uri
-                  ? BlueColor + "55"
-                  : "white",
-              marginLeft: 5,
-            }}
-          >
-            <View
-              style={{
-                flex: 1,
-                alignItems: "center",
-                padding: 7,
-                borderRadius: 5,
-              }}
-              key={index}
-            >
-              <Image
-                source={{ uri: String(direccion) }}
-                style={{ width: 50, height: 60 }}
-              />
-            </View>
-          </TouchableOpacity>
-        );
-      }
-    }
-    if (arrayImageEncode.length == 0) {
-      Imagenes.push(
-        <View style={{ flex: 1, }} key={"-1"}>
-          <Text style={{ fontWeight: "bold" }}>
-            Sin Evidencias
-          </Text>
-        </View>
-      );
-    }
-    return Imagenes;
   };
   const eliminarFoto = () => {
     setArrayImageEncode(
@@ -372,235 +323,197 @@ export default function Reportar(props: any) {
     );
     setImagenSeleccionada("");
   };
-
-  return (
-    <View style={[Styles.container]}>
-      {onCamera ? (
-        <View style={{ flex: 1 }}>
-          <Camera
-            ref={(r) => {
-              camera = r;
+  const GenerarCamara = ( ) => {
+    return <View style={{ flex: 1 }}>
+        <Camera
+          ref={(r) => {
+            camera = r;
+          }}
+          style={{ flex: 1 }}
+          autoFocus={true}
+          flashMode={
+            flashOn
+              ? Camera.Constants.FlashMode.torch
+              : Camera.Constants.FlashMode.off
+          }
+        >
+          <View
+            style={{
+              flex: 20,
+              marginTop: 10,
+              flexDirection: "row-reverse",
+              marginLeft: 20,
             }}
-            style={{ flex: 1 }}
-            autoFocus={true}
-            flashMode={
-              flashOn
-                ? Camera.Constants.FlashMode.torch
-                : Camera.Constants.FlashMode.off
-            }
           >
-            <View
+            <TouchableOpacity
               style={{
-                flex: 20,
-                marginTop: 10,
-                flexDirection: "row-reverse",
-                marginLeft: 20,
+                justifyContent: "center",
+                backgroundColor: SuinpacRed,
+                opacity: 0.5,
+                height: 40,
+                width: 40,
+                borderRadius: 50,
+              }}
+              onPress={() => {
+                setOnCamera(false);
               }}
             >
-              <TouchableOpacity
-                style={{
-                  justifyContent: "center",
-                  backgroundColor: SuinpacRed,
-                  opacity: 0.5,
-                  height: 40,
-                  width: 40,
-                  borderRadius: 50,
-                }}
-                onPress={() => {
-                  setOnCamera(false);
-                }}
-              >
-                <Icon
-                  tvParallaxProperties
-                  name="cancel"
-                  color={iconColorBlue}
-                ></Icon>
-              </TouchableOpacity>
-            </View>
-            <View
+              <Icon
+                tvParallaxProperties
+                name="cancel"
+                color={iconColorBlue}
+              ></Icon>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              flex: 2,
+              marginTop: 10,
+              flexDirection: "row",
+              marginLeft: 20,
+            }}
+          >
+            <TouchableOpacity
               style={{
-                flex: 2,
-                marginTop: 10,
-                flexDirection: "row",
-                marginLeft: 20,
+                justifyContent: "center",
+                backgroundColor: torchButton,
+                opacity: 0.5,
+                height: 40,
+                width: 40,
+                borderRadius: 50,
+              }}
+              onPress={() => {
+                setFlashOn(!flashOn);
               }}
             >
-              <TouchableOpacity
-                style={{
-                  justifyContent: "center",
-                  backgroundColor: torchButton,
-                  opacity: 0.5,
-                  height: 40,
-                  width: 40,
-                  borderRadius: 50,
-                }}
-                onPress={() => {
-                  setFlashOn(!flashOn);
-                }}
-              >
-                <Icon
-                  type="feather"
-                  tvParallaxProperties
-                  name={flashOn ? "zap" : "zap-off"}
-                  color={iconColorBlue}
-                ></Icon>
-              </TouchableOpacity>
-            </View>
-            <View style={{ alignItems: "center", marginBottom: 10 }}>
-              <TouchableOpacity
-                style={{
-                  justifyContent: "center",
-                  backgroundColor: "white",
-                  opacity: 0.5,
-                  height: 60,
-                  width: 60,
-                  borderRadius: 50,
-                }}
-                onPress={solicitarPermisosCamara}
-              >
-                <Icon
-                  tvParallaxProperties
-                  name="camera"
-                  color={SuinpacRed}
-                ></Icon>
-              </TouchableOpacity>
-            </View>
-          </Camera>
-        </View>
-      ) : (
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={Styles.cardContainer}>
-            <View
-              style={[
-                errorUi.includes("T,") ? Styles.errorDatos : {},
-                { flex: .2 },
-              ]}
+              <Icon
+                type="feather"
+                tvParallaxProperties
+                name={flashOn ? "zap" : "zap-off"}
+                color={iconColorBlue}
+              ></Icon>
+            </TouchableOpacity>
+          </View>
+          <View style={{ alignItems: "center", marginBottom: 10 }}>
+            <TouchableOpacity
+              style={{
+                justifyContent: "center",
+                backgroundColor: "white",
+                opacity: 0.5,
+                height: 60,
+                width: 60,
+                borderRadius: 50,
+              }}
+              onPress={solicitarPermisosCamara}
             >
-              {/* NOTE:: Area Administrativa */}
-              <Picker
-                style = {{
-                  marginTop:15,
-                  backgroundColor: BlueColor+30,
-                  color: "#000000ff",
-                  borderRadius: 4,
-                  height: 10,
-                  marginBottom: 50,
-                }}
-                  selectedValue={seleccionSolicitud}
-                  onValueChange={(itemValue, itemIndex) => {
-                    setSeleccionSolicitud(String(itemValue));
-                  }}
-                >
-                  <Picker.Item
-                    //style={{color:'#FFFF', backgroundColor:BlueColor,margin:0}}
-                    label=" Temario de solicitud "
-                    value={-1}
-                  ></Picker.Item>
-                  {catalogoSolicitud.map((item, index) => {
-                    return (
-                      <Picker.Item
-                        key={item.id}
-                        label={item.descripci_on}
-                        value={item.id}
-                      ></Picker.Item>
-                    );
-                  })}
-                </Picker>
-            </View>
+              <Icon
+                tvParallaxProperties
+                name="camera"
+                color={SuinpacRed}
+              ></Icon>
+            </TouchableOpacity>
+          </View>
+        </Camera>
+      </View>
+  }
+  const renderItem = ({item, index}, parallaxProps) => {
+    let evidencia = `${(index + 1)}/${ arrayImageEncode.length }`;  
+    return (
+      <View style = {{alignItems:"center"}}>
+        <Card>
+          <Card.Title> {evidencia} </Card.Title>
+          <Card.Image
+             source={{uri: item.uri}}
+             containerStyle = {{    flex: 1,
+               marginBottom: Platform.select({ios: 0, android: 1}), // Prevent a random Android rendering issue
+               backgroundColor: 'white',
+               borderRadius: 8,
+               paddingBottom:5 }}
+               style = {{height:200,width:200}}
+             parallaxFactor={0.4}
+             onPress = {()=>{setModalImagenVisible(true)}}
+             {...parallaxProps}
+          ></Card.Image>
+          <Card.Divider/>
+          <Button onPress={ obtenerDireccionActuales} title={"Eliminar"} />
+        </Card>
+      </View>
+    );
+  }
+  return (
+      <SafeAreaView style = {{flex:1, flexDirection:"row"}} >
+        {
+          onCamera ? GenerarCamara() :
+          <ScrollView style = {{flexGrow:1}} >
+            <View style = {{flex:1}} >
+              <View style = {{flex:2}} >
+                {/* Generamos el picker*/ }
+                <DropDownPicker
+                    containerStyle = {{ padding:15 }}
+                    style = {{borderColor: errorUi.includes("T,") ? "red" : cardColor, borderWidth:1}}
+                    items = { catalogoSolicitud }
+                    setOpen = { setPikcerAbierto }
+                    open = { pickerAbierto }
+                    setValue={ setSeleccionSolicitud }
+                    value = { seleccionSolicitud }
+                    min =  {10}
+                    max = {15}
+                    listMode = {"MODAL"}
+                    listItemContainerStyle = {{padding:10}}
+                    itemSeparator = {true}
+                    selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                    selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                    placeholder = {"Seleccione Tema"}
+                  />
+              </View>
+              <View style = {{flex:4}} >
+                <View style = {{flex:1,justifyContent:"center", alignContent:"center"}} >
+                  <TextInput
+                        editable = { false }
+                        multiline = {true}
+                        style={ { textAlign:"center", fontWeight:"bold", color:"black" } }
 
-            <View
-              style={[Styles.bachesCard, { borderRadius: 25, marginTop: 5 }]}
-            >
-              {/* NOTE:: Direccion del defecto */}
-              <View style={Styles.cardHeader}>
-                <View style={Styles.cardHeaderText}>
-                  <View style={Styles.cardRpundedIcon}></View>
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      marginLeft: 15,
-                      fontSize: 15,
-                      fontWeight: "bold",
-                    }}
+                      >{ `Mi Direcciòn` }</TextInput>
+                </View>
+                <View style = {{flex:1}} >
+                  <TextInput 
+                    editable = {false}
+                    multiline = {true}
+                    numberOfLines={5}
+                    style={{ textAlign:"left", fontWeight:"bold", color:"black", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5} }
                   >
-                    Direccion Actual
-                  </Text>
+                    {direccion}
+                  </TextInput>
                 </View>
               </View>
-              <View style={[Styles.cardTextView]}>
-                <Text
-                  style={[
-                    Styles.textMultiline,
-                    errorUi.includes("S,") ? Styles.errorDatos : {},
-                  ]}
-                >
-                  {direccion}
-                </Text>
+              <View style = {{ flex:4 }}>
+              <Carousel
+                sliderWidth={screenWidth}
+                sliderHeight={screenWidth}
+                itemWidth={screenWidth - 60}
+                data={arrayImageEncode}
+                renderItem = { renderItem }
+                hasParallaxImages={true}
+            />
               </View>
-              <View style={Styles.cardFoteer}>
-                <View style={Styles.cardLocateBtn}>
-                  <TouchableOpacity
-                    style={{ marginLeft: 45 }}
-                    onPress={obtenerDireccionActuales}
-                  >
-                    <Icon
-                      color={DarkPrimaryColor}
-                      size={25}
-                      tvParallaxProperties
-                      name="street-view"
-                      type="font-awesome-5"
-                      style={{ marginLeft: 45 }}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
+              <View style = {{paddingLeft:20, paddingRight:20}} >
+              <Button
+                  icon={{
+                    name: "camera",
+                    type: "font-awesome",
+                    size: 15,
+                    color: "white",
                   }}
-                >
-                  <TouchableOpacity
-                    style={{}}
-                    onPress={() => {
-                      setDireccion("");
-                    }}
-                  >
-                    <Icon
-                      size={20}
-                      color={DarkPrimaryColor}
-                      tvParallaxProperties
-                      name="trash-alt"
-                      type="font-awesome-5"
-                      style={{ marginRight: 45 }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-            
-            <View style={{ flex: 6 }}>
-              {/* NOTE: Seccion de galeria */}
-              <View style={Styles.cardTextView}>
-                {/* INDEV: Lista de imagenes */}
-                <ImageViewer
-                  RenderItem={ _renderItem() }
-                  Selected={imagenSeleccionada}
-                  EliminarImagen={eliminarFoto}
-                  AgregarImagen={iniciarCamara}
-                  Mostrar = { true }
-                  MaximizarImagen={() => {
-                    setModalImagenVisible(true);
-                  }}
-                  MostrarMensaje={arrayImageEncode.length == 0}
+                  title={"Capturar"}
+                  buttonStyle={[Styles.btnButtonLoginSuccess,{ borderColor:"red", borderWidth: errorUi.includes("E,") ? 2 : 0 }]}
+                  onPress={iniciarCamara}
                 />
               </View>
-              <View style={{ flex: 1, padding: 20 }}>
-                <View>
+              <View style = {{flex:4}} >
+                <View  style = {{ paddingLeft:25, paddingRight:25 }} >
                   <TextInput
                     onChangeText={(text) => {
-                      setReferencia(text);
+                        setReferencia(text);
                     }}
                     value={referencia}
                     placeholder="Referencia"
@@ -608,26 +521,28 @@ export default function Reportar(props: any) {
                     numberOfLines={2}
                     style={[
                       Styles.bachesTextInput,
-                      errorUi.includes("R,") ? Styles.errorDatos : {},
-                    ]}
-                  ></TextInput>
+                      errorUi.includes("R,") ? Styles.errorDatos : {},]}
+                    ></TextInput>
                 </View>
-                <View>
+                <View style = {{ paddingLeft:25, paddingRight:25 }} >
                   <TextInput
-                    onChangeText={(text) => {
-                      setObservaciones(text);
-                    }}
-                    value={observaciones}
-                    placeholder="Descripción"
-                    multiline
-                    numberOfLines={5}
-                    style={[
-                      Styles.bachesTextInput,
-                      errorUi.includes("D,") ? Styles.errorDatos : {},
-                    ]}
-                  ></TextInput>
+                      onChangeText={(text) => {
+                        setObservaciones(text);
+                      }}
+                      value={observaciones}
+                      placeholder="Descripción"
+                      multiline
+                      numberOfLines={5}
+                      style={[
+                        Styles.bachesTextInput,
+                        errorUi.includes("D,") ? Styles.errorDatos : {},
+                      ]}
+                    ></TextInput>
                 </View>
-                <Button
+              </View>
+              <Text></Text>
+              <View style = {{paddingLeft:20, paddingRight:20}} >
+              <Button
                   icon={{
                     name: "save",
                     type: "font-awesome",
@@ -640,21 +555,21 @@ export default function Reportar(props: any) {
                 />
               </View>
             </View>
-          </View>
-          <Message
-            transparent={true}
-            loading={showMessage}
-            loadinColor={BlueColor}
-            onCancelLoad={() => {
-              setSHowMessage(false);
-            }}
-            icon={messageIcon}
-            iconsource={"font-awesome-5"}
-            color={BlueColor}
-            message={errorMsg}
-            tittle={headerMessage}
-            buttonText={"Aceptar"}
-          />
+            <Text></Text>
+            <Message
+              transparent={true}
+              loading={showMessage}
+              loadinColor={BlueColor}
+              onCancelLoad={() => {
+                setSHowMessage(false);
+              }}
+              icon={messageIcon}
+              iconsource={FuenteIcono}
+              color={BlueColor}
+              message={errorMsg}
+              tittle={headerMessage}
+              buttonText={"Aceptar"}
+            />
           <Loading
             loading={loading}
             loadinColor={DarkPrimaryColor}
@@ -681,8 +596,27 @@ export default function Reportar(props: any) {
               </View>
           )}
           />
-        </ScrollView>
-      )}
-    </View>
+          {/**Mesaje para los solicitar los permisos desde la aplicacion*/}
+          <Message
+            transparent={true}
+            loading={showMessage}
+            loadinColor={BlueColor}
+            onCancelLoad={() => { 
+              setSHowMessage(false);
+              if(errorMsg.includes("La apliacion necesita permisos para acceder a la camara"))
+                Linking.openSettings();
+            }}
+            
+            icon={messageIcon}
+            iconsource={FuenteIcono}
+            color={BlueColor}
+            message={errorMsg}
+            tittle={headerMessage}
+            buttonText={"Aceptar"}
+          />
+
+          </ScrollView> 
+        }
+      </SafeAreaView>
   );
 }

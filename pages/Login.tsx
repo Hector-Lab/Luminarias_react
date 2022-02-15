@@ -1,9 +1,10 @@
 import { Picker } from "@react-native-picker/picker";
+import DropDownPicker from 'react-native-dropdown-picker';
 import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, Text } from  'react-native';
 import {  Input, Avatar } from 'react-native-elements';
 import { ScrollView } from "react-native-gesture-handler";
-import { BlueColor, cardColor, DarkPrimaryColor } from "../Styles/BachesColor";
+import { BlueColor, cardColor, DarkPrimaryColor, errorColor } from "../Styles/BachesColor";
 import Styles from "../Styles/BachesStyles";
 import { DESCONOCIDO, USER_COG, WIFI_OFF,LOGINEXIT } from '../Styles/Iconos';
 import { checkConnection, CordenadasActualesNumerico, ObtenerDireccionActual, verificarcurp } from "../utilities/utilities";
@@ -12,6 +13,7 @@ import Message from "./components/modal-message";
 import { ObtenerMunicipios, RecuperarDatos, VerificarSession } from "./controller/api-controller";
 import { StorageBaches } from './controller/storage-controllerBaches';
 import * as Location from 'expo-location';
+import { BackgrounBlue } from "../Styles/Color";
 export default function Log(props: any) {
 
     const storage = new StorageBaches();
@@ -27,6 +29,8 @@ export default function Log(props: any) {
     const [ showMessage, setShowMessage ] = useState(false);
     const [loading, setLoading ] = useState(true); 
     const [ tittleMesage, setTittleMesaje ] = useState("Mensaje");
+    //INDEV: manejadores del modal
+    const [ pickerAbierto, setPickerAbierto ] = useState(false);
     //INDEV: verificamos las session y la validez del token
     useEffect(()=>{
         (async ()=>{
@@ -53,7 +57,7 @@ export default function Log(props: any) {
                 if(jsonUbicacion != null && jsonUbicacion != undefined )
                 {
                     let ubicacionActual = JSON.parse(jsonUbicacion);
-                    let indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    let indicioFormato = "";// String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     Municipios(indicioFormato);
                 }else{
                     Municipios("");
@@ -72,8 +76,13 @@ export default function Log(props: any) {
             let municipiosAuxiliar = [];
             listaMunicipio.map((item,index)=>{
                 let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                console.log(item);
                 if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                    municipiosAuxiliar.push(item);
+                    let itemPicker = { 
+                        label: item.Municipio , 
+                        value: item.id,
+                    };
+                    municipiosAuxiliar.push(itemPicker);
                 }
             });
             setArregloMunicipios(municipiosAuxiliar);
@@ -86,6 +95,10 @@ export default function Log(props: any) {
             listaMunicipio.map((item,index)=>{
                 let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
+                    let itemPicker = { 
+                        label: item.Municipio , 
+                        value: item.id,
+                    };
                     municipiosAuxiliar.push(item);
                 }
             });
@@ -199,7 +212,25 @@ export default function Log(props: any) {
                             onChangeText = { ( text ) => {setCURP( text );}}
                             style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
                         <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red' }} >
-                            <Picker
+                            { /* NOTE: pikcker anterior*/ }
+                            <DropDownPicker
+                                placeholder = {"Seleccione un municipio"}
+                                items = { arregloMunicipios }
+                                open = { pickerAbierto }
+                                setOpen = {setPickerAbierto}
+                                setValue = { setCliente }
+                                value = {cliente}
+                                min =  {10}
+                                max = {15}
+                                listMode = {"MODAL"}
+                                listItemContainerStyle = {{padding:10}}
+                                itemSeparator = {true}
+                                selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                                selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                                >
+
+                            </DropDownPicker>
+                            {/*<Picker
                                 selectedValue = { cliente }
                                 onValueChange = { ( cl )=>{ setCliente(cl); }}
                                 style = {{backgroundColor:cardColor+55,}}
@@ -211,6 +242,7 @@ export default function Log(props: any) {
                                         })
                                     }
                             </Picker>
+                            */}
                         </View>
                     </View>
                     <View style = {{flex: 1, padding:20}} >

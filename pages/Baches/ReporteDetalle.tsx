@@ -9,7 +9,7 @@ import Message from '../components/modal-message';
 import { WIFI_OFF,ERROR,  } from '../../Styles/Iconos';
 import { RefrescarReporte } from '../controller/api-controller';
 import ImageView from "react-native-image-viewing";
-import { color } from "react-native-elements/dist/helpers";
+import { StorageBaches } from '../controller/storage-controllerBaches';
 
 export default function DetallesReporte(props:any){
     const [ Reporte, setReporte ] = useState(null); 
@@ -32,6 +32,9 @@ export default function DetallesReporte(props:any){
     const [iconSource, setIconSource  ]= useState(""); 
     const [ message, setMessage ] = useState("");
     const [ mostrarMensaje, setMostrarMensaje ] = useState(false);
+    const [ nombreCiudadano, setNombreCiudadano ] = useState("Cargando...");
+    //INDEV: falta mostrar los datos del Ciudadano
+    const storage = new StorageBaches();
     let estatusColor = cardColor;
     useEffect(()=>{
         let { Reporte } = props.route.params;
@@ -50,7 +53,6 @@ export default function DetallesReporte(props:any){
         }
         //NOTE: Buscamos los datos de las imagenes
         Reporte != null ? ( Reporte.Observaci_onServidorPublico != null ?  setObservacionCentrado(false) : setObservacionCentrado(true) ) : setObservacionCentrado(true);
-        
         if(Reporte.Rutas == null, Reporte.Rutas == ""){
             setEvidenciaBloqueo(true);
         }else{
@@ -59,11 +61,11 @@ export default function DetallesReporte(props:any){
             let arrayImagenEncode = arrayImagenes.map(function( item ){
                 return {uri:`https:/suinpac.com/${item}`};
             });
-            console.log(arrayImagenEncode);
             setArrayImagenes(arrayImagenEncode);
             setMapaBloqueado(false);
         }
         setReporte(Reporte);
+        obtenerDatosCiudadano();
     },[]);
     useEffect(()=>{
         if( Reporte != null ){
@@ -77,6 +79,15 @@ export default function DetallesReporte(props:any){
     /**
      * INDEV: Componentes para el modal de imagenes
      */
+    const obtenerDatosCiudadano = async () => {
+        //NOTE: obtenemos los datos del ciudadno
+        let data = await storage.obtenerDatosPersona();
+        if(data != null ){
+            let jsonData = JSON.parse(data);
+            setNombreCiudadano(jsonData.Nombres + " " + jsonData.Paterno + " " +jsonData.Materno);
+        }
+    }
+    
     function wp (percentage) {
         const value = (percentage * viewportWidth) / 100;
         return Math.round(value);
@@ -138,12 +149,12 @@ export default function DetallesReporte(props:any){
               </View>
               <View style = {Styles.cardHeaderText}>
                 <Text style = {{textAlign:"center", fontWeight:"bold"}} >
-                    {`Folio: ${(Reporte != null  ) ? Reporte.Codigo: "" } \n Hector Ramirez Contreras`}
+                    {`Folio: ${(Reporte != null  ) ? Reporte.Codigo: "" } \n`+ nombreCiudadano}
                     </Text>
               </View>
               <View style = {Styles.cardRigthIcon}>
               <View style = {[Styles.cardRpundedIcon]} >
-                  <Icon color = {"white"}  tvParallaxProperties  name = {headerIcon} type ="font-awesome-5" style = {{margin:5}} />
+                  
                 </View> 
               </View>
             </View>
@@ -154,7 +165,7 @@ export default function DetallesReporte(props:any){
                             <Text style = {[Styles.directionTittleColor, {fontWeight:"bold"}]}>Descripción</Text>
                             <Divider/>
                             <TouchableOpacity>
-                                <Text style = {{padding:5}} numberOfLines={5}>{Reporte != null ? Reporte.Descripci_on : ""} </Text>
+                                <Text style = {{padding:5, textAlign: observacionCentrado ? "center" : "left"}} numberOfLines={5}>{Reporte != null ? Reporte.Descripci_on : ""} </Text>
                             </TouchableOpacity>
                         </View>
                         <View style = {{flex:1, flexDirection:"column", margin:20, backgroundColor:"white", borderRadius:10}} >
@@ -237,7 +248,7 @@ export default function DetallesReporte(props:any){
                                 size: 15,
                                 color: 'white',
                             }}
-                            onPress = { ()=>{setModalEvidenciasVisible(true); console.log(arrayImagenes) } }
+                            onPress = { ()=>{setModalEvidenciasVisible(true)} }
                             title={" Evidencia"}
                             buttonStyle = {[Styles.btnButtonSuccessSinPading]} />
                         <Button 

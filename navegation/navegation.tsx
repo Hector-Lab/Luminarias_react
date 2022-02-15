@@ -4,18 +4,12 @@ import { NavigationContainer ,DefaultTheme} from '@react-navigation/native';
 import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack';
 import Home from '../pages/Login';
 import BachesHome from '../pages/Baches/home';
-import MenuLuminarias from '../pages/Luminarias/home';
-import MainLuminaria from '../pages/Luminarias/Luminarias-pages/home';
-import HomeBaches from '../pages/Baches/home';
-import MedidoresHome from '../pages/Luminarias/Medidores-pages/home';
 import { PrimaryColor } from '../Styles/BachesColor';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 const Stack = createStackNavigator();
-
-
 function Nav() {
-    
     return(
-        <View style = {{flex:1}} >
+        <SafeAreaView style = {{flex:1}} >
             <StatusBar barStyle = {"light-content"} animated = {true} />
             <NavigationContainer independent = {true}  >
                 <Stack.Navigator  screenOptions ={ 
@@ -37,15 +31,10 @@ function Nav() {
                     })} >
                         {props => <BachesHome  {...props} ></BachesHome>}
                     </Stack.Screen>
-                    <Stack.Screen name='Menu'>
-                        {props => <MenuLuminarias {...props} ></MenuLuminarias>}
-                    </Stack.Screen> 
                 </Stack.Navigator>
             </NavigationContainer>
-        </View>
+        </SafeAreaView>
     )
 }
-
-
 export default Nav;    
 
