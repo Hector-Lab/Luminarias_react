@@ -9,6 +9,7 @@ import Loading from '../components/modal-loading';
 
 export default function MyLocation(props:any ){
     const estatusLetra = [{"Nombre":"Pendiente"},{"Nombre":"Proceso"},{"Nombre":"Atendida"},{"Nombre":"Rechazada"}];
+    
     return(
         <View style = {{...StyleSheet.absoluteFillObject}} >
 

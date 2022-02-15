@@ -24,6 +24,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.atencionCiudadana.suinpac",
+      "config":{
+        "googleMaps":{
+          "apiKey":"AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
+        }
       }
     },
     "web": {

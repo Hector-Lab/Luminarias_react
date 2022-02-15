@@ -3,19 +3,20 @@ import {
   View,
   ScrollView,
   FlatList,
-  RefreshControl
+  RefreshControl,
+  Text
 } from "react-native";
 import Styles from '../../Styles/BachesStyles';
 import { StorageService } from "../controller/storage-controller";
 import { ObtenerMisReportes } from '../controller/api-controller';
-import { Icon, ListItem, Text, Button, getIconType } from 'react-native-elements';
+import { Icon, ListItem, Button, getIconType } from 'react-native-elements';
 import { BlueColor, buttonSuccess, cardColor, DarkPrimaryColor, PrimaryColor } from "../../Styles/BachesColor";
 import Message from '../components/modal-message';
 import Loading, {} from '../components/modal-loading'; 
 import { DESCONOCIDO,ERROR,INFO,OK, WIFI, WIFI_OFF, ICONLIST } from '../../Styles/Iconos';
 
 import { Badge } from "react-native-elements/dist/badge/Badge";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 const storage = new StorageService();
 
 export default function HistorialReporte(props: any) {
@@ -109,11 +110,11 @@ export default function HistorialReporte(props: any) {
               tvParallaxProperties
               bottomDivider>
                 <Icon name = { icon } type = {"font-awesome-5"} tvParallaxProperties/>  
-                <TouchableOpacity onPress= { ()=>{verReporte(item)} } >
+                <TouchableOpacity onPress= {()=>{verReporte(item)}}>
                   <ListItem.Content >
                     <ListItem.Title>
                       { `Folio: ${item.Codigo} `}
-                      <Badge 
+                      <Badge
                         badgeStyle = {{backgroundColor:estatusColor }} 
                         value = {estatusLetra[ parseInt(item.Estatus) -1 ].Nombre}/>
                     </ListItem.Title>
@@ -130,6 +131,7 @@ export default function HistorialReporte(props: any) {
   }
   const refrescarLista = async () =>{
     setLoading(true);
+    console.log("Prueba");
     await ObtenerMisReportes()
     .then((arregloReportes)=>{
       setReportes(arregloReportes);
@@ -168,7 +170,7 @@ export default function HistorialReporte(props: any) {
                 </View>
               </View>
               <View style = {Styles.cardHeaderText}>
-                <Text style = {{textAlign:"center", fontWeight:"bold"}}  >Mis reportes</Text> 
+                <TextInput editable = {false} style = {{textAlign:"center", color:"black"}}  >Mis reportes</TextInput> 
               </View>
               <View style = {Styles.cardRigthIcon}>
               <View style = {Styles.cardRpundedIcon} >
@@ -186,19 +188,15 @@ export default function HistorialReporte(props: any) {
                     onRefresh={refrescarLista}
                   />
                   }
-                  contentContainerStyle = {{flexGrow:1}}
                   data={reportes}
                   keyExtractor={(a: reporteCiudadano, index: number) => index.toString()}
                   renderItem={renderRow}
                 /> : 
                 <View style = {{flex:1, justifyContent:"center"}} >
                     <Icon tvParallaxProperties  name = {ICONLIST[0]} type = {ICONLIST[1]} size = {100}  color = {"white"} ></Icon>
-                    <Text></Text>
-                    <Text></Text>
-                    <Text style = {{ fontWeight:"bold", textAlign:"center"}} > Aun no tienes Reportes </Text>
-                    <Text></Text>
-                    <TouchableOpacity style = {{backgroundColor:PrimaryColor, padding:10, marginLeft:20, marginRight:20}} onPress = { refrescarLista } >
-                      <Text style = { {textAlign:"center" , color:"white", fontWeight:"bold"}}  >Actualizar</Text>
+                    <TextInput editable = {false} style = {{color:"black" ,fontWeight:"bold", textAlign:"center"}} > Aun no tienes Reportes </TextInput>
+                    <TouchableOpacity style = {{backgroundColor:PrimaryColor, padding:10, marginLeft:20, marginRight:20, elevation:1}} onPress = { refrescarLista } >
+                      <Text  style = { {textAlign:"center" , color:"white", fontWeight:"bold", elevation:0}}  >Actualizar</Text>
                     </TouchableOpacity>
                 </View>
               }  
