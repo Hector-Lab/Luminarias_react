@@ -17,6 +17,7 @@ import { DESCONOCIDO,ERROR,INFO,OK, WIFI, WIFI_OFF, ICONLIST } from '../../Style
 
 import { Badge } from "react-native-elements/dist/badge/Badge";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 const storage = new StorageService();
 
 export default function HistorialReporte(props: any) {
@@ -106,8 +107,6 @@ export default function HistorialReporte(props: any) {
 
     return <View style = {{padding:2}} >
             <ListItem
-              hasTVPreferredFocus
-              tvParallaxProperties
               bottomDivider>
                 <Icon name = { icon } type = {"font-awesome-5"} tvParallaxProperties/>  
                 <TouchableOpacity onPress= {()=>{verReporte(item)}}>
@@ -161,67 +160,18 @@ export default function HistorialReporte(props: any) {
     .finally(()=>{setLoading(false)})
   }
   return (
-        <View style = {{flex:1}} >
-          <View style = { Styles.cardContainer } >
-            <View style = {[Styles.cardHeader,{flex:.7}]}>
-              <View style = {Styles.cardLeftIcon}>
-                <View style = {Styles.cardRpundedIcon} >
-                  {/*<Icon color = {"white"}  tvParallaxProperties  name = "street-view" type ="font-awesome-5" style = {{margin:3}} />*/}
-                </View>
-              </View>
-              <View style = {Styles.cardHeaderText}>
-                <TextInput editable = {false} style = {{textAlign:"center", color:"black"}}  >Mis reportes</TextInput> 
-              </View>
-              <View style = {Styles.cardRigthIcon}>
-              <View style = {Styles.cardRpundedIcon} >
-                  {/*<Icon color = {"white"}  tvParallaxProperties  name = "map" type ="feather" style = {{margin:3}} />*/}
-                </View> 
-              </View>
-            </View>
-            <View style = {Styles.cardConteinerFlex8} >
-              {
-                 (reportes.length > 0) ?
-                 <FlatList
-                  refreshControl={
-                    <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={refrescarLista}
-                  />
-                  }
-                  data={reportes}
-                  keyExtractor={(a: reporteCiudadano, index: number) => index.toString()}
-                  renderItem={renderRow}
-                /> : 
-                <View style = {{flex:1, justifyContent:"center"}} >
-                    <Icon tvParallaxProperties  name = {ICONLIST[0]} type = {ICONLIST[1]} size = {100}  color = {"white"} ></Icon>
-                    <TextInput editable = {false} style = {{color:"black" ,fontWeight:"bold", textAlign:"center"}} > Aun no tienes Reportes </TextInput>
-                    <TouchableOpacity style = {{backgroundColor:PrimaryColor, padding:10, marginLeft:20, marginRight:20, elevation:1}} onPress = { refrescarLista } >
-                      <Text  style = { {textAlign:"center" , color:"white", fontWeight:"bold", elevation:0}}  >Actualizar</Text>
-                    </TouchableOpacity>
-                </View>
-              }  
-            <Message
-              transparent = { true }
-              loading = {showMessage}
-              message = {errorMensaje}
-              buttonText="Aceptar"
-              color = {DarkPrimaryColor}
-              iconsource = {iconSource}
-              icon = {icono}
-              loadinColor = {DarkPrimaryColor}
-              onCancelLoad={()=>{ setShowMessage(false) }}
-              tittle = {tituloMensaje}
-            />
-            <Loading
-              transparent = {true}
-              loading = {loading}
-              message={"Cargando..."}
-              loadinColor = {DarkPrimaryColor}
-              onCancelLoad = { ()=>{setLoading(false)}}
-              tittle = { "Mensaje" }
-            />
-          </View>
-          </View>
-        </View>
+  <SafeAreaView>
+    <FlatList
+      refreshControl={
+        <RefreshControl
+        refreshing={refreshing}
+        onRefresh={refrescarLista}
+      />
+      }
+      data={reportes}
+      keyExtractor={(a: reporteCiudadano, index: number) => index.toString()}
+      renderItem={renderRow}
+    /> 
+  </SafeAreaView>    
   );
 }
