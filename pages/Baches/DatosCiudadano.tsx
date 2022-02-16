@@ -7,6 +7,7 @@ import { BlueColor, DarkPrimaryColor, cardColor, buttonSuccess } from '../../Sty
 import { ScrollView } from "react-native-gesture-handler";
 import { StorageBaches } from '../controller/storage-controllerBaches';
 import { Picker } from "@react-native-picker/picker";
+import DropDownPicker from 'react-native-dropdown-picker';
 import { ObtenerMunicipios, RegistrarCiudadano, RecuperarDatos, editarDatosCiudadano } from '../controller/api-controller';
 import { checkConnection, CordenadasActualesNumerico,ObtenerDireccionActual, verificarcurp , rfcValido } from '../../utilities/utilities';
 import  * as Location from 'expo-location';
@@ -28,13 +29,16 @@ export default function CustomMapBaches(props:any){
     const [ cliente, setCliente ] = useState(-1);
     const [ showMessage, setShowMessage ] = useState(false);
     const [ solicitarDatos, setSolicitarDatos ] = useState(false);
-    const [ loading, setLoading ] = useState(true);
+    const [ loading, setLoading ] = useState(false);
     const [ iconModal, setIconModal ] = useState("info");
     const [ tipoBoton , setTipoBoton ] = useState(true); // NOTE: true - Agregar, false - Editar
-    const [iconSource, setIconSource ] = useState("");
-    const [mostrarPicker, setMostrarPicker ] = useState(true);
+    const [ iconSource, setIconSource ] = useState("");
+    const [ mostrarPicker, setMostrarPicker ] = useState(true);
+    //NOTE: manejador del picker agregar
+    const [ mostrarPickerAgregar , setMostrarPickerAgregar ] = useState( false );
     const curpError = ["","CURP no valida","Formato de CURP no valido"];
     const storage = new StorageBaches();
+
     useEffect(() => {
         (async () => {
             //NOTE: verificamos si ingreso desde la interfaz principa
@@ -210,17 +214,22 @@ export default function CustomMapBaches(props:any){
     const Municipios = async ( indicio:string ) =>{
         let internetAviable = await checkConnection();
         if(internetAviable){
+            console.log("Obteniendo datos desde el api");
+            storage.LimpiarTabla("CatalogoClientes");
             //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
             let listaMunicipio = await ObtenerMunicipios();
             let municipiosAuxiliar = [];
             listaMunicipio.map((item,index)=>{
                 let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                    municipiosAuxiliar.push(item);
+                    let itemPicker = { 
+                        label: item.Municipio , 
+                        value: item.id,
+                    };
+                    municipiosAuxiliar.push(itemPicker);
                 }
             });
             setArregloMunicipios(municipiosAuxiliar);
-            storage.LimpiarTabla("CatalogoClientes");
             await storage.InsertarMunicipios(listaMunicipio);
         }else{
             //NOTE: Obtenemos los desde la db
@@ -229,7 +238,11 @@ export default function CustomMapBaches(props:any){
             listaMunicipio.map((item,index)=>{
                 let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                    municipiosAuxiliar.push(item);
+                    let itemPicker = { 
+                        label: item.Municipio , 
+                        value: item.id,
+                    };
+                    municipiosAuxiliar.push(itemPicker);
                 }
             });
             setArregloMunicipios(municipiosAuxiliar);
@@ -269,6 +282,7 @@ export default function CustomMapBaches(props:any){
     const RestaurarDatosModal = async () =>{
         //FIXME: validar los campos 
         setLoading(true);
+        console.log("Restaurando datos");
         await RecuperarDatos(String(cliente),CURP)
         .then( async (rawCiudadano)=>{
             let ciudadano = JSON.parse(rawCiudadano);//FIXME: aqui es el error
@@ -317,6 +331,7 @@ export default function CustomMapBaches(props:any){
         },500);
     }
     const validarDato = async () =>{
+        console.log( "Validando datos" );
         let error = "";
         if( CURP == "" ){
             error += "C,";
@@ -330,13 +345,14 @@ export default function CustomMapBaches(props:any){
         if(cliente == -1 ){
             error += "CL,"
         }
-        console.log(error + "Errores en los campos");
+        console.log(error);
         if( error != "" ){
             setIconModal(USER_COG[0]);
             setIconSource(USER_COG[1]);
             setErrorMsg("Favor de ingresar los datos requeridos");
             setShowMessage(true);
         }
+        console.log(error == "" ? "Esta vacio" : "No esta vacio");
         error == "" ? RestaurarDatosModal() : setErrorUI(error);
 
     }
@@ -371,19 +387,22 @@ export default function CustomMapBaches(props:any){
                     {
                         mostrarPicker ? 
                         <View style = {{borderColor:"red",borderWidth: String(errorUI).includes("CL,") ? 2 : 0 }} >
-                        <Picker
-                        enabled = {!solicitarDatos}
-                        selectedValue={cliente} 
-                        onValueChange = {(itemValue, itemIndex)=>{setCliente(itemValue)}}
-                        style = {[{backgroundColor:cardColor+55}]}
-                        >
-                            <Picker.Item  label="Seleccione el municipio al que pertenece" value={-1} ></Picker.Item>
-                            {
-                                arregloMunicipios.map((item,index)=>{
-                                    return <Picker.Item key={ item.id } label = { item.Municipio } value={ item.id } ></Picker.Item>
-                                })
-                            }
-                        </Picker></View> : <></>
+                        <DropDownPicker
+                            placeholder = {"Seleccione un municipio"}
+                            items = { arregloMunicipios }
+                            open = { mostrarPickerAgregar }
+                            setOpen = { setMostrarPickerAgregar }
+                            setValue = { setCliente }
+                            value = {cliente}
+                            min =  {10}
+                            max = {15}
+                            listMode = {"MODAL"}
+                            listItemContainerStyle = {{padding:10}}
+                            itemSeparator = {true}
+                            selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                            selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                            ></DropDownPicker>
+                        </View> : <></>
                     }
 
                     <View style = {{flex: 5, padding:20}}>
@@ -498,7 +517,22 @@ export default function CustomMapBaches(props:any){
                                 maxLength={ 18 }
                                 style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
                             <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red' }} >
-                                <Picker
+                                <DropDownPicker
+                                    placeholder = {"Seleccione un municipio"}
+                                    items = { arregloMunicipios }
+                                    open = { mostrarPickerAgregar }
+                                    setOpen = { setMostrarPickerAgregar }
+                                    setValue = { setCliente }
+                                    value = {cliente}
+                                    min =  {10}
+                                    max = {15}
+                                    listMode = {"MODAL"}
+                                    listItemContainerStyle = {{padding:10}}
+                                    itemSeparator = {true}
+                                    selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                                    selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                                    ></DropDownPicker>
+                                {/*<Picker
                                     selectedValue={cliente} 
                                     onValueChange = {(itemValue, itemIndex)=>{setCliente(itemValue)}}
                                     style = {{backgroundColor:cardColor+55,}}
@@ -509,7 +543,7 @@ export default function CustomMapBaches(props:any){
                                                 return <Picker.Item key={ item.id } label = { item.Municipio } value={ item.id } ></Picker.Item>
                                             })
                                         }
-                                </Picker>
+                                </Picker>*/}
                             </View>
                         </View>
                         <View style = {{flex: 1, padding:20}} >

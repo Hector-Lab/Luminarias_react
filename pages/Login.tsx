@@ -1,7 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
 import DropDownPicker from 'react-native-dropdown-picker';
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text } from  'react-native';
+import { View, TouchableOpacity, Text, TextInput } from  'react-native';
 import {  Input, Avatar } from 'react-native-elements';
 import { ScrollView } from "react-native-gesture-handler";
 import { BlueColor, cardColor, DarkPrimaryColor, errorColor } from "../Styles/BachesColor";
@@ -14,6 +14,7 @@ import { ObtenerMunicipios, RecuperarDatos, VerificarSession } from "./controlle
 import { StorageBaches } from './controller/storage-controllerBaches';
 import * as Location from 'expo-location';
 import { BackgrounBlue } from "../Styles/Color";
+import { SafeAreaView } from "react-native-safe-area-context";
 export default function Log(props: any) {
 
     const storage = new StorageBaches();
@@ -71,6 +72,7 @@ export default function Log(props: any) {
     const Municipios = async ( indicio:string ) =>{
         let internetAviable = await checkConnection();
         if(internetAviable){
+            await storage.LimpiarTabla("CatalogoClientes");
             //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
             let listaMunicipio = await ObtenerMunicipios();
             let municipiosAuxiliar = [];
@@ -86,7 +88,6 @@ export default function Log(props: any) {
                 }
             });
             setArregloMunicipios(municipiosAuxiliar);
-            storage.LimpiarTabla("CatalogoClientes");
             await storage.InsertarMunicipios(listaMunicipio);
         }else{
             //NOTE: Obtenemos los desde la db
@@ -99,7 +100,7 @@ export default function Log(props: any) {
                         label: item.Municipio , 
                         value: item.id,
                     };
-                    municipiosAuxiliar.push(item);
+                    municipiosAuxiliar.push(itemPicker);
                 }
             });
             setArregloMunicipios(municipiosAuxiliar);
@@ -186,104 +187,53 @@ export default function Log(props: any) {
         setTittleMesaje(titulo)
         setShowMessage(true);
     }
-    return(                
-        <View style = {{flex:1}} >
-            <View style = {{flex:1, flexDirection:"column", backgroundColor:"white"}}  >
-                {/**NOTE: cabecera de la pagina logo de suinpac o del municipio */}
-                <View style={[Styles.avatarView,{flex:1}]} >
-                    <View style={Styles.avatarElement}>
-                        <Avatar 
+    return(
+                <View style = {{flex:1 , flexDirection:"column", backgroundColor:"#ffffff"}} >
+                    <View style = {{flex:1, justifyContent:"center",  alignItems:"center"}} >
+                        <Avatar
+                        avatarStyle={{ }}
                             rounded
                             size = "xlarge"
                             containerStyle = {{height:100,width:200}}
                             source = {require("../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
                         />
                     </View>
-                </View>
-                {/**NOTE: contenido prinpal de la pagina */}
-                <View style = {[{flex:8}]} >
-                    <View style = {{marginTop:50, padding:20}} >
-                        <Input
-                            label = "CURP"
-                            autoCompleteType={undefined}
+                    {/** Datos de entrada */}
+                    <View style = {{flex:1, paddingLeft:20, paddingRight:20, justifyContent:"flex-end", marginBottom:20 }} >
+                        <TextInput
                             placeholder = {"CURP"} 
                             autoCapitalize="characters"
                             maxLength={ 18 }
                             onChangeText = { ( text ) => {setCURP( text );}}
-                            style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
-                        <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red' }} >
-                            { /* NOTE: pikcker anterior*/ }
-                            <DropDownPicker
-                                placeholder = {"Seleccione un municipio"}
-                                items = { arregloMunicipios }
-                                open = { pickerAbierto }
-                                setOpen = {setPickerAbierto}
-                                setValue = { setCliente }
-                                value = {cliente}
-                                min =  {10}
-                                max = {15}
-                                listMode = {"MODAL"}
-                                listItemContainerStyle = {{padding:10}}
-                                itemSeparator = {true}
-                                selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
-                                selectedItemLabelStyle = {{ fontWeight:"bold" }}
-                                >
-
-                            </DropDownPicker>
-                            {/*<Picker
-                                selectedValue = { cliente }
-                                onValueChange = { ( cl )=>{ setCliente(cl); }}
-                                style = {{backgroundColor:cardColor+55,}}
-                                >
-                                    <Picker.Item  label="Seleccione el municipio al que pertenece" value={-1} ></Picker.Item>
-                                    {
-                                        arregloMunicipios.map((item,index)=>{
-                                            return <Picker.Item key={ item.id } label = { item.Municipio } value={ item.id } ></Picker.Item>
-                                        })
-                                    }
-                            </Picker>
-                            */}
+                            style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red", padding:10, marginBottom:20 }]} />
+                        <DropDownPicker
+                            placeholder = {"Seleccione un municipio"}
+                            items = { arregloMunicipios }
+                            open = { pickerAbierto }
+                            setOpen = {setPickerAbierto}
+                            setValue = { setCliente }
+                            value = {cliente}
+                            min =  {10}
+                            max = {15}
+                            listMode = {"MODAL"}
+                            listItemContainerStyle = {{padding:10}}
+                            itemSeparator = {true}
+                            selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                            selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                            ></DropDownPicker>
                         </View>
-                    </View>
-                    <View style = {{flex: 1, padding:20}} >
-                        <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress = {validarDato} >
-                            <Text style = {{color:"white"}}> Iniciar Sesión </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity 
-                            style = {{ alignItems: "center", marginTop:30 }} onPress = { RegistrarUsuario }  >
-                            <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
-                        </TouchableOpacity>
-                    </View>
+                        <View style = {{ flex:1, paddingLeft:20, paddingRight:20 }} >
+                            <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress = {validarDato} >
+                                <Text style = {{color:"white"}}> Iniciar Sesión </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style = {{ alignItems: "center", marginTop:30 }} onPress = { RegistrarUsuario }  >
+                                <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style = {{flex:1, justifyContent:"flex-end", alignItems:"center"}} >
+                            <Text style = {{color: DarkPrimaryColor , fontWeight:"bold", marginBottom:35 }}> Suinpac </Text>
+                        </View>
                 </View>
-                {/**NOTE: Pie de pagina marca de suinpac */}
-                <View style = {{flex:1}}>
-                    <View style = {{ alignItems: "center" }} >
-                        <Text 
-                        style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}
-                        > Suinpac </Text>
-                    </View>
-                </View>
-            </View>
-            <Message
-                transparent = {true}
-                loading = {showMessage} //NOTE: con esta propiedad se mustra el componente
-                buttonText="Aceptar"
-                onCancelLoad={()=>{ setErrorMsg(""); setShowMessage(false);}}
-                color={BlueColor}
-                loadinColor = {BlueColor}
-                iconsource = {iconSource}
-                icon = { iconModal /*"user-cog"*/}
-                message = {errorMsg}
-                tittle = {tittleMesage}
-            />
-            <Loading 
-                transparent = {true}
-                loading = {loading}
-                loadinColor = {DarkPrimaryColor}
-                message="Cargando..."
-                tittle="Mensaje"
-                onCancelLoad={()=>{ }} //NOTE: Eliminar el boton de cancelar
-            />
-        </View>
-        );
+                   );
 }

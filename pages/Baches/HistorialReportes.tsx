@@ -4,7 +4,10 @@ import {
   ScrollView,
   FlatList,
   RefreshControl,
-  Text
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Pressable
 } from "react-native";
 import Styles from '../../Styles/BachesStyles';
 import { StorageService } from "../controller/storage-controller";
@@ -14,9 +17,7 @@ import { BlueColor, buttonSuccess, cardColor, DarkPrimaryColor, PrimaryColor } f
 import Message from '../components/modal-message';
 import Loading, {} from '../components/modal-loading'; 
 import { DESCONOCIDO,ERROR,INFO,OK, WIFI, WIFI_OFF, ICONLIST } from '../../Styles/Iconos';
-
 import { Badge } from "react-native-elements/dist/badge/Badge";
-import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 const storage = new StorageService();
 
@@ -87,7 +88,12 @@ export default function HistorialReporte(props: any) {
     Ubicaci_onGPS:string,
     Area:string,
   };
-
+  const listaRepostesTemporal = [
+    {Tema:"Agua",id:1 ,Codigo:"309r83uf03948", Estatus: 1,Referencia: "Referencia de prueba2" },
+    {Tema:"Alumbrado" ,id:2, Codigo:"3ere83uf0df48", Estatus: 1,Referencia: "Referencia de prueba3" },
+    {Tema:"Alumbrado" ,id:3, Codigo:"a09rsduf03948", Estatus: 1,Referencia: "Referencia de prueba4" },
+    {Tema:"Alumbrado" ,id:4, Codigo:"39sr84uf0f948", Estatus: 1,Referencia: "Referencia de prueba5" }
+  ];
   const renderRow = ({ item }: { item: reporteCiudadano })=>{
     let icon = "info"; 
     let estatusColor = cardColor;
@@ -106,23 +112,23 @@ export default function HistorialReporte(props: any) {
       estatusColor = PrimaryColor;
 
     return <View style = {{padding:2}} >
-            <ListItem
-              bottomDivider>
-                <Icon name = { icon } type = {"font-awesome-5"} tvParallaxProperties/>  
-                <TouchableOpacity onPress= {()=>{verReporte(item)}}>
-                  <ListItem.Content >
-                    <ListItem.Title>
-                      { `Folio: ${item.Codigo} `}
-                      <Badge
-                        badgeStyle = {{backgroundColor:estatusColor }} 
-                        value = {estatusLetra[ parseInt(item.Estatus) -1 ].Nombre}/>
-                    </ListItem.Title>
-                    <ListItem.Subtitle>
-                      {`Referencia: ${item.Referencia == null ? "" : item.Referencia}`}
-                    </ListItem.Subtitle>
-                  </ListItem.Content>     
-                </TouchableOpacity>
-            </ListItem>
+            <Pressable onPress={ ()=>{ console.log("Precionado") } } >
+              <ListItem
+                bottomDivider>
+                  <Icon name = { icon } type = {"font-awesome-5"} tvParallaxProperties/>  
+                    <ListItem.Content >
+                      <ListItem.Title>
+                        { `Folio: ${item.Codigo}`}
+                        <Badge
+                          badgeStyle = {{backgroundColor:estatusColor }} 
+                          value = { + estatusLetra[ parseInt(item.Estatus) -1 ].Nombre}/>
+                      </ListItem.Title>
+                      <ListItem.Subtitle>
+                        {`Referencia: ${item.Referencia == null ? "" : item.Referencia}`}
+                      </ListItem.Subtitle>
+                    </ListItem.Content>     
+              </ListItem>
+            </Pressable>
           </View>
   }
   const verReporte = (item:reporteCiudadano ) =>{
@@ -160,18 +166,69 @@ export default function HistorialReporte(props: any) {
     .finally(()=>{setLoading(false)})
   }
   return (
-  <SafeAreaView>
-    <FlatList
-      refreshControl={
-        <RefreshControl
-        refreshing={refreshing}
-        onRefresh={refrescarLista}
-      />
-      }
-      data={reportes}
-      keyExtractor={(a: reporteCiudadano, index: number) => index.toString()}
-      renderItem={renderRow}
-    /> 
+  <SafeAreaView style = {{flex:1}} >
+            <View style = {{flex:1}} >
+          <View style = { Styles.cardContainer } >
+            <View style = {[Styles.cardHeader,{flex:.7}]}>
+              <View style = {Styles.cardLeftIcon}>
+                <View style = {Styles.cardRpundedIcon} >
+                  {/*<Icon color = {"white"}  tvParallaxProperties  name = "street-view" type ="font-awesome-5" style = {{margin:3}} />*/}
+                </View>
+              </View>
+              <View style = {Styles.cardHeaderText}>
+                <TextInput editable = {false} style = {{textAlign:"center", color:"black"}}  >Mis reportes</TextInput> 
+              </View>
+              <View style = {Styles.cardRigthIcon}>
+              <View style = {Styles.cardRpundedIcon} >
+                  {/*<Icon color = {"white"}  tvParallaxProperties  name = "map" type ="feather" style = {{margin:3}} />*/}
+                </View> 
+              </View>
+            </View>
+            <View style = {Styles.cardConteinerFlex8} >
+              {
+                 (listaRepostesTemporal.length > 0) ?
+                 <FlatList
+                  refreshControl={
+                    <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={refrescarLista}
+                  />
+                  }
+                  data={/*reportes*/ listaRepostesTemporal}
+                  keyExtractor={(a: reporteCiudadano, index: number) => index.toString()}
+                  renderItem={renderRow}
+                /> : 
+                <View style = {{flex:1, justifyContent:"center"}} >
+                    <Icon tvParallaxProperties  name = {ICONLIST[0]} type = {ICONLIST[1]} size = {100}  color = {"white"} ></Icon>
+                    <TextInput editable = {false} style = {{color:"black" ,fontWeight:"bold", textAlign:"center"}} > Aun no tienes Reportes </TextInput>
+                    <TouchableOpacity style = {{backgroundColor:PrimaryColor, padding:10, marginLeft:20, marginRight:20, elevation:1}} onPress = { refrescarLista } >
+                      <Text  style = { {textAlign:"center" , color:"white", fontWeight:"bold", elevation:0}}  >Actualizar</Text>
+                    </TouchableOpacity>
+                </View>
+              }  
+            <Message
+              transparent = { true }
+              loading = {showMessage}
+              message = {errorMensaje}
+              buttonText="Aceptar"
+              color = {DarkPrimaryColor}
+              iconsource = {iconSource}
+              icon = {icono}
+              loadinColor = {DarkPrimaryColor}
+              onCancelLoad={()=>{ setShowMessage(false) }}
+              tittle = {tituloMensaje}
+            />
+            <Loading
+              transparent = {true}
+              loading = {loading}
+              message={"Cargando..."}
+              loadinColor = {DarkPrimaryColor}
+              onCancelLoad = { ()=>{setLoading(false)}}
+              tittle = { "Mensaje" }
+            />
+          </View>
+          </View>
+        </View>
   </SafeAreaView>    
   );
 }

@@ -205,6 +205,7 @@ export async function RecuperarDatos(inputCliente: string, inputCurp: string ){
         };
         let rawData = await service.recuperarDatosCiudadano(datos);
         let ciudadano = await rawData.json();
+        console.log(ciudadano);
         if(ciudadano.Code == 200){
             return JSON.stringify(ciudadano.Mensaje[0]);
         }else if (ciudadano.Code == 404){
