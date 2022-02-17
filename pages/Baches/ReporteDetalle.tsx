@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Image, Dimensions, RefreshControl, ScrollView } from "react-native";
-import { Icon, Text, Button, Divider, Card } from 'react-native-elements';
+import { View, Dimensions, RefreshControl, ScrollView, Pressable, Text, TextInput } from "react-native";
+import { Icon, Button, Divider, Card } from 'react-native-elements';
 import Styles from '../../Styles/BachesStyles';
 import { BlueColor, cardColor, DarkPrimaryColor } from "../../Styles/BachesColor";
 import Loading from '../components/modal-loading';
 import Evidencias from '../components/modalEvidencia';
 import Message from '../components/modal-message';
-import { WIFI_OFF,ERROR,  } from '../../Styles/Iconos';
+import { WIFI_OFF,ERROR, CAMERA } from '../../Styles/Iconos';
 import { RefrescarReporte } from '../controller/api-controller';
 import ImageView from "react-native-image-viewing";
 import { StorageBaches } from '../controller/storage-controllerBaches';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DetallesReporte(props:any){
     const [ Reporte, setReporte ] = useState(null); 
@@ -38,6 +39,9 @@ export default function DetallesReporte(props:any){
     let estatusColor = cardColor;
     useEffect(()=>{
         let { Reporte } = props.route.params;
+        console.log(props.route.params);
+        setReporte(Reporte);
+        //FIXME: en los datos
         setRechazada(Reporte.FechaRechazada != null);
         //NOTE: Seleccionamos el icono
         if(Reporte.Area.includes("Alumbrado"))
@@ -87,7 +91,6 @@ export default function DetallesReporte(props:any){
             setNombreCiudadano(jsonData.Nombres + " " + jsonData.Paterno + " " +jsonData.Materno);
         }
     }
-    
     function wp (percentage) {
         const value = (percentage * viewportWidth) / 100;
         return Math.round(value);
@@ -128,148 +131,137 @@ export default function DetallesReporte(props:any){
             setRefrescar(false);
         });
     }
-    return (
-        <ScrollView 
-            contentContainerStyle = {{flexGrow:1}}
-            refreshControl={ 
-                <RefreshControl
-                    refreshing = {refrescar}
-                    onRefresh={ ActualizarReporte }
-                />
-            }
-            >
-            <View style = {{flex:1}} >
-                <View style = {Styles.cardContainer}>
-                    <View style = {Styles.cardHeader}>
-                    <View style = {Styles.cardLeftIcon}>
-                        <View style = {Styles.cardBackButton} >
-                            <TouchableOpacity onPress = { RetrocesoReporte } >
-                                <Icon color = {"white"} tvParallaxProperties  name = "arrow-circle-left" type ="font-awesome-5" style = {{margin:3}} />
-                            </TouchableOpacity>
-                        </View>
+    const existeEvidencia = async ()=>{
+        if(arrayImagenes.length > 0 ) {
+            setModalEvidenciasVisible(true);
+        }else{
+            setMessage("No se encontraron evidencias");
+            setIconMessage(CAMERA[0]);
+            setIconSource(CAMERA[1]);
+            setMostrarMensaje(true);
+        }
+    }
+    return(
+        <SafeAreaView style = {{flexGrow:1, padding:5, elevation:5 }}>
+            <View style = {{flex:1, justifyContent:"center" }} >
+                <View style = {{ flex:1, justifyContent:"center", flexDirection:"row" }} >
+                    <View style = {{ flex:1, alignItems:"center",justifyContent:"center"}} >
+                        <Pressable style = {{backgroundColor:BlueColor, borderRadius:5}} onPress = { RetrocesoReporte } >
+                            <Icon color = {"white"} tvParallaxProperties  name = "arrow-circle-left" type ="font-awesome-5" style = {{margin:3}} />
+                        </Pressable>
                     </View>
-                    <View style = {Styles.cardHeaderText}>
+                    <View style = {{ flex:3, justifyContent:"center", alignItems:"center" }} >
                         <Text style = {{textAlign:"center", fontWeight:"bold"}} >
                             {`Folio: ${(Reporte != null  ) ? Reporte.Codigo: "" } \n`+ nombreCiudadano}
-                            </Text>
+                        </Text>
                     </View>
-                    <View style = {Styles.cardRigthIcon}>
-                    <View style = {[Styles.cardRpundedIcon]} >
-                        
-                        </View> 
-                    </View>
-                    </View>
-                    <View style = {[Styles.cardConteinerFlex8,{marginTop:10}]} >
-                        <ScrollView style = {{flexGrow:1}} >
-                            <View>
-                                <View style = {{flex:1, flexDirection:"column", margin:20, backgroundColor:"white", borderRadius:10}} >
-                                    <Text style = {[Styles.directionTittleColor, {fontWeight:"bold"}]}>Descripción</Text>
-                                    <Divider/>
-                                    <TouchableOpacity>
-                                        <Text style = {{padding:5, textAlign: observacionCentrado ? "center" : "left"}} numberOfLines={5}>{Reporte != null ? Reporte.Descripci_on : ""} </Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <View style = {{flex:1, flexDirection:"column", margin:20, backgroundColor:"white", borderRadius:10}} >
-                                    <Text style = {[Styles.directionTittleColor, {fontWeight:"bold"}]}>Observación del servidor publico </Text>
-                                    <Divider/>
-                                    <TouchableOpacity>
-                                        <Text style = {{padding:5, textAlign: observacionCentrado ? "center" : "left" }} numberOfLines={5}>{Reporte != null ? (Reporte.Observaci_onServidorPublico != null ? Reporte.Observaci_onServidorPublico : "Sin Observaciones") : ""} </Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <View style = {{flex:1}} >
-                                    <View style = {{flex:1, flexDirection:"column"}}>
-                                        <Text
-                                            style = {{ fontWeight:"bold" ,padding:7, backgroundColor: "white", borderRadius:10}}
-                                        >
-                                            {`Estatus: ${ Reporte != null ? (Reporte.Ubicaci_onEscrita != null ? (estatusLetra[parseInt(Reporte.Estatus) -1 ].Nombre):("Pendiente") ) : "" }`}
-                                        </Text>
-                                        
-                                        <Text 
-                                            style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
-                                            > {`Tema: ${ Reporte != null ? Reporte.Area : "" }`} </Text>
-                                        <Text
-                                            style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
-                                        >
-                                            {`Direccion: ${ Reporte != null ? Reporte.Ubicaci_onEscrita : "" }`}
-                                        </Text>
-                                        <Text
-                                            style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
-                                        >
-                                            {`Referencia: ${ Reporte != null ? (Reporte.Referencia != null ? Reporte.Referencia : "" )  : "" }`}
-                                        </Text>
-                                        <Text
-                                            style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
-                                        >
-                                            {`Fecha del Reporte: ${ Reporte != null ? Reporte.FechaTupla : "" }`}
-                                        </Text>
-                                        {/**Datos del servidor publico */}
-                                        <Text
-                                            style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
-                                        >
-                                            {`Servidor Publico: ${ (Reporte != null ) ? (Reporte.ServidorPublicoNombre != null ? Reporte.ServidorPublicoNombre : "No asignado"  ) : "" }`}
-                                        </Text>
-                                        <Text
-                                            style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
-                                        >
-                                            {`Telefono: ${ Reporte != null ? (Reporte.Telefono != null ? Reporte.Telefono : "No asignado" ) : "No Asignado" }`}
-                                        </Text>
-                                        <Text
-                                            style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
-                                        >
-                                            {`Fecha de Atencion: ${ Reporte != null ? (Reporte.FechaAtendida != null ? ( Reporte.FechaAtendida ):( "Prendiente" )) : "" }`}
-                                        </Text>
-                                        <Text
-                                            style = {{padding:7, backgroundColor:"white", borderRadius:10, marginTop:10}}
-                                        >
-                                            {`Fecha Estimada: ${Reporte != null ? ( Reporte.FechaSolucion != null ? Reporte.FechaSolucion : "Sin asignar" ) : "Pendiente"}`}
-                                        </Text>
-                                        {
-                                            //NOTE: Solo aparece si se rechazo el reporte
-                                            recahazada ? <View>
-                                                <Text
-                                                    style = {{padding:7, backgroundColor:"white", borderRadius:10, marginTop:10}}
-                                                >
-                                                    {`Fecha de rechazada: ${Reporte != null ? ( Reporte.FechaRechazada != null ? Reporte.FechaRechazada : "No Aplica" ) : "No Aplica"}`}
-                                                </Text>
-                                                <Text
-                                                    style = {{padding:7,backgroundColor:"white",borderRadius:10, marginTop:10}}                                        
-                                                >
-                                                    {`Motivo de rechazo : ${Reporte != null ? (Reporte.MotivoRechazo != null ? Reporte.MotivoRechazo : "No Aplica" ) : "No Aplica"}`}
-                                                </Text>
-                                            </View> : <></>
-                                        }
-                                    </View>
-                                </View>
-                                <View style = {{flex:1,flexDirection:"row", marginTop:20, justifyContent:"center"}} >
-                                <Button 
-                                    disabled = { evidenciaBloque }
-                                    icon={{
-                                        name: 'eye',
-                                        type: 'font-awesome-5',
-                                        size: 15,
-                                        color: 'white',
-                                    }}
-                                    onPress = { ()=>{setModalEvidenciasVisible(true)} }
-                                    title={" Evidencia"}
-                                    buttonStyle = {[Styles.btnButtonSuccessSinPading]} />
-                                <Button 
-                                    disabled = { mapaBloqueado }
-                                    icon={{
-                                        name: 'map-pin',
-                                        type: 'font-awesome-5',
-                                        size: 15,
-                                        color: 'white',
-                                    }}
-                                    onPress = { verMapa }
-                                    title={" Ver mapa"}
-                                    buttonStyle = {[Styles.btnButtonSuccessSinPading ]} />
-                                </View>
-                            </View>
-                        </ScrollView>
+                    <View style = {{ flex:1 }} >
                     </View>
                 </View>
             </View>
-            {/*NOTE: Modal para eliminar*/}
+            <View style = {{ flex: 10 }} >
+                <ScrollView style = {{ flexGrow:1, borderRadius:5, backgroundColor: cardColor }} >
+                    <View style = {{flex:1, flexDirection:"column", margin:20, backgroundColor:"white", borderRadius:10}} >
+                        <TextInput editable = {false} style = {[Styles.directionTittleColor, {fontWeight:"bold", color:"black"}]}>Descripción</TextInput>
+                        <Divider/>
+                            <Text style = {{padding:5, textAlign: observacionCentrado ? "center" : "left"}} numberOfLines={5}>{Reporte != null ? Reporte.Descripci_on : ""} </Text>
+                    </View>
+                    <View style = {{flex:1, flexDirection:"column", margin:20, backgroundColor:"white", borderRadius:10}} >
+                        <Text style = {[Styles.directionTittleColor, {fontWeight:"bold"}]}>Observación del servidor publico </Text>
+                        <Divider/>
+                            <Text style = {{padding:5, textAlign: observacionCentrado ? "center" : "left" }} numberOfLines={5}>{Reporte != null ? (Reporte.Observaci_onServidorPublico != null ? Reporte.Observaci_onServidorPublico : "Sin Observaciones") : ""} </Text>
+                    </View>
+                    <View style = {{flex:1, padding:10}} >
+                        <View style = {{flex:1, flexDirection:"column"}}>
+                            <Text
+                                style = {{ fontWeight:"bold" ,padding:7, backgroundColor: "white", borderRadius:10}}
+                            >
+                                {`Estatus: ${ Reporte != null ? (Reporte.Ubicaci_onEscrita != null ? (estatusLetra[parseInt(Reporte.Estatus) -1 ].Nombre):("Pendiente") ) : "" }`}
+                            </Text>
+                            <Text 
+                                style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
+                                > {`Tema: ${ Reporte != null ? Reporte.Area : "" }`} </Text>
+                            <Text
+                                style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
+                            >
+                                {`Direccion: ${ Reporte != null ? Reporte.Ubicaci_onEscrita : "" }`}
+                            </Text>
+                            <Text
+                                style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
+                            >
+                                {`Referencia: ${ Reporte != null ? (Reporte.Referencia != null ? Reporte.Referencia : "" )  : "" }`}
+                            </Text>
+                            <Text
+                                style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
+                            >
+                                {`Fecha del Reporte: ${ Reporte != null ? Reporte.FechaTupla : "" }`}
+                            </Text>
+                            {/**Datos del servidor publico */}
+                            <Text
+                                style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
+                            >
+                                {`Servidor Publico: ${ (Reporte != null ) ? (Reporte.ServidorPublicoNombre != null ? Reporte.ServidorPublicoNombre : "No asignado"  ) : "" }`}
+                            </Text>
+                            <Text
+                                style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
+                            >
+                                {`Telefono: ${ Reporte != null ? (Reporte.Telefono != null ? Reporte.Telefono : "No asignado" ) : "No Asignado" }`}
+                            </Text>
+                            <Text
+                                style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
+                            >
+                                {`Fecha de Atencion: ${ Reporte != null ? (Reporte.FechaAtendida != null ? ( Reporte.FechaAtendida ):( "Prendiente" )) : "" }`}
+                            </Text>
+                            <Text
+                                style = {{padding:7, backgroundColor:"white", borderRadius:10, marginTop:10}}
+                            >
+                                {`Fecha Estimada: ${Reporte != null ? ( Reporte.FechaSolucion != null ? Reporte.FechaSolucion : "Sin asignar" ) : "Pendiente"}`}
+                            </Text>
+                            {
+                                //NOTE: Solo aparece si se rechazo el reporte
+                                recahazada ? <View>
+                                    <Text
+                                        style = {{padding:7, backgroundColor:"white", borderRadius:10, marginTop:10}}
+                                    >
+                                        {`Fecha de rechazada: ${Reporte != null ? ( Reporte.FechaRechazada != null ? Reporte.FechaRechazada : "No Aplica" ) : "No Aplica"}`}
+                                    </Text>
+                                    <Text
+                                        style = {{padding:7,backgroundColor:"white",borderRadius:10, marginTop:10}}                                        
+                                    >
+                                        {`Motivo de rechazo : ${Reporte != null ? (Reporte.MotivoRechazo != null ? Reporte.MotivoRechazo : "No Aplica" ) : "No Aplica"}`}
+                                    </Text>
+                                    
+                                </View> : <></>
+                            }
+                            <Text></Text>
+                        </View>
+                    </View>
+                </ScrollView>
+            </View>
+            <View style = {{flex:1,flexDirection:"row", marginTop:10, justifyContent:"center"}} >
+                <Button 
+                    disabled = { evidenciaBloque }
+                    icon={{
+                        name: 'eye',
+                        type: 'font-awesome-5',
+                        size: 15,
+                        color: 'white',
+                    }}
+                    onPress = { existeEvidencia }
+                    title={" Evidencia"}
+                    buttonStyle = {[Styles.btnButtonSuccessSinPading]} />
+                <Button 
+                    disabled = { mapaBloqueado }
+                    icon={{
+                        name: 'map-pin',
+                        type: 'font-awesome-5',
+                        size: 15,
+                        color: 'white',
+                    }}
+                    onPress = { verMapa }
+                    title={" Ver mapa"}
+                    buttonStyle = {[Styles.btnButtonSuccessSinPading ]} />
+            </View>
             <Loading 
                 transparent = {true}
                 loading = {loading}
@@ -307,6 +299,6 @@ export default function DetallesReporte(props:any){
                 )}
                 animationType = "fade"
             />
-        </ScrollView>
+        </SafeAreaView>
     );
 }

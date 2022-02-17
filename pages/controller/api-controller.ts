@@ -141,8 +141,10 @@ export async function CatalogoSolicitud(){
     let data = {
         Cliente: cliente 
     };
+    console.log(data);
     let rawData = await service.ObtenerCatalogoAreas(data);
     let result = await rawData.json();
+    console.log(result);
     return result.Catalogo;
 }
 export async function ObtenerMunicipios(){

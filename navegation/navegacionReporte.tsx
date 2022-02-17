@@ -1,5 +1,6 @@
 
-import React,{} from "react";
+import React,{ useEffect, useState } from "react";
+import { Pressable, View } from  'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StackCiudadano, StackHistorial,StackReporte } from './stacknavigator';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -8,6 +9,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 const Tab = createBottomTabNavigator();
 
 const NavegacionBaches = () =>{
+  
     return (
       <SafeAreaProvider>
         <Tab.Navigator 
@@ -32,10 +34,9 @@ const NavegacionBaches = () =>{
               inactiveTintColor: cardColor,
               tabStyle: {backgroundColor:PrimaryColor}
             }}
-          
-          >
-              <Tab.Screen name = "Mis Datos" component = {StackCiudadano} ></Tab.Screen>
-              <Tab.Screen name = "Reportar" component = { StackReporte }></Tab.Screen>
+            >
+              <Tab.Screen name = "Mis Datos" component = {StackCiudadano } ></Tab.Screen>
+              <Tab.Screen name = "Reportar" component = { StackReporte } ></Tab.Screen>
               <Tab.Screen name = "Historial" component = { StackHistorial }></Tab.Screen>
           </Tab.Navigator>
       </SafeAreaProvider>

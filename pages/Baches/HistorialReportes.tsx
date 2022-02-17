@@ -10,7 +10,7 @@ import {
   Pressable
 } from "react-native";
 import Styles from '../../Styles/BachesStyles';
-import { StorageService } from "../controller/storage-controller";
+import { StorageBaches } from "../controller/storage-controllerBaches";
 import { ObtenerMisReportes } from '../controller/api-controller';
 import { Icon, ListItem, Button, getIconType } from 'react-native-elements';
 import { BlueColor, buttonSuccess, cardColor, DarkPrimaryColor, PrimaryColor } from "../../Styles/BachesColor";
@@ -19,11 +19,10 @@ import Loading, {} from '../components/modal-loading';
 import { DESCONOCIDO,ERROR,INFO,OK, WIFI, WIFI_OFF, ICONLIST } from '../../Styles/Iconos';
 import { Badge } from "react-native-elements/dist/badge/Badge";
 import { SafeAreaView } from "react-native-safe-area-context";
-const storage = new StorageService();
 
 export default function HistorialReporte(props: any) {
 
-  const service = new StorageService();
+  const storage = new StorageBaches();
   const [ reportes, setReportes ] = useState([]);
   //NOTE: Manejador del modal mensaje 
   const [ errorMensaje, setErrorMensaje ] = useState(String); 
@@ -31,42 +30,54 @@ export default function HistorialReporte(props: any) {
   const [ icono, setIcono ] = useState("info");
   const [ iconSource, setIconSource ] = useState("font-awesome-5");
   const [ showMessage, setShowMessage ] = useState(false);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [ loading, setLoading ] = useState(true);
+  const [ refreshing, setRefreshing] = React.useState(false);
+  const [ loading, setLoading ] = useState(false);
+  //NOTE: variale que verifica si existe algun ciudadano
+  const [ existeCiudadano, setExisteCiudadano ] = useState(false);
   useEffect(()=>{
     (async () => {
-      //NOTE: Cargamos la lista de los reportes del ciudadano
-      await ObtenerMisReportes()
-        .then((arregloReportes)=>{
-          setReportes(arregloReportes);
-        })
-        .catch((error)=>{
-          let message = String(error.message);
-          if(message.includes("encontrados") ||  message.includes("no tiene registros")){
-            /*setTituloMensaje("Mensaje");
-            setIconSource(INFO[1]);
-            setIcono(INFO[0]);*/
-            setShowMessage(false);
-            setErrorMensaje("");
-          }else if(message.includes("interner")){
-            setTituloMensaje("Error");
-            setIconSource(WIFI_OFF[1]);
-            setIcono(WIFI_OFF[0]);
-            setShowMessage(true);
-            setErrorMensaje(message);
-          }else{
-            setTituloMensaje("Mensaje");
-            setIcono(ERROR[0]);
-            setIconSource(ERROR[1]);
-            setShowMessage(true);
-            setErrorMensaje(message);
-          }
-          
-        }).finally(()=>{
-          setLoading(false);
-        })
+      //NOTE: Cargamos la lista de los reportes del ciudadano (Verificamos si existe algun ciudadano
+        if(  existeCiudadano != null ){
+          await ObtenerMisReportes()
+          .then((arregloReportes)=>{
+            setReportes(arregloReportes);
+          })
+          .catch((error)=>{
+            let message = String(error.message);
+            if(message.includes("encontrados") ||  message.includes("no tiene registros")){
+              /*setTituloMensaje("Mensaje");
+              setIconSource(INFO[1]);
+              setIcono(INFO[0]);*/
+              setShowMessage(false);
+              setErrorMensaje("");
+            }else if(message.includes("interner")){
+              setTituloMensaje("Error");
+              setIconSource(WIFI_OFF[1]);
+              setIcono(WIFI_OFF[0]);
+              setShowMessage(true);
+              setErrorMensaje(message);
+            }else{
+              setTituloMensaje("Mensaje");
+              setIcono(ERROR[0]);
+              setIconSource(ERROR[1]);
+              setShowMessage(true);
+              setErrorMensaje(message);
+            }
+            
+          }).finally(()=>{
+            setLoading(false);
+          })
+        }
     })();
   },[]);
+  useEffect(()=>{
+    props.navigation.addListener('focus', VerificaSession );
+  });
+  
+  const VerificaSession = async () =>{
+    let dbCiudadano = await storage.obtenerDatosPersona();
+    setExisteCiudadano(dbCiudadano != null );
+  }
 
   const iconos = [{"Icon":"building"},{"Icon":"tint"},{"Icon":"lightbulb"},{"Icon":"road"}];
   const estatusLetra = [{"Nombre":"Pendiente"},{"Nombre":"Proceso"},{"Nombre":"Atendida"},{"Nombre":"Rechazada"}]
@@ -112,13 +123,13 @@ export default function HistorialReporte(props: any) {
       estatusColor = PrimaryColor;
 
     return <View style = {{padding:2}} >
-            <Pressable onPress={ ()=>{ console.log("Precionado") } } >
+            <Pressable onPress={ ()=>{ verReporte(item)  } } >
               <ListItem
                 bottomDivider>
                   <Icon name = { icon } type = {"font-awesome-5"} tvParallaxProperties/>  
                     <ListItem.Content >
                       <ListItem.Title>
-                        { `Folio: ${item.Codigo}`}
+                        {`Folio: ${item.Codigo}`}
                         <Badge
                           badgeStyle = {{backgroundColor:estatusColor }} 
                           value = { + estatusLetra[ parseInt(item.Estatus) -1 ].Nombre}/>
@@ -132,11 +143,28 @@ export default function HistorialReporte(props: any) {
           </View>
   }
   const verReporte = (item:reporteCiudadano ) =>{
-    props.navigation.navigate('Detalles', {"Reporte":item}); 
+    /*let reporteCiudadano = {
+      Tema: "Luminarias",
+      Codigo: "ni2d929jdij",
+      Descripci_on:"Prueba temporal",
+      Estatus:2,
+      FechaTupla:"2022-02-12 23:12:12",
+      Ubicaci_onEscrita:"Cerca de aqui",
+      FechaAtendida:null,
+      FechaProceso:null,
+      FechaRechazada:null,
+      FechaSolucion:null,
+      MotivoRechazo:"",
+      Observaci_onServidorPublico: null,
+      Referencia:"Cerca de alli",
+      ServidorPublico:null,
+      Ubicaci_onGPS:"12wdwedw",
+      Area:"Prueba",
+    };*/
+    props.navigation.navigate('Detalles', {"Reporte":item });
   }
   const refrescarLista = async () =>{
     setLoading(true);
-    console.log("Prueba");
     await ObtenerMisReportes()
     .then((arregloReportes)=>{
       setReportes(arregloReportes);
@@ -167,7 +195,7 @@ export default function HistorialReporte(props: any) {
   }
   return (
   <SafeAreaView style = {{flex:1}} >
-            <View style = {{flex:1}} >
+        <View style = {{flex:1}} >
           <View style = { Styles.cardContainer } >
             <View style = {[Styles.cardHeader,{flex:.7}]}>
               <View style = {Styles.cardLeftIcon}>
@@ -176,7 +204,7 @@ export default function HistorialReporte(props: any) {
                 </View>
               </View>
               <View style = {Styles.cardHeaderText}>
-                <TextInput editable = {false} style = {{textAlign:"center", color:"black"}}  >Mis reportes</TextInput> 
+                <TextInput editable = {false} style = {{ fontWeight:"bold" ,textAlign:"center", color:"black"}}  >Mis reportes</TextInput> 
               </View>
               <View style = {Styles.cardRigthIcon}>
               <View style = {Styles.cardRpundedIcon} >
@@ -186,7 +214,7 @@ export default function HistorialReporte(props: any) {
             </View>
             <View style = {Styles.cardConteinerFlex8} >
               {
-                 (listaRepostesTemporal.length > 0) ?
+                 ( listaRepostesTemporal.length > 0 && existeCiudadano ) ?
                  <FlatList
                   refreshControl={
                     <RefreshControl
@@ -194,7 +222,7 @@ export default function HistorialReporte(props: any) {
                     onRefresh={refrescarLista}
                   />
                   }
-                  data={/*reportes*/ listaRepostesTemporal}
+                  data={reportes }
                   keyExtractor={(a: reporteCiudadano, index: number) => index.toString()}
                   renderItem={renderRow}
                 /> : 
@@ -209,7 +237,7 @@ export default function HistorialReporte(props: any) {
             <Message
               transparent = { true }
               loading = {showMessage}
-              message = {errorMensaje}
+              message = {errorMensaje }
               buttonText="Aceptar"
               color = {DarkPrimaryColor}
               iconsource = {iconSource}
@@ -219,7 +247,7 @@ export default function HistorialReporte(props: any) {
               tittle = {tituloMensaje}
             />
             <Loading
-              transparent = {true}
+              transparent = { existeCiudadano }
               loading = {loading}
               message={"Cargando..."}
               loadinColor = {DarkPrimaryColor}

@@ -120,7 +120,6 @@ export default function CustomMapBaches(props:any){
                     //NOTE: Lo guardamos en la base de datos
                     let errorMensaje = "";
                     let Codificacion = await RegistrarCiudadano(data);
-                    console.log(Codificacion);
                     if(Codificacion.Code != 200){
                         if(Codificacion.Code == 423){
                             errorMensaje = "La CURP ingresada ya esta en uso";
@@ -169,7 +168,6 @@ export default function CustomMapBaches(props:any){
                             Cliente: String(cliente),
                             rfc:ciudadano.rfc
                         };
-                        console.log(estructuraCiudadano);
                         await storage.GuardarDatosPersona(estructuraCiudadano);
                         await RestaurarDatos();
                         setErrorMsg("Datos Actualizados");
@@ -214,7 +212,6 @@ export default function CustomMapBaches(props:any){
     const Municipios = async ( indicio:string ) =>{
         let internetAviable = await checkConnection();
         if(internetAviable){
-            console.log("Obteniendo datos desde el api");
             storage.LimpiarTabla("CatalogoClientes");
             //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
             let listaMunicipio = await ObtenerMunicipios();
@@ -282,7 +279,6 @@ export default function CustomMapBaches(props:any){
     const RestaurarDatosModal = async () =>{
         //FIXME: validar los campos 
         setLoading(true);
-        console.log("Restaurando datos");
         await RecuperarDatos(String(cliente),CURP)
         .then( async (rawCiudadano)=>{
             let ciudadano = JSON.parse(rawCiudadano);//FIXME: aqui es el error
@@ -331,7 +327,7 @@ export default function CustomMapBaches(props:any){
         },500);
     }
     const validarDato = async () =>{
-        console.log( "Validando datos" );
+        setErrorUI("");
         let error = "";
         if( CURP == "" ){
             error += "C,";
@@ -349,10 +345,9 @@ export default function CustomMapBaches(props:any){
         if( error != "" ){
             setIconModal(USER_COG[0]);
             setIconSource(USER_COG[1]);
-            setErrorMsg("Favor de ingresar los datos requeridos");
+            setErrorMsg("Favor de revisar los datos requeridos");
             setShowMessage(true);
         }
-        console.log(error == "" ? "Esta vacio" : "No esta vacio");
         error == "" ? RestaurarDatosModal() : setErrorUI(error);
 
     }
@@ -386,8 +381,9 @@ export default function CustomMapBaches(props:any){
                 <View style = {Styles.cardContainer} >
                     {
                         mostrarPicker ? 
-                        <View style = {{borderColor:"red",borderWidth: String(errorUI).includes("CL,") ? 2 : 0 }} >
+                        <View style = {{ padding:10 ,borderColor:"red",borderWidth: String(errorUI).includes("CL,") ? 2 : 0 }} >
                         <DropDownPicker
+                            language="ES"
                             placeholder = {"Seleccione un municipio"}
                             items = { arregloMunicipios }
                             open = { mostrarPickerAgregar }
@@ -404,8 +400,7 @@ export default function CustomMapBaches(props:any){
                             ></DropDownPicker>
                         </View> : <></>
                     }
-
-                    <View style = {{flex: 5, padding:20}}>
+                    <View style = {{flex: 5, marginRight:20, marginLeft:20}}>
                             <Input
                                 maxLength={ 18 }
                                 style = {[Styles.inputs,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} 
@@ -470,11 +465,11 @@ export default function CustomMapBaches(props:any){
                                 autoCompleteType={undefined}
                             />
                         </View>
-                    <View style = {{flex: 1, padding:20}} >
+                    <View style = {{flex: 1, marginLeft:20,marginRight:20}} >
                         
                         {/*NOTE: cerramos la cesion*/}
                         {
-                            <View style = {{flex:1, flexDirection:"row"}}>
+                            <View style = {{flex:1, flexDirection:"row" }}>
                                 <View style = {{flex:1, marginRight:5}} >
                                     <TouchableOpacity style = {[Styles.btnButtonSuccess,{ backgroundColor:  tipoBoton ? buttonSuccess : BlueColor }]} onPress={ GuardarDatos }>                                    
                                         <Icon name = {  tipoBoton ? "save" :"edit" } tvParallaxProperties color = {"white"} > </Icon>
@@ -492,81 +487,64 @@ export default function CustomMapBaches(props:any){
                     </View>
             </View>
             :
-            <Modal style = {{flex:1}}  visible = {solicitarDatos} animationType = {"fade"} >
-                <View style = {{flex:1, flexDirection:"column"}} >
-                    {/**NOTE: cabecera de la pagina logo de suinpac o del municipio */}
-                    <View style={[Styles.avatarView,{flex:3}]}>
-                    <View style={Styles.avatarElement}>
-                        <Avatar 
-                            rounded
-                            size = "xlarge"
-                            containerStyle = {{height:100,width:200}}
-                            source = {require("../../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
-                        />
+            <Modal style = {{flex:1 }}  visible = {solicitarDatos} animationType = {"fade"} >
+                <ScrollView style = {{flexGrow:1, marginTop:50}} >
+                    <View style = {{ flexDirection:"column"}} >
+                        {/**NOTE: cabecera de la pagina logo de suinpac o del municipio */}
+                        <View style={[Styles.avatarView,{flex:3}]}>
+                        <View style={Styles.avatarElement}>
+                            <Avatar 
+                                rounded
+                                imageProps={ {resizeMode:"contain"} }
+                                size = "xlarge"
+                                containerStyle = {{height:120,width:220}}
+                                source = {require("../../assets/splash.png")} //FIXME: se puede cambiar por el logo de mexico
+                            />
+                        </View>
                     </View>
-                </View>
-                    {/**NOTE: contenido prinpal de la pagina */}
-                    <View style = {[{flex:8}]} >
-                        <View style = {{marginTop:50, padding:20}} >
-                            <Input
-                                label = "CURP"
-                                autoCompleteType={undefined}
-                                placeholder = {"CURP"} 
-                                autoCapitalize="characters"
-                                onChangeText = {text =>{setCURP(text)}}
-                                maxLength={ 18 }
-                                style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
-                            <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red' }} >
-                                <DropDownPicker
-                                    placeholder = {"Seleccione un municipio"}
-                                    items = { arregloMunicipios }
-                                    open = { mostrarPickerAgregar }
-                                    setOpen = { setMostrarPickerAgregar }
-                                    setValue = { setCliente }
-                                    value = {cliente}
-                                    min =  {10}
-                                    max = {15}
-                                    listMode = {"MODAL"}
-                                    listItemContainerStyle = {{padding:10}}
-                                    itemSeparator = {true}
-                                    selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
-                                    selectedItemLabelStyle = {{ fontWeight:"bold" }}
-                                    ></DropDownPicker>
-                                {/*<Picker
-                                    selectedValue={cliente} 
-                                    onValueChange = {(itemValue, itemIndex)=>{setCliente(itemValue)}}
-                                    style = {{backgroundColor:cardColor+55,}}
-                                    >
-                                        <Picker.Item  label="Seleccione el municipio al que pertenece" value={-1} ></Picker.Item>
-                                        {
-                                            arregloMunicipios.map((item,index)=>{
-                                                return <Picker.Item key={ item.id } label = { item.Municipio } value={ item.id } ></Picker.Item>
-                                            })
-                                        }
-                                </Picker>*/}
+                        {/**NOTE: contenido prinpal de la pagina */}
+                        <View style = {[{flex:8}]} >
+                            <View style = {{marginTop:50, padding:20}} >
+                                <Input
+                                    label = "CURP"
+                                    autoCompleteType={undefined}
+                                    placeholder = {"CURP"} 
+                                    autoCapitalize="characters"
+                                    onChangeText = {text =>{setCURP(text)}}
+                                    maxLength={ 18 }
+                                    style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
+                                <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red'}} >
+                                    <DropDownPicker
+                                        language="ES"
+                                        placeholder = {"Seleccione un municipio"}
+                                        items = { arregloMunicipios }
+                                        open = { mostrarPickerAgregar }
+                                        setOpen = { setMostrarPickerAgregar }
+                                        setValue = { setCliente }
+                                        value = {cliente}
+                                        min =  {10}
+                                        max = {15}
+                                        listMode = {"MODAL"}
+                                        listItemContainerStyle = {{padding:10}}
+                                        itemSeparator = {true}
+                                        selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                                        selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                                        ></DropDownPicker>
+                                </View>
+                            </View>
+                            <View style = {{flex: 1, padding:20  }} >
+                                <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress={ validarDato } >
+                                    <Text style = {{color:"white"}}> Iniciar Sesión </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity 
+                                    style = {{ alignItems: "center", marginTop:30 }} 
+                                    onPress={ handleRegistrar } >
+                                    <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
-                        <View style = {{flex: 1, padding:20}} >
-                            <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress={ validarDato } >
-                                <Text style = {{color:"white"}}> Iniciar Sesión </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                                style = {{ alignItems: "center", marginTop:30 }} 
-                                onPress={ handleRegistrar } >
-                                <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
-                            </TouchableOpacity>
-                        </View>
                     </View>
-                    {/**NOTE: Pie de pagina marca de suinpac */}
-                    <View style = {{flex:1}}>
-                        <View style = {{ alignItems: "center" }} >
-                            <Text 
-                            style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}
-                            onPress={ EliminarDatosPrueba }
-                            > Suinpac </Text>
-                        </View>
-                    </View>
-                </View>
+                </ScrollView>
             </Modal>
             }
             <Message
@@ -578,7 +556,7 @@ export default function CustomMapBaches(props:any){
                 loadinColor = {BlueColor}
                 iconsource = {iconSource}
                 icon = { iconModal /*"user-cog"*/}
-                message = {errorMsg}
+                message = { errorMsg }
                 tittle="Mensaje"
             />
             <Loading 

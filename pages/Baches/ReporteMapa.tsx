@@ -9,7 +9,7 @@ export default function DetalleMapa(props:any){
     const [location,setLocation] = useState(null);
     const [region,setRegion] = useState(null);
     const [regionInicial, setRegionInicial ] = useState(null);
-    const [ reporte, setReporte ] = useState(null);
+    const [reporte, setReporte ] = useState(null);
     const [loading, setLoading ] = useState(true)
     useEffect(() => {
         (async () => {
@@ -47,6 +47,7 @@ export default function DetalleMapa(props:any){
             setLoading(false);
         }
     },[region, regionInicial]);
+    
     const regresar = () => {
         props.navigation.pop();
     }

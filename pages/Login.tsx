@@ -78,7 +78,6 @@ export default function Log(props: any) {
             let municipiosAuxiliar = [];
             listaMunicipio.map((item,index)=>{
                 let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                console.log(item);
                 if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
                     let itemPicker = { 
                         label: item.Municipio , 
@@ -107,6 +106,7 @@ export default function Log(props: any) {
         }
     } 
     const validarDato = async () =>{
+        setErrorUI("");
         let error = "";
         if( CURP == "" ){
             error += "C,";
@@ -123,7 +123,7 @@ export default function Log(props: any) {
         if( error != "" ){
             setIconModal(USER_COG[0]);
             setIconSource(USER_COG[1]);
-            setErrorMsg("Favor de ingresar los datos requeridos");
+            setErrorMsg("Favor de revisar los datos requeridos");
             setShowMessage(true);
         }
         error == "" ? AutentificarUsuario() : setErrorUI(error);
@@ -188,52 +188,72 @@ export default function Log(props: any) {
         setShowMessage(true);
     }
     return(
-                <View style = {{flex:1 , flexDirection:"column", backgroundColor:"#ffffff"}} >
-                    <View style = {{flex:1, justifyContent:"center",  alignItems:"center"}} >
-                        <Avatar
-                        avatarStyle={{ }}
-                            rounded
-                            size = "xlarge"
-                            containerStyle = {{height:100,width:200}}
-                            source = {require("../resources/suinpac.png")} //FIXME: se puede cambiar por el logo de mexico
-                        />
-                    </View>
-                    {/** Datos de entrada */}
-                    <View style = {{flex:1, paddingLeft:20, paddingRight:20, justifyContent:"flex-end", marginBottom:20 }} >
-                        <TextInput
-                            placeholder = {"CURP"} 
-                            autoCapitalize="characters"
-                            maxLength={ 18 }
-                            onChangeText = { ( text ) => {setCURP( text );}}
-                            style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red", padding:10, marginBottom:20 }]} />
-                        <DropDownPicker
-                            placeholder = {"Seleccione un municipio"}
-                            items = { arregloMunicipios }
-                            open = { pickerAbierto }
-                            setOpen = {setPickerAbierto}
-                            setValue = { setCliente }
-                            value = {cliente}
-                            min =  {10}
-                            max = {15}
-                            listMode = {"MODAL"}
-                            listItemContainerStyle = {{padding:10}}
-                            itemSeparator = {true}
-                            selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
-                            selectedItemLabelStyle = {{ fontWeight:"bold" }}
-                            ></DropDownPicker>
-                        </View>
-                        <View style = {{ flex:1, paddingLeft:20, paddingRight:20 }} >
-                            <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress = {validarDato} >
-                                <Text style = {{color:"white"}}> Iniciar Sesión </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                                style = {{ alignItems: "center", marginTop:30 }} onPress = { RegistrarUsuario }  >
-                                <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
-                            </TouchableOpacity>
-                        </View>
-                        <View style = {{flex:1, justifyContent:"flex-end", alignItems:"center"}} >
-                            <Text style = {{color: DarkPrimaryColor , fontWeight:"bold", marginBottom:35 }}> Suinpac </Text>
-                        </View>
+        <View style = {{flex:1 , flexDirection:"column", backgroundColor:"#ffffff"}} >
+            <View style = {{flex:1, justifyContent:"center",  alignItems:"center"}} >
+                <Avatar
+                avatarStyle={{ }}
+                    rounded
+                    imageProps={ {resizeMode:"contain"} }
+                    size = "xlarge"
+                    containerStyle = {{height:120,width:220}}
+                    source = {require("../assets/splash.png")} //FIXME: se puede cambiar por el logo de mexico
+                />
+            </View>
+            {/** Datos de entrada */}
+            <View style = {{flex:1, paddingLeft:20, paddingRight:20, justifyContent:"flex-end", marginBottom:20 }} >
+                <TextInput
+                    placeholder = {"CURP"} 
+                    autoCapitalize="characters"
+                    maxLength={ 18 }
+                    onChangeText = { ( text ) => {setCURP( text );}}
+                    style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red", padding:10, marginBottom:20 }]} />
+                <DropDownPicker
+                    placeholder = {"Seleccione un municipio"}
+                    items = { arregloMunicipios }
+                    open = { pickerAbierto }
+                    setOpen = {setPickerAbierto}
+                    setValue = { setCliente }
+                    value = {cliente}
+                    min =  {10}
+                    max = {15}
+                    listMode = {"MODAL"}
+                    listItemContainerStyle = {{padding:10}}
+                    itemSeparator = {true}
+                    selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                    selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                    ></DropDownPicker>
                 </View>
-                   );
+                <View style = {{ flex:1, paddingLeft:20, paddingRight:20 }} >
+                    <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress = {validarDato} >
+                        <Text style = {{color:"white"}}> Iniciar Sesión </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style = {{ alignItems: "center", marginTop:30 }} onPress = { RegistrarUsuario }  >
+                        <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
+                    </TouchableOpacity>
+                </View>
+                <View style = {{flex:1, justifyContent:"flex-end", alignItems:"center"}} >
+                    <Text style = {{color: DarkPrimaryColor , fontWeight:"bold", marginBottom:35 }}> Suinpac </Text>
+                </View>
+                <Loading 
+                transparent = {true}
+                loading = {loading}
+                message = ""
+                loadinColor = {BlueColor}
+                onCancelLoad={()=>{}}
+                tittle="Mensaje"
+                />
+            <Message
+                tittle="Mensaje"
+                transparent = {true}
+                buttonText = {"Aceptar"}
+                color = {BlueColor}
+                icon = {iconModal}
+                iconsource = {iconSource}
+                loadinColor = {BlueColor}
+                loading = {showMessage} //NOTE: lo mostramos cuando 
+                message = {errorMsg}
+                onCancelLoad={()=>{ setShowMessage(false)}}
+            />
+        </View>);
 }

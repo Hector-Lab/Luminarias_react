@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Component } from "react";
 import Styles from "../../Styles/BachesStyles";
 import {
   TouchableOpacity,
@@ -36,7 +36,8 @@ import {
   INFO,
   ERROR,
   CAMERA,
-  APPSETTINGS
+  APPSETTINGS,
+  ADDPHOTO
 } from "../../Styles/Iconos";
 import DropDownPicker from 'react-native-dropdown-picker';
 import ImageView from "react-native-image-viewing";
@@ -66,43 +67,65 @@ export default function Reportar(props: any) {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [imagenSeleccionada, setImagenSeleccionada] = useState("");
-  const [indexImagenSeleccionada, setIndexImagenSeleccionada] = useState(-1);
+  const [indexImagenSeleccionada, setIndexImagenSeleccionada] = useState(0);
   const [modalImagenVisible, setModalImagenVisible] = useState(false);
   const { width: screenWidth } = Dimensions.get('window')
   //NOTE: manejadores del picker
   const [ pickerAbierto, setPikcerAbierto ] = useState(false);
   const [ FuenteIcono, setFuenteIcono ] = useState(String);
+  //NOTE: variable que identifica los datos
+  const [existeCiudadano , setExisteCiudadano ] = useState(false);
   
-
 
   let camera: Camera;
   let dataListSolicitudes = [];
+  useEffect(()=>{
+    props.navigation.addListener('focus', VerificaSession );
+  });
+
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      let arrayAreasSolicitud = await CatalogoSolicitud();
-      dataListSolicitudes = arrayAreasSolicitud.map((elemento) => {
-        //NOTE: Obtenemos los datos del catalog
-        return  { 
-          label: elemento.descripci_on , 
-          value: elemento.id,
-          key: elemento.id
-      };
-        
-      });
-      setCatalogoSolicitud(dataListSolicitudes);
-      if (status !== "granted") {
-        setErrorMsg("Permisos negados");
-        return;
+    (async () => { 
+      if(existeCiudadano){
+        //NOTE: verificamos los datos de alida
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        let arrayAreasSolicitud = await CatalogoSolicitud();
+        dataListSolicitudes = arrayAreasSolicitud.map((elemento) => {
+          //NOTE: Obtenemos los datos del catalog
+          return  { 
+            label: elemento.descripci_on , 
+            value: elemento.id,
+            key: elemento.id
+        };
+        });
+        setCatalogoSolicitud(dataListSolicitudes);
+        if (status !== "granted") {
+          setErrorMsg("Permisos negados");
+          return;
+        }
+      }else{
+        setErrorUi("");
+        limpiarPantalla();
       }
+      setLoading(false);
     })();
-  }, []);
+  }, [existeCiudadano]);
 
   //INDEV: render con hooks
-
-
+  const VerificaSession = async () =>{
+    let ciudadano = await storage.obtenerDatosPersona();
+    setExisteCiudadano( ciudadano != null );
+  }
   const iniciarCamara = async () => {
-    setOnCamera(true);
+    if(arrayImageEncode.length <= 2) {
+      setOnCamera(true);
+    }else{
+      setOnCamera(false);
+      setMessageIcon(ADDPHOTO[0]);
+      setIconSource(ADDPHOTO[1]);
+      setHeaderMessage("Mensaje");
+      setErrorMsg("Limite de evidencia alcanzada (Maximo 3)");
+      setSHowMessage(true);
+    }
   };
   const __takePicture = async () => {
     if (arrayImageEncode.length <= 2) {
@@ -141,71 +164,6 @@ export default function Reportar(props: any) {
     }
     setLoading(false);
   };
-  const validarNumeroDeFotos = () => {
-    //    console.log(arrayImageEncode.length);
-    if (arrayImageEncode.length < 3) {
-      setOnCamera(true);
-    } else {
-      Alert.alert("INFO", "El número maximo de fotos a registrar es tres.", [
-        { text: "Aceptar", onPress: () => console.log("OK Pressed") },
-      ]);
-    }
-  };
-  const obtenerDireccionActuales = async () => {
-    let gpsServiceStatus = await Location.hasServicesEnabledAsync();
-    if (gpsServiceStatus) {
-      setLoading(true);
-      let coordenadasActuales = await CordenadasActualesNumerico();
-      setCoords(coordenadasActuales);
-      //NOTE: Obtenemos los
-      let DireccionActual = JSON.parse(
-        await ObtenerDireccionActual(coordenadasActuales)
-      );
-      let formatoDireccion = `
-        Estado: ${DireccionActual.region}
-        Ciudad: ${DireccionActual.city}
-        Colonia: ${DireccionActual.district}
-        Calle: ${DireccionActual.street}
-        Codigo Postal: ${DireccionActual.postalCode}
-        `;
-      setDireccion(formatoDireccion);
-      setDireccionEnviar(
-        `${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
-      );
-      console.log(
-        `${DireccionActual.region} ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
-      );
-      setLoading(false);
-    } else {
-      console.log("GPS Apagado");
-      setErrorMsg("Para mejor su experiencia se recomienda encender su GPS");
-      setSHowMessage(true);
-      return false;
-    }
-    setLoading(true);
-
-    /*
-    let coordenadasActuales = await CordenadasActualesNumerico();
-    setCoords(coordenadasActuales);
-    //NOTE: Obtenemos los
-    let DireccionActual = JSON.parse(
-      await ObtenerDireccionActual(coordenadasActuales)
-    );
-    let formatoDireccion = `
-      Estado: ${DireccionActual.region}
-      Ciudad: ${DireccionActual.city}
-      Colonia: ${DireccionActual.district}
-      Calle: ${DireccionActual.street}
-      Codigo Postal: ${DireccionActual.postalCode}`;
-    setDireccion(formatoDireccion);
-    setDireccionEnviar(
-      `${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
-    );
-    console.log(
-      `${DireccionActual.region} ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
-    );*/
-    setLoading(false);
-  };
   const GuardarReporte = async () => {
     setLoading(true);
     let connection = checkConnection();
@@ -214,7 +172,6 @@ export default function Reportar(props: any) {
     let arrayImages = new Array();
     if (connection) {
       arrayImageEncode.map((item, index) => {
-        console.log("Se hizo push");
         arrayImages.push("data:image/jpeg;base64," + item.base64);
       });
     } else {
@@ -222,7 +179,6 @@ export default function Reportar(props: any) {
         arrayImages.push(item.uri);
       });
     }
-    console.log("Numero de imagenes " + arrayImages.length);
     let data = {
       Tema: seleccionSolicitud,
       Descripcion: observaciones,
@@ -301,10 +257,10 @@ export default function Reportar(props: any) {
     try {
       let { status } = await Camera.requestCameraPermissionsAsync();
       if (status === "granted") {
+        //NOTE: verifiamos el tamanio de las fotos
         await __takePicture();
       } else {
         //NOTE: lanzamos un un mensaje de permisos 
-        console.log( status );
         setMessageIcon(CAMERA[0]);
         setFuenteIcono(CAMERA[1]);
         setErrorMsg("La apliacion necesita permisos para acceder a la camara");
@@ -318,10 +274,14 @@ export default function Reportar(props: any) {
     }
   };
   const eliminarFoto = () => {
-    setArrayImageEncode(
-      arrayImageEncode.filter((item) => item.uri !== imagenSeleccionada)
-    );
-    setImagenSeleccionada("");
+    console.log(indexImagenSeleccionada);
+    if( arrayImageEncode[indexImagenSeleccionada] == undefined ){
+      setArrayImageEncode([]);
+      setIndexImagenSeleccionada(0);
+    }else{
+      setArrayImageEncode( arrayImageEncode.filter((item) => item.uri !== arrayImageEncode[indexImagenSeleccionada].uri ));
+    }
+    
   };
   const GenerarCamara = ( ) => {
     return <View style={{ flex: 1 }}>
@@ -435,7 +395,7 @@ export default function Reportar(props: any) {
              {...parallaxProps}
           ></Card.Image>
           <Card.Divider/>
-          <Button onPress={ obtenerDireccionActuales} title={"Eliminar"} />
+          <Button onPress={ eliminarFoto } title={"Eliminar"} />
         </Card>
       </View>
     );
@@ -449,6 +409,8 @@ export default function Reportar(props: any) {
               <View style = {{flex:2}} >
                 {/* Generamos el picker*/ }
                 <DropDownPicker
+                    disabled = { !existeCiudadano }
+                    language="ES"
                     containerStyle = {{ padding:15 }}
                     style = {{borderColor: errorUi.includes("T,") ? "red" : cardColor, borderWidth:1}}
                     items = { catalogoSolicitud }
@@ -473,16 +435,16 @@ export default function Reportar(props: any) {
                         multiline = {true}
                         style={ { textAlign:"center", fontWeight:"bold", color:"black" } }
 
-                      >{ `Mi Direcciòn` }</TextInput>
+                      >{ `Mi direcciòn` }</TextInput>
                 </View>
                 <View style = {{flex:1}} >
                   <TextInput 
                     editable = {false}
                     multiline = {true}
                     numberOfLines={5}
-                    style={{ textAlign:"left", fontWeight:"bold", color:"black", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5} }
+                    style={{ textAlign: existeCiudadano ? "left" : "center", fontWeight:"bold", color: existeCiudadano ? "black" : "red", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5} }
                   >
-                    {direccion}
+                    { existeCiudadano ? direccion : "Favor de iniciar session" }
                   </TextInput>
                 </View>
               </View>
@@ -493,11 +455,13 @@ export default function Reportar(props: any) {
                 itemWidth={screenWidth - 60}
                 data={arrayImageEncode}
                 renderItem = { renderItem }
+                onSnapToItem = {indexs => setIndexImagenSeleccionada(indexs) }
                 hasParallaxImages={true}
             />
               </View>
               <View style = {{paddingLeft:20, paddingRight:20}} >
               <Button
+                  disabled = {!existeCiudadano}
                   icon={{
                     name: "camera",
                     type: "font-awesome",
@@ -512,6 +476,7 @@ export default function Reportar(props: any) {
               <View style = {{flex:4}} >
                 <View  style = {{ paddingLeft:25, paddingRight:25 }} >
                   <TextInput
+                    editable = { existeCiudadano }
                     onChangeText={(text) => {
                         setReferencia(text);
                     }}
@@ -529,6 +494,7 @@ export default function Reportar(props: any) {
                       onChangeText={(text) => {
                         setObservaciones(text);
                       }}
+                      editable = { existeCiudadano }
                       value={observaciones}
                       placeholder="Descripción"
                       multiline
@@ -549,6 +515,7 @@ export default function Reportar(props: any) {
                     size: 15,
                     color: "white",
                   }}
+                  disabled = {!existeCiudadano}
                   title={" Guardar Reporte"}
                   buttonStyle={[Styles.btnButtonLoginSuccess]}
                   onPress={verificarDatos}
@@ -571,14 +538,14 @@ export default function Reportar(props: any) {
               buttonText={"Aceptar"}
             />
           <Loading
-            loading={loading}
+            loading={ loading }
             loadinColor={DarkPrimaryColor}
-            message={loadingMessage}
+            message={ loadingMessage }
             onCancelLoad={() => {
               setLoading(false);
             }}
             tittle={"Cargando"}
-            transparent={true}
+            transparent={existeCiudadano}
           />
           <ImageView
             images={arrayImageEncode}
