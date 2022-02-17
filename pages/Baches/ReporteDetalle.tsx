@@ -34,55 +34,65 @@ export default function DetallesReporte(props:any){
     const [ message, setMessage ] = useState("");
     const [ mostrarMensaje, setMostrarMensaje ] = useState(false);
     const [ nombreCiudadano, setNombreCiudadano ] = useState("Cargando...");
+    const [ existeCiudadano, setExisteCiudadano ] = useState(true);
     //INDEV: falta mostrar los datos del Ciudadano
     const storage = new StorageBaches();
     let estatusColor = cardColor;
     useEffect(()=>{
-        let { Reporte } = props.route.params;
-        console.log(props.route.params);
-        setReporte(Reporte);
-        //FIXME: en los datos
-        setRechazada(Reporte.FechaRechazada != null);
-        //NOTE: Seleccionamos el icono
-        if(Reporte.Area.includes("Alumbrado"))
-            setHeaderIcon(iconos[2].icon);
-        if(Reporte.Area.includes("Agua"))
-            setHeaderIcon(iconos[1].icon);
-        if(Reporte.Area.includes("Catastro"))
-            setHeaderIcon(iconos[0].icon);
-        if(Reporte.Ubicaci_onGPS == null || Reporte.Ubicaci_onGPS == ""){
-            setMapaBloqueado(true);
+        if( existeCiudadano ){
+            let { Reporte } = props.route.params;
+            console.log(props.route.params);
+            setReporte(Reporte);
+            //FIXME: en los datos
+            setRechazada(Reporte.FechaRechazada != null);
+            //NOTE: Seleccionamos el icono
+            if(Reporte.Area.includes("Alumbrado"))
+                setHeaderIcon(iconos[2].icon);
+            if(Reporte.Area.includes("Agua"))
+                setHeaderIcon(iconos[1].icon);
+            if(Reporte.Area.includes("Catastro"))
+                setHeaderIcon(iconos[0].icon);
+            if(Reporte.Ubicaci_onGPS == null || Reporte.Ubicaci_onGPS == ""){
+                setMapaBloqueado(true);
+            }else{
+                setMapaBloqueado(false);
+            }
+            //NOTE: Buscamos los datos de las imagenes
+            Reporte != null ? ( Reporte.Observaci_onServidorPublico != null ?  setObservacionCentrado(false) : setObservacionCentrado(true) ) : setObservacionCentrado(true);
+            if(Reporte.Rutas == null, Reporte.Rutas == ""){
+                setEvidenciaBloqueo(true);
+            }else{
+                let arrayImagenes = String(Reporte.Rutas).split(",");
+                //NOTE: agregamos los la direccion
+                let arrayImagenEncode = arrayImagenes.map(function( item ){
+                    return {uri:`https:/suinpac.com/${item}`};
+                });
+                setArrayImagenes(arrayImagenEncode);
+                setMapaBloqueado(false);
+            }
+            setReporte(Reporte);
+            obtenerDatosCiudadano();
         }else{
-            setMapaBloqueado(false);
+            props.navigation.popToTop();
         }
-        //NOTE: Buscamos los datos de las imagenes
-        Reporte != null ? ( Reporte.Observaci_onServidorPublico != null ?  setObservacionCentrado(false) : setObservacionCentrado(true) ) : setObservacionCentrado(true);
-        if(Reporte.Rutas == null, Reporte.Rutas == ""){
-            setEvidenciaBloqueo(true);
-        }else{
-            let arrayImagenes = String(Reporte.Rutas).split(",");
-            //NOTE: agregamos los la direccion
-            let arrayImagenEncode = arrayImagenes.map(function( item ){
-                return {uri:`https:/suinpac.com/${item}`};
-            });
-            setArrayImagenes(arrayImagenEncode);
-            setMapaBloqueado(false);
-        }
-        setReporte(Reporte);
-        obtenerDatosCiudadano();
-    },[]);
+    },[existeCiudadano]);
     useEffect(()=>{
         if( Reporte != null ){
             setLoading(false);
         }
-    },[Reporte])
+    },[Reporte]);
+    //NOTE: Verificamos la session del usuario
+    useEffect(()=>{
+        props.navigation.addListener('focus', VerificarSession );
+    });
+    const VerificarSession = async () =>{
+        let ciudadano = await storage.obtenerDatosPersona();
+        setExisteCiudadano(ciudadano != null);
+    }
     const verMapa = () =>{
         //props.navigation.navigate('Detalles', {"Reporte":item});
         props.navigation.navigate("Mapa",{"Reporte":Reporte});
     }
-    /**
-     * INDEV: Componentes para el modal de imagenes
-     */
     const obtenerDatosCiudadano = async () => {
         //NOTE: obtenemos los datos del ciudadno
         let data = await storage.obtenerDatosPersona();

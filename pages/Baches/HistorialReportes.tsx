@@ -37,7 +37,7 @@ export default function HistorialReporte(props: any) {
   useEffect(()=>{
     (async () => {
       //NOTE: Cargamos la lista de los reportes del ciudadano (Verificamos si existe algun ciudadano
-        if(  existeCiudadano != null ){
+        if(  existeCiudadano ){
           await ObtenerMisReportes()
           .then((arregloReportes)=>{
             setReportes(arregloReportes);
@@ -69,7 +69,7 @@ export default function HistorialReporte(props: any) {
           })
         }
     })();
-  },[]);
+  },[existeCiudadano]);
   useEffect(()=>{
     props.navigation.addListener('focus', VerificaSession );
   });
@@ -125,6 +125,8 @@ export default function HistorialReporte(props: any) {
     return <View style = {{padding:2}} >
             <Pressable onPress={ ()=>{ verReporte(item)  } } >
               <ListItem
+              hasTVPreferredFocus
+              tvParallaxProperties
                 bottomDivider>
                   <Icon name = { icon } type = {"font-awesome-5"} tvParallaxProperties/>  
                     <ListItem.Content >
@@ -132,7 +134,7 @@ export default function HistorialReporte(props: any) {
                         {`Folio: ${item.Codigo}`}
                         <Badge
                           badgeStyle = {{backgroundColor:estatusColor }} 
-                          value = { + estatusLetra[ parseInt(item.Estatus) -1 ].Nombre}/>
+                          value = { estatusLetra[ parseInt(item.Estatus) -1 ].Nombre}/>
                       </ListItem.Title>
                       <ListItem.Subtitle>
                         {`Referencia: ${item.Referencia == null ? "" : item.Referencia}`}
