@@ -17,7 +17,10 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config":{
+        "googleMapsApiKey":"AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
+      }
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",
@@ -33,7 +36,7 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon.png"
     },
     "description": ""
   }
