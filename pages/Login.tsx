@@ -233,7 +233,7 @@ export default function Log(props: any) {
                     </TouchableOpacity>
                 </View>
                 <View style = {{flex:1, justifyContent:"flex-end", alignItems:"center"}} >
-                    <Text style = {{color: DarkPrimaryColor , fontWeight:"bold", marginBottom:35 }}> Suinpac </Text>
+                    <Text style = {{color: DarkPrimaryColor , fontWeight:"bold", marginBottom:5 }}> Suinpac </Text>
                 </View>
                 <Loading 
                 transparent = {true}

@@ -1,11 +1,9 @@
 import React,{ useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { Button, getIconType, Icon, Text } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import { TouchableOpacity } from "react-native-gesture-handler";
-import MapView,{ Marker } from 'react-native-maps';
+import MapView,{ Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { DarkPrimaryColor } from "../../Styles/BachesColor";
-import Styles from '../../Styles/styles';
-import Loading from '../components/modal-loading';
 
 export default function MyLocation(props:any ){
     const estatusLetra = [{"Nombre":"Pendiente"},{"Nombre":"Proceso"},{"Nombre":"Atendida"},{"Nombre":"Rechazada"}];
@@ -14,6 +12,7 @@ export default function MyLocation(props:any ){
         <View style = {{...StyleSheet.absoluteFillObject}} >
 
                 <MapView 
+                    provider = { PROVIDER_GOOGLE }
                     initialRegion={ props.initialRegion }
                     region={ props.region }
                     style = { StyleSheet.absoluteFillObject} >
@@ -24,7 +23,7 @@ export default function MyLocation(props:any ){
                                         
                                         title = { "Codigo: " + props.Reporte.Codigo}
                                         description = {` Estado:  ${estatusLetra[parseInt(props.Reporte.Estatus) - 1].Nombre}`}
-                                        coordinate={{"latitude":props.region.latitude,"longitude":props.region.longitude}}/>
+                           r             coordinate={{"latitude":props.region.latitude,"longitude":props.region.longitude}}/>
                                 </View>
                             ) : <></>
                         }

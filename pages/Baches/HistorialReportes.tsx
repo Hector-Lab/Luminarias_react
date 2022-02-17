@@ -31,54 +31,46 @@ export default function HistorialReporte(props: any) {
   const [ iconSource, setIconSource ] = useState("font-awesome-5");
   const [ showMessage, setShowMessage ] = useState(false);
   const [ refreshing, setRefreshing] = React.useState(false);
-  const [ loading, setLoading ] = useState(false);
+  const [ loading, setLoading ] = useState(true);
   //NOTE: variale que verifica si existe algun ciudadano
-  const [ existeCiudadano, setExisteCiudadano ] = useState(false);
-  useEffect(()=>{
-    (async () => {
-      //NOTE: Cargamos la lista de los reportes del ciudadano (Verificamos si existe algun ciudadano
-        if(  existeCiudadano ){
-          await ObtenerMisReportes()
-          .then((arregloReportes)=>{
-            setReportes(arregloReportes);
-          })
-          .catch((error)=>{
-            let message = String(error.message);
-            if(message.includes("encontrados") ||  message.includes("no tiene registros")){
-              /*setTituloMensaje("Mensaje");
-              setIconSource(INFO[1]);
-              setIcono(INFO[0]);*/
-              setShowMessage(false);
-              setErrorMensaje("");
-            }else if(message.includes("interner")){
-              setTituloMensaje("Error");
-              setIconSource(WIFI_OFF[1]);
-              setIcono(WIFI_OFF[0]);
-              setShowMessage(true);
-              setErrorMensaje(message);
-            }else{
-              setTituloMensaje("Mensaje");
-              setIcono(ERROR[0]);
-              setIconSource(ERROR[1]);
-              setShowMessage(true);
-              setErrorMensaje(message);
-            }
-            
-          }).finally(()=>{
-            setLoading(false);
-          })
-        }
-    })();
-  },[existeCiudadano]);
   useEffect(()=>{
     props.navigation.addListener('focus', VerificaSession );
-  });
-  
+  },[]);
   const VerificaSession = async () =>{
-    let dbCiudadano = await storage.obtenerDatosPersona();
-    setExisteCiudadano(dbCiudadano != null );
+    //NOTE: cargamos los datos de una vez
+    await ObtenerMisReportes()
+    .then((arregloReportes)=>{
+      setLoading(false);
+      if(arregloReportes == undefined){
+        setReportes([]);
+      }else{
+        setReportes(arregloReportes);
+      }
+    })
+    .catch((error)=>{
+      let message = String(error.message);
+      setReportes([]);
+      setLoading(false);
+      if(message.includes("encontrados") ||  message.includes("no tiene registros")){
+        setShowMessage(false);
+        setErrorMensaje("");
+      }else if(message.includes("interner")){
+        setTituloMensaje("Error");
+        setIconSource(WIFI_OFF[1]);
+        setIcono(WIFI_OFF[0]);
+        setShowMessage(true);
+        setErrorMensaje(message);
+      }else{
+        setTituloMensaje("Mensaje");
+        setIcono(ERROR[0]);
+        setIconSource(ERROR[1]);
+        setShowMessage(true);
+        setErrorMensaje(message);
+      }
+    }).finally(()=>{
+      setLoading(false);
+    });
   }
-
   const iconos = [{"Icon":"building"},{"Icon":"tint"},{"Icon":"lightbulb"},{"Icon":"road"}];
   const estatusLetra = [{"Nombre":"Pendiente"},{"Nombre":"Proceso"},{"Nombre":"Atendida"},{"Nombre":"Rechazada"}]
   type reporteCiudadano = {
@@ -99,12 +91,12 @@ export default function HistorialReporte(props: any) {
     Ubicaci_onGPS:string,
     Area:string,
   };
-  const listaRepostesTemporal = [
+  /*const listaRepostesTemporal = [
     {Tema:"Agua",id:1 ,Codigo:"309r83uf03948", Estatus: 1,Referencia: "Referencia de prueba2" },
     {Tema:"Alumbrado" ,id:2, Codigo:"3ere83uf0df48", Estatus: 1,Referencia: "Referencia de prueba3" },
     {Tema:"Alumbrado" ,id:3, Codigo:"a09rsduf03948", Estatus: 1,Referencia: "Referencia de prueba4" },
     {Tema:"Alumbrado" ,id:4, Codigo:"39sr84uf0f948", Estatus: 1,Referencia: "Referencia de prueba5" }
-  ];
+  ];*/
   const renderRow = ({ item }: { item: reporteCiudadano })=>{
     let icon = "info"; 
     let estatusColor = cardColor;
@@ -169,11 +161,17 @@ export default function HistorialReporte(props: any) {
     setLoading(true);
     await ObtenerMisReportes()
     .then((arregloReportes)=>{
-      setReportes(arregloReportes);
+      if(arregloReportes == undefined){
+        setReportes([]);
+      }else{
+        setReportes(arregloReportes);
+      }
+      setLoading(false);
     })
     .catch((error)=>{
+      setReportes([]);
       let message = String(error.message);
-      console.log(message);
+      setLoading(false);
       if(message.includes("encontrados") || message.includes("no tiene registros")){
         setErrorMensaje("");
         setShowMessage(false);
@@ -216,7 +214,7 @@ export default function HistorialReporte(props: any) {
             </View>
             <View style = {Styles.cardConteinerFlex8} >
               {
-                 ( listaRepostesTemporal.length > 0 && existeCiudadano ) ?
+                 ( reportes.length > 0  ) ?
                  <FlatList
                   refreshControl={
                     <RefreshControl
@@ -224,7 +222,7 @@ export default function HistorialReporte(props: any) {
                     onRefresh={refrescarLista}
                   />
                   }
-                  data={reportes }
+                  data={ reportes }
                   keyExtractor={(a: reporteCiudadano, index: number) => index.toString()}
                   renderItem={renderRow}
                 /> : 
@@ -249,7 +247,7 @@ export default function HistorialReporte(props: any) {
               tittle = {tituloMensaje}
             />
             <Loading
-              transparent = { existeCiudadano }
+              transparent = { true }
               loading = {loading}
               message={"Cargando..."}
               loadinColor = {DarkPrimaryColor}

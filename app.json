@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Atencion Ciudadana",
-    "slug": "Atencion_Ciudadana",
+    "slug": "Atencion",
     "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,9 +18,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "config":{
-        "googleMapsApiKey":"AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
-      }
+      "config": {
+        "googleMapsApiKey": "AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
+      },
+      "bundleIdentifier": "com.atencionCiudadana.suinpac"
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",
@@ -29,9 +30,9 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.atencionCiudadana.suinpac",
-      "config":{
-        "googleMaps":{
-          "apiKey":"AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
         }
       }
     },

@@ -5,7 +5,7 @@ import  * as Location from 'expo-location';
 import Loading from '../components/modal-loading'; 
 import { PrimaryColor } from "../../Styles/BachesColor";
 import { StorageBaches } from '../controller/storage-controllerBaches';
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 export default function DetalleMapa(props:any){
     const [enableLocation, setLocationEnable ] = useState(false);
     const [location,setLocation] = useState(null);
