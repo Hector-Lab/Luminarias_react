@@ -445,7 +445,7 @@ export default function CustomMapBaches(props:any){
                                 editable={tipoBoton}
                                 onChangeText={ text => setMaterno(text)}
                             />
-                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Apellido Materno </Text>
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Telefono </Text>
                             <TextInput
                                 value = {telefono}
                                 keyboardType="number-pad"

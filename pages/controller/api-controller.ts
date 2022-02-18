@@ -73,7 +73,6 @@ export async function GuardarLuminaria(data:any, connection: any ){
             return decodeResult;
     
         }else{ //NOTE: Se Envia a la base de datos
-            console.log("Sin conexion");
             let resultLumianria = await storage.insertarLuminaria(data);
             let resultHistoria = await storage.insertarHistoriaLuminaria(data);
             return resultLumianria && resultHistoria;
@@ -141,10 +140,8 @@ export async function CatalogoSolicitud(){
     let data = {
         Cliente: cliente 
     };
-    console.log(data);
     let rawData = await service.ObtenerCatalogoAreas(data);
     let result = await rawData.json();
-    console.log(result);
     return result.Catalogo;
 }
 export async function ObtenerMunicipios(){
@@ -207,7 +204,6 @@ export async function RecuperarDatos(inputCliente: string, inputCurp: string ){
         };
         let rawData = await service.recuperarDatosCiudadano(datos);
         let ciudadano = await rawData.json();
-        console.log(ciudadano);
         if(ciudadano.Code == 200){
             return JSON.stringify(ciudadano.Mensaje[0]);
         }else if (ciudadano.Code == 404){
@@ -255,7 +251,6 @@ export async function RefrescarReporte (reporte: string){
             let rawData = await service.ObtenerReporte(data);
             let reportData = await rawData.json();
             if(reportData.code == 200){
-                console.log("Todo esta bien");
                 return JSON.stringify(reportData.Mensaje[0]);
             }else if ( reportData.Code == 404 ){
                 throw NoRowSelect;
@@ -278,7 +273,6 @@ export async function VerificarSession (){
         };
         let rawData = await service.VerificaToken(datos,token);
         let jsonResult = await rawData.json();
-        console.log(jsonResult);
         if(jsonResult['code'] == 200 && jsonResult['Status']){
             return jsonResult['Mensaje'][0]['Estatus'] == 1;
         }else if ( jsonResult['Message'] == "Token has expired"){
