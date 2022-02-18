@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Modal } from "react-native";
+import { View, TouchableOpacity, Modal, TextInput } from "react-native";
 import { Text } from 'react-native-elements';
 import Styles from "../../Styles/BachesStyles";
-import { Input, Avatar, Icon } from 'react-native-elements'
+import { Avatar, Icon } from 'react-native-elements'
 import { BlueColor, DarkPrimaryColor, cardColor, buttonSuccess } from '../../Styles/BachesColor';
 import { ScrollView } from "react-native-gesture-handler";
 import { StorageBaches } from '../controller/storage-controllerBaches';
@@ -103,6 +103,7 @@ export default function CustomMapBaches(props:any){
             error += "CL,";
         }
         setErrorUI(error);
+        console.log(error);
         if(error == ""){
             let data = {
                 curp:CURP,
@@ -381,7 +382,7 @@ export default function CustomMapBaches(props:any){
                 <View style = {Styles.cardContainer} >
                     {
                         mostrarPicker ? 
-                        <View style = {{ padding:10 ,borderColor:"red",borderWidth: String(errorUI).includes("CL,") ? 2 : 0 }} >
+                        <View >
                         <DropDownPicker
                             language="ES"
                             placeholder = {"Seleccione un municipio"}
@@ -397,72 +398,66 @@ export default function CustomMapBaches(props:any){
                             itemSeparator = {true}
                             selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
                             selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                            containerStyle = {{ borderWidth: errorUI.includes("CL,") ? 3 : 0, borderColor:"red", borderRadius:10 }}
                             ></DropDownPicker>
                         </View> : <></>
                     }
                     <View style = {{flex: 5, marginRight:20, marginLeft:20}}>
-                            <Input
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > CURP </Text>
+                            <TextInput
                                 maxLength={ 18 }
-                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} 
+                                style = {[Styles.inputBachees,{padding:5 ,borderWidth: 1 ,borderColor: String(errorUI).includes("C,") ? "red" : "black" }]} 
                                 keyboardType="default"
                                 value= { CURP }
-                                label={ "CURP"}
                                 editable={tipoBoton}
                                 onChangeText={ text => { setCURP(text); }}
                                 autoCapitalize = {"characters"}
-                                autoCompleteType={undefined}
                             />
-                            <Input
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold",}} > RFC: XAXX010101000 </Text>
+                            <TextInput
                                 maxLength={ 13 }
-                                style = { [Styles.inputs]} 
+                                style = { [Styles.inputBachees,{padding:5} ]} 
                                 keyboardType="default"
                                 value= { RFC }
                                 editable={tipoBoton}
-                                label={ "RFC: XAXX010101000" }
                                 onChangeText={ text => { setRFC(text); }}
-                                autoCompleteType={undefined}
                             />
-                            <Input
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Nombres </Text>
+                            <TextInput
                                 keyboardType="twitter"
                                 value={nombres}
-                                style={[Styles.inputs, { borderWidth: String(errorUI).includes("N,") ? 1 : 0, borderColor: "red" }]}
-                                label={"Nombres"}
+                                style={[Styles.inputBachees, {padding:5 ,borderWidth: 1 ,borderColor: String(errorUI).includes("N,") ? "red" : "black" }]}
                                 onChangeText={text => setNombres(text)} 
-                                editable={tipoBoton}
-                                autoCompleteType={undefined}                        />
-                            <Input
+                                editable={tipoBoton}/>
+                                <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Apellido Paterno </Text>
+                            <TextInput
                                 value = { paterno }
                                 keyboardType="twitter"
-                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("P,") ? 1 : 0 ,borderColor:"red"}]}
-                                label={ "Apellido Paterno" }
+                                style = {[Styles.inputBachees, {padding:5 ,borderWidth: 1 ,borderColor: String(errorUI).includes("P,") ? "red" : "black" }]}
                                 editable={tipoBoton}
                                 onChangeText={text => setPaterno(text)}
-                                autoCompleteType={undefined}
                             />
-                            <Input
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Apellido Materno </Text>
+                            <TextInput
                                 value = { materno }
                                 keyboardType="twitter"
-                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("M,") ? 1 : 0 ,borderColor:"red"}]}
-                                label={ "Apellido Materno" }
+                                style = {[Styles.inputBachees,{padding:5 ,borderWidth: 1 ,borderColor: String(errorUI).includes("M,") ? "red" : "black" }]}
                                 editable={tipoBoton}
                                 onChangeText={ text => setMaterno(text)}
-                                autoCompleteType={undefined}
                             />
-                            <Input
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Apellido Materno </Text>
+                            <TextInput
                                 value = {telefono}
                                 keyboardType="number-pad"
-                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("T,") ? 1 : 0 ,borderColor:"red"}]}
-                                label={ "Telefono *" }
+                                style = {[Styles.inputBachees,{padding:5 , borderWidth: 1 ,borderColor: String(errorUI).includes("T,") ? "red" : "black" }]}
                                 onChangeText={ text => setTelefono(text)}
-                                autoCompleteType={undefined}
                             />
-                            <Input
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Email * </Text>
+                            <TextInput
                                 keyboardType="email-address"
                                 value = {email}
-                                style = {[Styles.inputs,{borderWidth: String(errorUI).includes("E,") ? 1 : 0 ,borderColor:"red"}]}
-                                label={ "Email *" }
+                                style = {[Styles.inputBachees, {padding:5 , borderWidth: 1 ,borderColor: String(errorUI).includes("E,") ? "red" : "black" } ]}
                                 onChangeText={ text => setEmail(text)}
-                                autoCompleteType={undefined}
                             />
                         </View>
                     <View style = {{flex: 1, marginLeft:20,marginRight:20}} >
@@ -505,15 +500,13 @@ export default function CustomMapBaches(props:any){
                         {/**NOTE: contenido prinpal de la pagina */}
                         <View style = {[{flex:8}]} >
                             <View style = {{marginTop:50, padding:20}} >
-                                <Input
-                                    label = "CURP"
-                                    autoCompleteType={undefined}
+                                <TextInput
                                     placeholder = {"CURP"} 
                                     autoCapitalize="characters"
                                     onChangeText = {text =>{setCURP(text)}}
                                     maxLength={ 18 }
-                                    style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red"}]} />
-                                <View style = {{borderWidth: String(errorUI).includes("CL,") ? 1 : 0, borderColor:'red'}} >
+                                    style = {[Styles.inputBachees, {padding: 5 ,borderWidth: 1 ,borderColor: String(errorUI).includes("C,") ? "red" : "black" }] } />
+                                <View >
                                     <DropDownPicker
                                         language="ES"
                                         placeholder = {"Seleccione un municipio"}
@@ -528,6 +521,7 @@ export default function CustomMapBaches(props:any){
                                         listItemContainerStyle = {{padding:10}}
                                         itemSeparator = {true}
                                         selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                                        containerStyle = {{ borderWidth: errorUI.includes("CL,") ? 3 : 0, borderColor:"red", borderRadius:10 }}
                                         selectedItemLabelStyle = {{ fontWeight:"bold" }}
                                         ></DropDownPicker>
                                 </View>

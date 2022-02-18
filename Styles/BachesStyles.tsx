@@ -175,8 +175,12 @@ const Styles = StyleSheet.create({
       alignItems: "center",
     },
     inputBachees:{
+      backgroundColor:"white",
       marginTop: 10,
-      backgroundColor:cardColor+45
+      borderWidth:1,
+      borderColor:"black",
+      borderRadius:10,
+      marginBottom:15
     }
     
 

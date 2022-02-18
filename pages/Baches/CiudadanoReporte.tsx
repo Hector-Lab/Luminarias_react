@@ -227,7 +227,6 @@ export default function Reportar(props: any) {
     arrayImageEncode.length == 0 ? (error += error += "E,") : error;
     referencia == "" ? (error += "R,") : error;
     observaciones == "" ? (error += "D,") : error;
-    direccion == "" ? (error += "S,") : error;
     if (error != "") {
       console.log(error);
       setErrorUi(error);
@@ -411,7 +410,7 @@ export default function Reportar(props: any) {
                 <DropDownPicker
                     disabled = { !existeCiudadano }
                     language="ES"
-                    containerStyle = {{ padding:15 }}
+                    containerStyle = {{ borderWidth: errorUi.includes("T,") ? 3 : 0, borderColor:"red", borderRadius:10, padding:15 }}
                     style = {{borderColor: errorUi.includes("T,") ? "red" : cardColor, borderWidth:1}}
                     items = { catalogoSolicitud }
                     setOpen = { setPikcerAbierto }
@@ -433,7 +432,7 @@ export default function Reportar(props: any) {
                   <TextInput
                         editable = { false }
                         multiline = {true}
-                        style={ { textAlign:"center", fontWeight:"bold", color:"black" } }
+                        style={ [ { textAlign:"center", fontWeight:"bold", color:"black" }] }
 
                       >{ `Mi direcciòn` }</TextInput>
                 </View>
@@ -442,7 +441,8 @@ export default function Reportar(props: any) {
                     editable = {false}
                     multiline = {true}
                     numberOfLines={5}
-                    style={{ textAlign: existeCiudadano ? "left" : "center", fontWeight:"bold", color: existeCiudadano ? "black" : "red", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5} }
+                    
+                    style={ [ Styles.inputBachees ,{ textAlign: existeCiudadano ? "left" : "center", fontWeight:"bold", color: existeCiudadano ? "black" : "red", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5}] }
                   >
                     { existeCiudadano ? direccion : "Favor de iniciar session" }
                   </TextInput>
@@ -485,7 +485,7 @@ export default function Reportar(props: any) {
                     multiline
                     numberOfLines={2}
                     style={[
-                      Styles.bachesTextInput,
+                      Styles.inputBachees,
                       errorUi.includes("R,") ? Styles.errorDatos : {},]}
                     ></TextInput>
                 </View>
@@ -500,7 +500,7 @@ export default function Reportar(props: any) {
                       multiline
                       numberOfLines={5}
                       style={[
-                        Styles.bachesTextInput,
+                        Styles.inputBachees,
                         errorUi.includes("D,") ? Styles.errorDatos : {},
                       ]}
                     ></TextInput>

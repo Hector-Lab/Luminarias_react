@@ -1,9 +1,8 @@
 import { Picker } from "@react-native-picker/picker";
 import DropDownPicker from 'react-native-dropdown-picker';
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, TextInput } from  'react-native';
+import { View, TouchableOpacity, Text, TextInput, BackHandler } from  'react-native';
 import {  Input, Avatar } from 'react-native-elements';
-import { ScrollView } from "react-native-gesture-handler";
 import { BlueColor, cardColor, DarkPrimaryColor, errorColor } from "../Styles/BachesColor";
 import Styles from "../Styles/BachesStyles";
 import { DESCONOCIDO, USER_COG, WIFI_OFF,LOGINEXIT } from '../Styles/Iconos';
@@ -13,8 +12,7 @@ import Message from "./components/modal-message";
 import { ObtenerMunicipios, RecuperarDatos, VerificarSession } from "./controller/api-controller";
 import { StorageBaches } from './controller/storage-controllerBaches';
 import * as Location from 'expo-location';
-import { BackgrounBlue } from "../Styles/Color";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 export default function Log(props: any) {
 
     const storage = new StorageBaches();
@@ -206,7 +204,7 @@ export default function Log(props: any) {
                     autoCapitalize="characters"
                     maxLength={ 18 }
                     onChangeText = { ( text ) => {setCURP( text );}}
-                    style = {[Styles.inputBachees,{borderWidth: String(errorUI).includes("C,") ? 1 : 0 ,borderColor:"red", padding:10, marginBottom:20 }]} />
+                    style = {[Styles.inputBachees,{borderWidth: 1 ,borderColor: String(errorUI).includes("C,") ? "red" : "black", padding:10, marginBottom:20 }]} />
                 <DropDownPicker
                     placeholder = {"Seleccione un municipio"}
                     items = { arregloMunicipios }
@@ -216,10 +214,11 @@ export default function Log(props: any) {
                     value = {cliente}
                     min =  {10}
                     max = {15}
-                    listMode = {"MODAL"}
+                    listMode = { "MODAL" }
                     listItemContainerStyle = {{padding:10}}
                     itemSeparator = {true}
                     selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
+                    containerStyle = {{ borderWidth: errorUI.includes("CL,") ? 2 : 0, borderColor:"red", borderRadius:10 }}
                     selectedItemLabelStyle = {{ fontWeight:"bold" }}
                     ></DropDownPicker>
                 </View>
