@@ -15,7 +15,9 @@ const ErrorLista = new Error("¡Error al obtener el historial!\nFavor de intenta
 const MunicipiosVacios = new Error( "¡Municipios no encontrados!" );
 const ErrorListaMunicipios = new Error( "!Error al obtener lista de municipios¡\nFavor de intentar más tarde" );
 const ErrorSinAreas = new Error("¡El municipio no cuenta con temas disponibles!");
-const ErrorAreas = new Error("¡Hubo un problema al obtener la lista de temas!")
+const ErrorAreas = new Error("¡Hubo un problema al obtener la lista de temas!");
+const ErrorDatos = new Error("¡Favor de ingresar los datos requeridos!");
+const noAutizado = new Error("¡El servicio aún no está disponible en tu municipio!!");
 
 //INDEV: Nuevas funciones para la aplicacion de los baches
 export async function CatalogoSolicitud(){
@@ -28,11 +30,11 @@ export async function CatalogoSolicitud(){
         let result = await rawData.json();
         if(result.Code == 200){
             return result.Catalogo;
-        }else if(result.Code == 404){
+        }else if(result.code == 404){
             throw ErrorSinAreas;
-        }else if(result.Code == 403){
+        }else if(result.code == 403){
             throw ErrorAreas;
-        }else if( result.Code == 500 ){
+        }else if( result.code == 500 ){
             throw ErrorDesconocido;
         }
     }catch( error ){
@@ -68,12 +70,18 @@ export async function EnviarReportes( reporte:any ){
     try{
         let rawData = await service.insertarReporte(reporte);
         let jsonData = await rawData.json();
-        if(jsonData.Code == 200){
+        console.log(jsonData);
+
+        if(jsonData.code == 200){
             return true;
-        }else if(jsonData.Code == 404 || jsonData.Code == 403 ){
+        }else if(jsonData.code == 404 ){
             throw ErrorInsertar;
-        }else if(jsonData.Code == 500 ){
+        }else if(jsonData.code == 500 ){
             throw ErrorDesconocido;
+        }else if(jsonData.code == 403){
+            throw ErrorDatos;
+        }else if(String(jsonData.Error).includes("42S02")){
+            throw noAutizado;
         }
     }catch(error){
          throw verificarErrores(error);

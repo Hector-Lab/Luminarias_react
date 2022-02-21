@@ -65,7 +65,7 @@ export default function Reportar(props: any) {
   const [headerMessage, setHeaderMessage] = useState("Mensaje");
   //NOTE: modal loading
   const [loadingMessage, setLoadingMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [imagenSeleccionada, setImagenSeleccionada] = useState("");
   const [indexImagenSeleccionada, setIndexImagenSeleccionada] = useState(0);
   const [modalImagenVisible, setModalImagenVisible] = useState(false);
@@ -81,54 +81,41 @@ export default function Reportar(props: any) {
   let dataListSolicitudes = [];
   useEffect(()=>{
     props.navigation.addListener('focus', VerificaSession );
-  });
-
-  useEffect(() => {
-    (async () => { 
-      if(existeCiudadano){
-        //NOTE: verificamos los datos de alida
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        //NOTE: lo cambiamos por un 
-        await CatalogoSolicitud()
-        .then((arrayAreasSolicitud)=>{
-          arrayAreasSolicitud.map((elemento)=>{
-            return  { 
-              label: elemento.descripci_on , 
-              value: elemento.id,
-              key: elemento.id
-            };    
-          })
-          setCatalogoSolicitud(dataListSolicitudes);
-          if (status !== "granted") {
-            setErrorMsg("Permisos negados");
-            return;
-          }
-        })
-        .catch((error)=>{
-          //NOTE: errores al obtener el catalogo de areas
-          if(String(error.message).includes("Sin acceso a internet")){
-            setMessageIcon(WIFI_OFF[0]);
-            setIconSource(WIFI_OFF[1]);
-          }else{
-            setMessageIcon(DESCONOCIDO[0]);
-            setIconSource(DESCONOCIDO[1]);
-          }
-          setErrorMsg(String(error.message));
-          setSHowMessage(true);
-        });
-
-      }else{
-        setErrorUi("");
-        limpiarPantalla();
-      }
-      setLoading(false);
-    })();
-  }, [existeCiudadano]);
+  },[]);
 
   //INDEV: render con hooks
   const VerificaSession = async () =>{
+    //NOTE: verificamos si existe el ciudadno para  habilitar los campos
     let ciudadano = await storage.obtenerDatosPersona();
     setExisteCiudadano( ciudadano != null );
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      await CatalogoSolicitud()
+      .then((arrayAreasSolicitud)=>{
+        dataListSolicitudes = arrayAreasSolicitud.map((elemento)=>{
+          return  { 
+            label: elemento.descripci_on , 
+            value: elemento.id,
+            key: elemento.id
+          };    
+        })
+        setCatalogoSolicitud(dataListSolicitudes);
+        if (status !== "granted") {
+          setErrorMsg("Permisos negados");
+          return;
+        }
+      })
+      .catch((error)=>{
+        if(String(error.message).includes("Sin acceso a internet")){
+          setMessageIcon(WIFI_OFF[0]);
+          setIconSource(WIFI_OFF[1]);
+        }else{
+          setMessageIcon(DESCONOCIDO[0]);
+          setIconSource(DESCONOCIDO[1]);
+        }
+        setErrorMsg(String(error.message));
+        setSHowMessage(true);
+      });
+    setLoading(false);
   }
   const iniciarCamara = async () => {
     if(arrayImageEncode.length <= 2) {
@@ -425,8 +412,8 @@ export default function Reportar(props: any) {
                 <DropDownPicker
                     disabled = { !existeCiudadano }
                     language="ES"
-                    containerStyle = {{ borderWidth: errorUi.includes("T,") ? 3 : 0, borderColor:"red", borderRadius:10, padding:15 }}
-                    style = {{borderColor: errorUi.includes("T,") ? "red" : cardColor, borderWidth:1}}
+                    containerStyle = {{ borderRadius:10, padding:15 }}
+                    style = {{borderColor: errorUi.includes("T,") ? "red" : cardColor, borderWidth:2}}
                     items = { catalogoSolicitud }
                     setOpen = { setPikcerAbierto }
                     open = { pickerAbierto }
