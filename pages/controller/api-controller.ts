@@ -1,157 +1,61 @@
 import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
-import { StorageService } from '../controller/storage-controller';
 import { StorageBaches } from '../controller/storage-controllerBaches';
 const service = new APIServices();
-const storage = new StorageService();
 const storageBaches = new StorageBaches();
-const networkError = new Error("Sin acceso a interner");
+const networkError = new Error("!Sin acceso a internet¡");
 const userNotFound = new Error("Usuario o Contraseña Incorrectos");
-const curpUtilizada = new Error("Ciudadano ya registrado");
 const usuarioNoValido = new Error("");
-const usuarioNoEncontrado = new Error("Ciudadano no econtrado\nFavor de registrarse para continuar");
-const ErrorDesconocido = new Error("Error desconocido");
+const usuarioNoEncontrado = new Error("Ciudadano no encontrado\nFavor de registrarse para continuar");
+const ErrorDesconocido = new Error("¡Error desconocido!");
 const SinCambios = new Error("OK"); 
-const ErrorInsertar = new Error("Error al registrar el reporte\nFavor de intentar mas tarde");
-const NoRowSelect = new Error("Aún no tiene registros");
-const ErrorLista = new Error("Error al obtener el historial\nFavor de intentar mas tarde");
-export async function Auth(user:string,pass:string){
-    //Creamos la base de datos
-    let cliente = {
-        'usuario': user,
-        'passwd': pass
-    };
+const ErrorInsertar = new Error("¡Error al registrar el reporte!\nFavor de intentar más tarde");
+const NoRowSelect = new Error("¡Aún no tiene registros!");
+const ErrorLista = new Error("¡Error al obtener el historial!\nFavor de intentar más tarde");
+const MunicipiosVacios = new Error( "¡Municipios no encontrados!" );
+const ErrorListaMunicipios = new Error( "!Error al obtener lista de municipios¡\nFavor de intentar más tarde" );
+const ErrorSinAreas = new Error("¡El municipio no cuenta con temas disponibles!");
+const ErrorAreas = new Error("¡Hubo un problema al obtener la lista de temas!")
+
+//INDEV: Nuevas funciones para la aplicacion de los baches
+export async function CatalogoSolicitud(){
     try{
-        let data = await service.login(cliente);
-        let jsonData =  await data.json();
-        if(jsonData != null || jsonData != undefined){
-            if(!jsonData['Status']){
-                throw userNotFound;
-            }else{
-                let usuario = {
-                    Usuario: jsonData['idUsuario']+"",
-                    Cliente: jsonData['cliente']
-                };
-                //Verificamos roles
-                let result = await verificamosRoles(usuario,jsonData['token']);
-                if(result != -1){
-                    await storage.setUser(jsonData['idUsuario']+"",jsonData['datosUsuario']['NombreCompleto'],jsonData['token'],jsonData['cliente']);
-                }
-                return result;
-            }
-        }else{
-            return false;
-        }
-    }catch(error){
-        throw verificarErrores(error); 
-    }
-}
-export async function CatalogoLuminarias() {
-    let token = await storage.getItem("Token");
-    let cliente = await storage.getItem("Cliente");
-    if( token != null ){
+        let cliente = await storageBaches.obtenerCliente();
         let data = {
-            Cliente : cliente
+            Cliente: cliente 
         };
-        let catalogos = await service.catalogoLuminarias(data,String(token));
-        let catalogoJson = await catalogos.json();
-        storage.insertarCatalogos(catalogoJson['EstadoFisico'],catalogoJson['TipoLuminaria']);
-    }else{
-        console.log("El token es nulo");
-    }
-}
-export async function GuardarLuminaria(data:any, connection: any ){
-    let valid = VerificarDatosLuminaria(data);
-    if(valid != ""){
-        throw new Error(valid);
-    }
-    let token = await storage.getItem("Token");
-    try{
-        if(connection){ //NOTE: Se envia directo al API
-            let encodeResult = await service.insertarLuminaria(data,String(token));
-            let decodeResult = await encodeResult.json();
-            return decodeResult;
-    
-        }else{ //NOTE: Se Envia a la base de datos
-            let resultLumianria = await storage.insertarLuminaria(data);
-            let resultHistoria = await storage.insertarHistoriaLuminaria(data);
-            return resultLumianria && resultHistoria;
+        let rawData = await service.ObtenerCatalogoAreas(data);
+        let result = await rawData.json();
+        if(result.Code == 200){
+            return result.Catalogo;
+        }else if(result.Code == 404){
+            throw ErrorSinAreas;
+        }else if(result.Code == 403){
+            throw ErrorAreas;
+        }else if( result.Code == 500 ){
+            throw ErrorDesconocido;
         }
-    }catch(error){
-        console.log(error.message);
-    }
-}
-export async function GuardarHistoriaLuminaria(data:any, connection: any) {
-    let valid = VerificarDatosLuminaria(data);
-    if(valid != "")
-    throw new Error(valid);
-    let token = await storage.getItem("Token");
-    try{
-        if(connection){//NOTE: se evia directo al api
-
-        }else{ //se envia al storage 
-            console.warn("Sin conexion");
-            return await storage.insertarHistoral(data); 
-
-        }
-    }catch(error){
+    }catch( error ){
         throw verificarErrores(error);
     }
 }
-export async function ClavesLuminarias(){
-    storage.createOpenDB();
-    let cliente = await storage.getItem("Cliente");
-    let token = await storage.getItem("Token");
-    try{
-        let data = {
-            Cliente: String(cliente),
-        };
-        let rawData = await service.obtenerLuminarias(data,String(token));
-        let result = await rawData.json();
-        if(result['Status']){
-            storage.insertarClavesLuminaria(result['result']);
-        }
-    }catch(error){
-        return verificarErrores(error);
-    }
-}
-export async function ClavesMedidor() {
-    storage.createOpenDB();
-    let cliente = await storage.getItem("Cliente");
-    let token = await storage.getItem("Token");
-    try{
-        let data = {
-            Cliente:String(cliente)
-        };
-        let rawData = await service.obtenerMedidores(data,token);
-        let result = await rawData.json();
-        if(result['Status']){            
-            storage.insertClavesMedidores(result['result']);
-        }else{
-            console.log("Sin datos que descargar");
-        }
-    }catch(error){
-        return verificarErrores(error);
-    }
-}
-//INDEV: Nuevas funciones para la aplicacion de los baches
-export async function CatalogoSolicitud(){
-    let cliente = await storageBaches.obtenerCliente();
-    let data = {
-        Cliente: cliente 
-    };
-    let rawData = await service.ObtenerCatalogoAreas(data);
-    let result = await rawData.json();
-    return result.Catalogo;
-}
 export async function ObtenerMunicipios(){
-    let rawData = await service.ObtenerMunicipios();
-    let municipios = await rawData.json();
-    if(municipios.Status){
-        return municipios.Catalogo;
+    try{
+        let rawData = await service.ObtenerMunicipios();
+        let municipios = await rawData.json();        
+        if( municipios.Code == 200 ){
+            return municipios.Catalogo;
+        }else if( municipios.Code == 404 ){
+            return MunicipiosVacios;
+        }else{
+            return ErrorListaMunicipios;
+        }
+    }catch( error ){
+        throw verificarErrores(error);
     }
 }
 export async function RegistrarCiudadano( ciudadadano:any ){
+    //NOTE: esta validano en la interfaz
     try{
         let idCiudadano = await service.insertarCiudadano(ciudadadano);
         let jsonRespuesta = await idCiudadano.json();
@@ -168,6 +72,8 @@ export async function EnviarReportes( reporte:any ){
             return true;
         }else if(jsonData.Code == 404 || jsonData.Code == 403 ){
             throw ErrorInsertar;
+        }else if(jsonData.Code == 500 ){
+            throw ErrorDesconocido;
         }
     }catch(error){
          throw verificarErrores(error);
@@ -190,6 +96,8 @@ export async function ObtenerMisReportes (){
                 throw NoRowSelect;
             }else if (jsonData.Code == 403){
                 throw ErrorLista;
+            }else if (jsonData.Code == 500){
+                throw ErrorDesconocido;
             }
         }
     }catch(error){
@@ -263,25 +171,6 @@ export async function RefrescarReporte (reporte: string){
         throw verificarErrores(error);
     }
 }
-//INDEV: metodos para verificar la session
-export async function VerificarSession (){
-    try{
-        let cliente = await storage.getItem("Cliente");
-        let token = await storage.getItem("Token");
-        let datos = {
-            Cliente: cliente
-        };
-        let rawData = await service.VerificaToken(datos,token);
-        let jsonResult = await rawData.json();
-        if(jsonResult['code'] == 200 && jsonResult['Status']){
-            return jsonResult['Mensaje'][0]['Estatus'] == 1;
-        }else if ( jsonResult['Message'] == "Token has expired"){
-            return false;
-        }
-    }catch(error){
-        throw verificarErrores(error);
-    }
-}
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
@@ -295,37 +184,3 @@ function verificarErrores(error:Error) {
     return error;
 
 }
-async function  verificamosRoles(usuario:{Usuario:string, Cliente:string},token:string){
-    let type = -1; //NOTE: -1: usuario no valido, 0: luminarias, 1:Baches
-    //Esto para verificar el rol de luminarias
-    let luminariasValid = await service.verificarRol(usuario,token); 
-    let userLuminaria = await luminariasValid.json();
-    if(userLuminaria['Mensaje'].length > 0){
-        userLuminaria['Mensaje'][0]['Estatus'] == "1" ? type = 0 : type = -1;
-    }
-    return type;
-}
-function VerificarDatosLuminaria(data:any){
-    let errores = "";
-   if(String(data.Clave) == ""){
-        errores += "C,";
-   }
-   if(String(data.Voltaje) == ""){
-       errores += "V,";
-   }
-   if(String(data.Calsificacion) == ""){
-       errores += "CL,";
-   }
-   if(String(data.Tipo) == ""){
-       errores += "T,"
-   }
-   if(String(data.EstadoFisico) == ""){
-       errores += "E,"
-   }
-   if(data.Evidencia.length == 0){
-        errores += "EV,"
-   }
-   return errores;
-}
-
-

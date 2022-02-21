@@ -72,35 +72,57 @@ export default function Log(props: any) {
         if(internetAviable){
             await storage.LimpiarTabla("CatalogoClientes");
             //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
-            let listaMunicipio = await ObtenerMunicipios();
-            let municipiosAuxiliar = [];
-            listaMunicipio.map((item,index)=>{
-                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                    let itemPicker = { 
-                        label: item.Municipio , 
-                        value: item.id,
-                    };
-                    municipiosAuxiliar.push(itemPicker);
+            await ObtenerMunicipios()
+            .then( async ( listaMunicipio )=>{
+                let municipiosAuxiliar = [];
+                listaMunicipio.map((item,index)=>{
+                    let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
+                        let itemPicker = { 
+                            label: item.Municipio , 
+                            value: item.id,
+                        };
+                        municipiosAuxiliar.push(itemPicker);
+                    }
+                })
+                setArregloMunicipios(municipiosAuxiliar);
+                await storage.InsertarMunicipios(listaMunicipio);
+            }).catch((error)=>{
+                setErrorMsg(error.message);
+                setTittleMesaje("Mensaje");
+                setIconModal(WIFI_OFF[0]);
+                setIconSource(WIFI_OFF[1]);
+                if(String(error.message).includes("internet")){
+                    setIconModal(WIFI_OFF[0]);
+                    setIconSource(WIFI_OFF[1]);
                 }
-            });
-            setArregloMunicipios(municipiosAuxiliar);
-            await storage.InsertarMunicipios(listaMunicipio);
+                setShowMessage(true);
+            })
         }else{
             //NOTE: Obtenemos los desde la db
-            let listaMunicipio = await storage.ObtenerMunicipiosDB();
-            let municipiosAuxiliar = [];
-            listaMunicipio.map((item,index)=>{
-                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                    let itemPicker = { 
-                        label: item.Municipio , 
-                        value: item.id,
-                    };
-                    municipiosAuxiliar.push(itemPicker);
-                }
+            await storage.ObtenerMunicipiosDB()
+            .then( async (listaMunicipio)=>{
+                let municipiosAuxiliar = [];
+                listaMunicipio.map((item,index)=>{
+                    let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
+                        let itemPicker = { 
+                            label: item.Municipio , 
+                            value: item.id,
+                        };
+                        municipiosAuxiliar.push(itemPicker);
+                    }
+                });
+                setArregloMunicipios(municipiosAuxiliar);
+            })
+            .catch( (erro) => {
+                console.log(erro);
+                setErrorMsg("!Error al obtener lista de municipios¡\nFavor de intentar más tarde");
+                setTittleMesaje("Error");
+                setIconModal(DESCONOCIDO[0]);
+                setIconSource(DESCONOCIDO[1]);
+                setShowMessage(true);
             });
-            setArregloMunicipios(municipiosAuxiliar);
         }
     } 
     const validarDato = async () =>{
@@ -194,7 +216,7 @@ export default function Log(props: any) {
                     imageProps={ {resizeMode:"contain"} }
                     size = "xlarge"
                     containerStyle = {{height:120,width:220}}
-                    source = {require("../assets/splash.png")} //FIXME: se puede cambiar por el logo de mexico
+                    source = {require("../assets/banner.png")} //FIXME: se puede cambiar por el logo de mexico
                 />
             </View>
             {/** Datos de entrada */}

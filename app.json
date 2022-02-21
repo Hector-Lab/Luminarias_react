@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Atencion Ciudadana",
-    "slug": "Atencion",
+    "slug": "AtencionCiudadana",
     "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

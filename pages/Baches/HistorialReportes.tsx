@@ -62,8 +62,8 @@ export default function HistorialReporte(props: any) {
         setErrorMensaje(message);
       }else{
         setTituloMensaje("Mensaje");
-        setIcono(ERROR[0]);
-        setIconSource(ERROR[1]);
+        setIcono(DESCONOCIDO[0]);
+        setIconSource(DESCONOCIDO[1]);
         setShowMessage(true);
         setErrorMensaje(message);
       }
@@ -137,24 +137,6 @@ export default function HistorialReporte(props: any) {
           </View>
   }
   const verReporte = (item:reporteCiudadano ) =>{
-    /*let reporteCiudadano = {
-      Tema: "Luminarias",
-      Codigo: "ni2d929jdij",
-      Descripci_on:"Prueba temporal",
-      Estatus:2,
-      FechaTupla:"2022-02-12 23:12:12",
-      Ubicaci_onEscrita:"Cerca de aqui",
-      FechaAtendida:null,
-      FechaProceso:null,
-      FechaRechazada:null,
-      FechaSolucion:null,
-      MotivoRechazo:"",
-      Observaci_onServidorPublico: null,
-      Referencia:"Cerca de alli",
-      ServidorPublico:null,
-      Ubicaci_onGPS:"12wdwedw",
-      Area:"Prueba",
-    };*/
     props.navigation.navigate('Detalles', {"Reporte":item });
   }
   const refrescarLista = async () =>{
@@ -183,8 +165,8 @@ export default function HistorialReporte(props: any) {
       setShowMessage(true);
       }else{
         setTituloMensaje("Mensaje");
-        setIcono(ERROR[0]);
-        setIconSource(ERROR[1]);
+        setIcono(DESCONOCIDO[0]);
+        setIconSource(DESCONOCIDO[1]);
         setErrorMensaje(message);
       setShowMessage(true);
       }

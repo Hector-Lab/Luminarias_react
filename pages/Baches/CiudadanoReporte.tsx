@@ -88,20 +88,35 @@ export default function Reportar(props: any) {
       if(existeCiudadano){
         //NOTE: verificamos los datos de alida
         let { status } = await Location.requestForegroundPermissionsAsync();
-        let arrayAreasSolicitud = await CatalogoSolicitud();
-        dataListSolicitudes = arrayAreasSolicitud.map((elemento) => {
-          //NOTE: Obtenemos los datos del catalog
-          return  { 
-            label: elemento.descripci_on , 
-            value: elemento.id,
-            key: elemento.id
-        };
+        //NOTE: lo cambiamos por un 
+        await CatalogoSolicitud()
+        .then((arrayAreasSolicitud)=>{
+          arrayAreasSolicitud.map((elemento)=>{
+            return  { 
+              label: elemento.descripci_on , 
+              value: elemento.id,
+              key: elemento.id
+            };    
+          })
+          setCatalogoSolicitud(dataListSolicitudes);
+          if (status !== "granted") {
+            setErrorMsg("Permisos negados");
+            return;
+          }
+        })
+        .catch((error)=>{
+          //NOTE: errores al obtener el catalogo de areas
+          if(String(error.message).includes("Sin acceso a internet")){
+            setMessageIcon(WIFI_OFF[0]);
+            setIconSource(WIFI_OFF[1]);
+          }else{
+            setMessageIcon(DESCONOCIDO[0]);
+            setIconSource(DESCONOCIDO[1]);
+          }
+          setErrorMsg(String(error.message));
+          setSHowMessage(true);
         });
-        setCatalogoSolicitud(dataListSolicitudes);
-        if (status !== "granted") {
-          setErrorMsg("Permisos negados");
-          return;
-        }
+
       }else{
         setErrorUi("");
         limpiarPantalla();
@@ -208,8 +223,8 @@ export default function Reportar(props: any) {
           setIconSource(WIFI_OFF[1]);
           setMessageIcon(WIFI_OFF[0]);
         } else {
-          setIconSource(ERROR[1]);
-          setMessageIcon(ERROR[0]);
+          setIconSource(DESCONOCIDO[1]);
+          setMessageIcon(DESCONOCIDO[0]);
         }
         setErrorMsg(mensaje);
         setSHowMessage(true);
@@ -266,9 +281,9 @@ export default function Reportar(props: any) {
         setHeaderMessage("Mensaje");
         setSHowMessage(true);
         setOnCamera(false);
-        
       }
     } catch (error) {
+      setOnCamera(false);
       console.log(error);
     }
   };

@@ -11,7 +11,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { ObtenerMunicipios, RegistrarCiudadano, RecuperarDatos, editarDatosCiudadano } from '../controller/api-controller';
 import { checkConnection, CordenadasActualesNumerico,ObtenerDireccionActual, verificarcurp , rfcValido } from '../../utilities/utilities';
 import  * as Location from 'expo-location';
-import { WIFI_OFF,USER_COG,DESCONOCIDO, WIFI, OK} from '../../Styles/Iconos'; 
+import { WIFI_OFF,USER_COG,DESCONOCIDO, WIFI, OK, ERROR} from '../../Styles/Iconos'; 
 import Message from '../components/modal-message';
 import Loading from '../components/modal-loading';
 
@@ -38,6 +38,7 @@ export default function CustomMapBaches(props:any){
     const [ mostrarPickerAgregar , setMostrarPickerAgregar ] = useState( false );
     const curpError = ["","CURP no valida","Formato de CURP no valido"];
     const storage = new StorageBaches();
+    const [ messageTittle, setMessageTittle ] = useState(String);
 
     useEffect(() => {
         (async () => {
@@ -122,16 +123,20 @@ export default function CustomMapBaches(props:any){
                     let errorMensaje = "";
                     let Codificacion = await RegistrarCiudadano(data);
                     if(Codificacion.Code != 200){
+                        setIconModal( USER_COG[0] );
+                        setIconSource( USER_COG[1] );
+                        
                         if(Codificacion.Code == 423){
                             errorMensaje = "La CURP ingresada ya esta en uso";
                         }
                         if(Codificacion.Code == 403){
-                            errorMensaje = "Hubo un problema al registrar el usuario, Favor de reintentar mas tarde";
+                            errorMensaje = "Hubo un problema al registrar el usuario\n Favor de reintentar mas tarde";
+                        }else if(Codificacion.Code == 500){
+                            setIconModal(DESCONOCIDO[0]);
+                            setIconSource(DESCONOCIDO[1]);
                         }
-                        setErrorMsg(errorMensaje);
-                        setIconModal( USER_COG[0] );
-                        setIconSource( USER_COG[1] );
                         setShowMessage(true);
+                        setErrorMsg(errorMensaje);
                     }else{
                         //NOTE: Guardamos los datos de los usuarios
                         await storage.GuardarDatosPersona(data);
@@ -215,20 +220,34 @@ export default function CustomMapBaches(props:any){
         if(internetAviable){
             storage.LimpiarTabla("CatalogoClientes");
             //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
-            let listaMunicipio = await ObtenerMunicipios();
-            let municipiosAuxiliar = [];
-            listaMunicipio.map((item,index)=>{
-                let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                    let itemPicker = { 
-                        label: item.Municipio , 
-                        value: item.id,
-                    };
-                    municipiosAuxiliar.push(itemPicker);
+            await ObtenerMunicipios().then( async ( listaMunicipio )=>{
+                let municipiosAuxiliar = [];
+                listaMunicipio.map((item,index)=>{
+                    let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
+                        let itemPicker = { 
+                            label: item.Municipio , 
+                            value: item.id,
+                        };
+                        municipiosAuxiliar.push(itemPicker);
+                    }
+                });
+                setArregloMunicipios(municipiosAuxiliar);
+                await storage.InsertarMunicipios(listaMunicipio);
+            }).catch((error)=>{
+                if( String(error.message).includes("Sin acceso a internet") ){
+                    setIconModal(WIFI[0]);
+                    setIconSource(WIFI[1]);
+                    setErrorMsg(String(error.message));
+                    setMessageTittle("Error");
+                }else{
+                    setIconModal(DESCONOCIDO[0]);
+                    setIconSource(DESCONOCIDO[1]);
+                    setErrorMsg(String(error.message));
+                    setMessageTittle("Error");
                 }
             });
-            setArregloMunicipios(municipiosAuxiliar);
-            await storage.InsertarMunicipios(listaMunicipio);
+           
         }else{
             //NOTE: Obtenemos los desde la db
             let listaMunicipio = await storage.ObtenerMunicipiosDB();
@@ -493,7 +512,7 @@ export default function CustomMapBaches(props:any){
                                 imageProps={ {resizeMode:"contain"} }
                                 size = "xlarge"
                                 containerStyle = {{height:120,width:220}}
-                                source = {require("../../assets/splash.png")} //FIXME: se puede cambiar por el logo de mexico
+                                source = {require("../../assets/banner.png")} //FIXME: se puede cambiar por el logo de mexico
                             />
                         </View>
                     </View>
