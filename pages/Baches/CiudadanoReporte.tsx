@@ -230,7 +230,6 @@ export default function Reportar(props: any) {
     referencia == "" ? (error += "R,") : error;
     observaciones == "" ? (error += "D,") : error;
     if (error != "") {
-      console.log(error);
       setErrorUi(error);
       setErrorMsg("Favor de capturar los campos requeridos");
       setHeaderMessage("Mensaje");
@@ -271,7 +270,6 @@ export default function Reportar(props: any) {
       }
     } catch (error) {
       setOnCamera(false);
-      console.log(error);
     }
   };
   const eliminarFoto = () => {

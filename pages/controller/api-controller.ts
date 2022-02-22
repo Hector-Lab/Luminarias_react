@@ -70,8 +70,6 @@ export async function EnviarReportes( reporte:any ){
     try{
         let rawData = await service.insertarReporte(reporte);
         let jsonData = await rawData.json();
-        console.log(jsonData);
-
         if(jsonData.code == 200){
             return true;
         }else if(jsonData.code == 404 ){

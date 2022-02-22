@@ -73,7 +73,6 @@ export class StorageBaches {
         await AsyncStorage.setItem(root+"Persona", jsonPersona); 
     }
     async guardarIdCiudadano( idCliente:string ){
-        console.log(idCliente);
         await AsyncStorage.setItem(root+"idCiudadano",idCliente);
     }
     async obtenerIdCiudadano(){

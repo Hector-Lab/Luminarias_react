@@ -104,7 +104,6 @@ export default function CustomMapBaches(props:any){
             error += "CL,";
         }
         setErrorUI(error);
-        console.log(error);
         if(error == ""){
             let data = {
                 curp:CURP,
@@ -175,7 +174,7 @@ export default function CustomMapBaches(props:any){
                             rfc:ciudadano.rfc
                         };
                         await storage.GuardarDatosPersona(estructuraCiudadano);
-                        await RestaurarDatos();
+                        RestaurarDatosModal();
                         setErrorMsg("Datos Actualizados");
                         setIconModal(OK[0]);
                         setIconSource(OK[1]);
@@ -192,6 +191,7 @@ export default function CustomMapBaches(props:any){
                             //NOTE: manejador de errores
                             setIconModal(WIFI_OFF[0]);
                             setIconSource(WIFI_OFF[1]);
+                            setShowMessage(true);
                             setErrorMsg("Sin conexion a interner");
                         }
                     })
@@ -202,6 +202,7 @@ export default function CustomMapBaches(props:any){
                 }else{                    
                     setIconModal(WIFI_OFF[0]);
                     setIconSource(WIFI_OFF[1]);
+                    setShowMessage(true);
                     setErrorMsg("Sin conexion a interner");
                     setLoading(false);
                 }
@@ -361,7 +362,6 @@ export default function CustomMapBaches(props:any){
         if(cliente == -1 ){
             error += "CL,"
         }
-        console.log(error);
         if( error != "" ){
             setIconModal(USER_COG[0]);
             setIconSource(USER_COG[1]);
@@ -393,6 +393,9 @@ export default function CustomMapBaches(props:any){
     }
     const mostrarModalSolicitar = () =>{
         setSolicitarDatos(true);
+    }
+    const RefrescarDatosCiudadanos = () =>{
+
     }
     return(
         <ScrollView contentContainerStyle = {{flexGrow:1}} >
