@@ -1,15 +1,15 @@
 import { Picker } from "@react-native-picker/picker";
 import DropDownPicker from 'react-native-dropdown-picker';
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, TextInput, BackHandler } from  'react-native';
+import { View, TouchableOpacity, Text, TextInput, BackHandler, Linking } from  'react-native';
 import {  Input, Avatar } from 'react-native-elements';
 import { BlueColor, cardColor, DarkPrimaryColor, errorColor } from "../Styles/BachesColor";
 import Styles from "../Styles/BachesStyles";
-import { DESCONOCIDO, USER_COG, WIFI_OFF,LOGINEXIT } from '../Styles/Iconos';
+import { DESCONOCIDO, USER_COG, WIFI_OFF,LOGINEXIT, SETTINGMENU } from '../Styles/Iconos';
 import { checkConnection, CordenadasActualesNumerico, ObtenerDireccionActual, verificarcurp } from "../utilities/utilities";
 import Loading from "./components/modal-loading";
 import Message from "./components/modal-message";
-import { ObtenerMunicipios, RecuperarDatos, VerificarSession } from "./controller/api-controller";
+import { ObtenerMunicipios, RecuperarDatos } from "./controller/api-controller";
 import { StorageBaches } from './controller/storage-controllerBaches';
 import * as Location from 'expo-location';
 
@@ -30,9 +30,12 @@ export default function Log(props: any) {
     const [ tittleMesage, setTittleMesaje ] = useState("Mensaje");
     //INDEV: manejadores del modal
     const [ pickerAbierto, setPickerAbierto ] = useState(false);
+    const [abrirConfigurarciones, setAbrirConfiguraciones ] = useState( false );
     //INDEV: verificamos las session y la validez del token
-    useEffect(()=>{
-        (async ()=>{
+    useEffect(()=>{ props.navigation.addListener('focus', recargarPermisos ) },[]);
+    const recargarPermisos = async ( event ) =>{
+        console.log( JSON.stringify(event) + " Estado");
+        setLoading(true);
             //NOTE: creando las tablas
             storage.createOpenDB();
             storage.createTablasBaches();
@@ -47,26 +50,36 @@ export default function Log(props: any) {
                 //NOTE: pedimos permisos 
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
-                    setErrorMsg('Permisos no concedidos por el usuario');
+                    setPickerAbierto(false);
+                    setErrorMsg("¡Permisos no concedidos por el usuario!");
+                    setIconModal(SETTINGMENU[0]);
+                    setIconSource(SETTINGMENU[1]);
+                    setShowMessage(true);
+                    setTittleMesaje("¡Advertencia!");
+                    setAbrirConfiguraciones(true);
                     return;
                 }
-
                 let coords = await CordenadasActualesNumerico();
                 let jsonUbicacion = await ObtenerDireccionActual(coords);
                 if(jsonUbicacion != null && jsonUbicacion != undefined )
                 {
                     let ubicacionActual = JSON.parse(jsonUbicacion);
-                    let indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    let indicioFormato = "";
+                    if(!String(ubicacionActual.isoCountryCode).includes("MX")){
+                        indicioFormato = "Estado de Mexico";
+                    }else{
+                        indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    }
+                    console.log("Indicio: " + indicioFormato );
                     Municipios(indicioFormato);
                 }else{
                     Municipios("");
                 }
                 setLoading(false);
+                
             }
             },500);
-        })();
-    },[]);
-    
+    } 
     const Municipios = async ( indicio:string ) =>{
         let internetAviable = await checkConnection();
         if(internetAviable){
@@ -141,6 +154,7 @@ export default function Log(props: any) {
             error += "CL,"
         }
         if( error != "" ){
+            setErrorMsg("Mensaje");
             setIconModal(USER_COG[0]);
             setIconSource(USER_COG[1]);
             setErrorMsg("Favor de revisar los datos requeridos");
@@ -176,10 +190,12 @@ export default function Log(props: any) {
         .catch((error)=>{
             let apiError = String(error.message);
             setErrorMsg(apiError);
+            setTittleMesaje("Mensaje");
             if(apiError.includes("500")){ //NOTE: Error desconocido
                 setErrorMsg("Error desconocido");
                 setIconModal(DESCONOCIDO[0]);
                 setIconSource(DESCONOCIDO[1]);
+                setTittleMesaje("Error");
             }else if(apiError.includes("interner")){
                 setIconModal(WIFI_OFF[0]);
                 setIconSource(WIFI_OFF[1]);
@@ -228,6 +244,7 @@ export default function Log(props: any) {
                     onChangeText = { ( text ) => {setCURP( text );}}
                     style = {[Styles.inputBachees,{borderWidth: 1 ,borderColor: String(errorUI).includes("C,") ? "red" : "black", padding:10, marginBottom:20 }]} />
                 <DropDownPicker
+                    onPress={ recargarPermisos }
                     placeholder = {"Seleccione un municipio"}
                     items = { arregloMunicipios }
                     open = { pickerAbierto }
@@ -242,6 +259,7 @@ export default function Log(props: any) {
                     selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
                     containerStyle = {{ borderWidth: errorUI.includes("CL,") ? 2 : 0, borderColor:"red", borderRadius:10 }}
                     selectedItemLabelStyle = {{ fontWeight:"bold" }}
+                    language="ES"
                     ></DropDownPicker>
                 </View>
                 <View style = {{ flex:1, paddingLeft:20, paddingRight:20 }} >
@@ -265,7 +283,7 @@ export default function Log(props: any) {
                 tittle="Mensaje"
                 />
             <Message
-                tittle="Mensaje"
+                tittle = { String(tittleMesage) }
                 transparent = {true}
                 buttonText = {"Aceptar"}
                 color = {BlueColor}
@@ -274,7 +292,16 @@ export default function Log(props: any) {
                 loadinColor = {BlueColor}
                 loading = {showMessage} //NOTE: lo mostramos cuando 
                 message = {errorMsg}
-                onCancelLoad={()=>{ setShowMessage(false)}}
+                onCancelLoad={()=>{
+                    if( abrirConfigurarciones ){
+                        setShowMessage(false);
+                        Linking.openSettings();
+                        setLoading(false);
+                        setAbrirConfiguraciones(false);
+                    }else{
+                        setShowMessage(false);
+                    }
+                }}
             />
         </View>);
 }

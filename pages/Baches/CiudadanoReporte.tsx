@@ -575,7 +575,6 @@ export default function Reportar(props: any) {
               if(errorMsg.includes("La apliacion necesita permisos para acceder a la camara"))
                 Linking.openSettings();
             }}
-            
             icon={messageIcon}
             iconsource={FuenteIcono}
             color={BlueColor}
