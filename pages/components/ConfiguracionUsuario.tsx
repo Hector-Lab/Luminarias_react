@@ -20,7 +20,7 @@ export default function Solicitud(props:any ){
     const [ iconMessage, setIconMessage ] = useState(String);
     const [ showMessage, setShowMessage ] = useState(false);
     const [ tipoError, setTipoError ] = useState("Mensaje");
-    const curpError = ["","Favor de revisar la CURP ingresada","Formato de CURP no valido"];
+    const curpError = ["","!Favor de revisar la CURP ingresada¡","!Formato de CURP no válido¡"];
     const [modalVisible, setModalVisible ] = useState(false);
 
     useEffect(() => {

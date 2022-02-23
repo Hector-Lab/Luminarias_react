@@ -36,7 +36,7 @@ export default function CustomMapBaches(props:any){
     const [ mostrarPicker, setMostrarPicker ] = useState(true);
     //NOTE: manejador del picker agregar
     const [ mostrarPickerAgregar , setMostrarPickerAgregar ] = useState( false );
-    const curpError = ["","CURP no valida","Formato de CURP no valido"];
+    const curpError = ["","!CURP no válida¡","!Formato de CURP no válido¡"];
     const storage = new StorageBaches();
     const [ messageTittle, setMessageTittle ] = useState(String);
 
@@ -123,13 +123,12 @@ export default function CustomMapBaches(props:any){
                     let Codificacion = await RegistrarCiudadano(data);
                     if(Codificacion.Code != 200){
                         setIconModal( USER_COG[0] );
-                        setIconSource( USER_COG[1] );
-                        
+                        setIconSource( USER_COG[1] );                        
                         if(Codificacion.Code == 423){
-                            errorMensaje = "La CURP ingresada ya esta en uso";
+                            errorMensaje = "La CURP ingresada ya está en uso";
                         }
                         if(Codificacion.Code == 403){
-                            errorMensaje = "Hubo un problema al registrar el usuario\n Favor de reintentar mas tarde";
+                            errorMensaje = "Hubo un problema al registrar el usuario\n Favor de reintentar más tarde";
                         }else if(Codificacion.Code == 500){
                             setIconModal(DESCONOCIDO[0]);
                             setIconSource(DESCONOCIDO[1]);
@@ -153,7 +152,7 @@ export default function CustomMapBaches(props:any){
                 }else{
                     setIconModal(WIFI_OFF[0]);
                     setIconSource(WIFI_OFF[1]);
-                    setErrorMsg("Sin conexion a interner");
+                    setErrorMsg("Sin acceso a internet");
                     setLoading(false);
                 }
             }else{
@@ -175,7 +174,7 @@ export default function CustomMapBaches(props:any){
                         };
                         await storage.GuardarDatosPersona(estructuraCiudadano);
                         RestaurarDatosModal();
-                        setErrorMsg("Datos Actualizados");
+                        setErrorMsg("Datos actualizados");
                         setIconModal(OK[0]);
                         setIconSource(OK[1]);
                         setShowMessage(true);
@@ -183,7 +182,7 @@ export default function CustomMapBaches(props:any){
                     .catch(( error )=>{
                         let mensaje = String(error.message);
                         if(mensaje == "OK"){
-                            setErrorMsg("Datos Actualizados");
+                            setErrorMsg("Datos actualizados");
                             setIconModal(OK[0]);
                             setIconSource(OK[1]);
                             setShowMessage(true);
@@ -192,7 +191,7 @@ export default function CustomMapBaches(props:any){
                             setIconModal(WIFI_OFF[0]);
                             setIconSource(WIFI_OFF[1]);
                             setShowMessage(true);
-                            setErrorMsg("Sin conexion a interner");
+                            setErrorMsg("Sin acceso a internet");
                         }
                     })
                     .finally(()=>{
@@ -203,7 +202,7 @@ export default function CustomMapBaches(props:any){
                     setIconModal(WIFI_OFF[0]);
                     setIconSource(WIFI_OFF[1]);
                     setShowMessage(true);
-                    setErrorMsg("Sin conexion a interner");
+                    setErrorMsg("Sin acceso a internet");
                     setLoading(false);
                 }
             }
@@ -394,9 +393,6 @@ export default function CustomMapBaches(props:any){
     const mostrarModalSolicitar = () =>{
         setSolicitarDatos(true);
     }
-    const RefrescarDatosCiudadanos = () =>{
-
-    }
     return(
         <ScrollView contentContainerStyle = {{flexGrow:1}} >
             {
@@ -467,14 +463,14 @@ export default function CustomMapBaches(props:any){
                                 editable={tipoBoton}
                                 onChangeText={ text => setMaterno(text)}
                             />
-                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Telefono </Text>
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Teléfono </Text>
                             <TextInput
                                 value = {telefono}
                                 keyboardType="number-pad"
                                 style = {[Styles.inputBachees,{padding:5 , borderWidth: 1 ,borderColor: String(errorUI).includes("T,") ? "red" : "black" }]}
                                 onChangeText={ text => setTelefono(text)}
                             />
-                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Email * </Text>
+                            <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > Email </Text>
                             <TextInput
                                 keyboardType="email-address"
                                 value = {email}

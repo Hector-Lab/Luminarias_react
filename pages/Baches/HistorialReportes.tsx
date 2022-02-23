@@ -51,7 +51,7 @@ export default function HistorialReporte(props: any) {
       let message = String(error.message);
       setReportes([]);
       setLoading(false);
-      if(message.includes("encontrados") ||  message.includes("no tiene registros")){
+      if(message.includes("encontrados") ||  message.includes("Aún no tienes reportes")){
         setShowMessage(false);
         setErrorMensaje("");
       }else if(message.includes("interner")){
@@ -154,7 +154,7 @@ export default function HistorialReporte(props: any) {
       setReportes([]);
       let message = String(error.message);
       setLoading(false);
-      if(message.includes("encontrados") || message.includes("no tiene registros")){
+      if(message.includes("encontrados") || message.includes("No tienes registros")){
         setErrorMensaje("");
         setShowMessage(false);
       }else if(message.includes("interner")){
@@ -210,9 +210,9 @@ export default function HistorialReporte(props: any) {
                 /> : 
                 <View style = {{flex:1, justifyContent:"center"}} >
                     <Icon tvParallaxProperties  name = {ICONLIST[0]} type = {ICONLIST[1]} size = {100}  color = {"white"} ></Icon>
-                    <TextInput editable = {false} style = {{color:"black" ,fontWeight:"bold", textAlign:"center"}} > Aun no tienes Reportes </TextInput>
+                    <TextInput editable = {false} style = {{color:"black" ,fontWeight:"bold", textAlign:"center"}} > Aún no tienes reportes </TextInput>
                     <TouchableOpacity style = {{backgroundColor:PrimaryColor, padding:10, marginLeft:20, marginRight:20, elevation:1}} onPress = { refrescarLista } >
-                      <Text  style = { {textAlign:"center" , color:"white", fontWeight:"bold", elevation:0}}  >Actualizar</Text>
+                      <Text  style = { {textAlign:"center" , color:"white", fontWeight:"bold", elevation:0}} > Actualizar </Text>
                     </TouchableOpacity>
                 </View>
               }  
@@ -220,7 +220,7 @@ export default function HistorialReporte(props: any) {
               transparent = { true }
               loading = {showMessage}
               message = {errorMensaje }
-              buttonText="Aceptar"
+              buttonText = "Aceptar"
               color = {DarkPrimaryColor}
               iconsource = {iconSource}
               icon = {icono}

@@ -1,17 +1,17 @@
-import { Picker } from "@react-native-picker/picker";
 import DropDownPicker from 'react-native-dropdown-picker';
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, TextInput, BackHandler, Linking } from  'react-native';
-import {  Input, Avatar } from 'react-native-elements';
-import { BlueColor, cardColor, DarkPrimaryColor, errorColor } from "../Styles/BachesColor";
+import { View, TouchableOpacity, Text, TextInput, Linking } from  'react-native';
+import { Avatar } from 'react-native-elements';
+import { BlueColor, DarkPrimaryColor } from "../Styles/BachesColor";
 import Styles from "../Styles/BachesStyles";
-import { DESCONOCIDO, USER_COG, WIFI_OFF,LOGINEXIT, SETTINGMENU } from '../Styles/Iconos';
+import { DESCONOCIDO, USER_COG, WIFI_OFF, SETTINGMENU } from '../Styles/Iconos';
 import { checkConnection, CordenadasActualesNumerico, ObtenerDireccionActual, verificarcurp } from "../utilities/utilities";
 import Loading from "./components/modal-loading";
 import Message from "./components/modal-message";
 import { ObtenerMunicipios, RecuperarDatos } from "./controller/api-controller";
 import { StorageBaches } from './controller/storage-controllerBaches';
 import * as Location from 'expo-location';
+import Privacidad from './components/modal-privacidad';
 
 export default function Log(props: any) {
 
@@ -31,54 +31,57 @@ export default function Log(props: any) {
     //INDEV: manejadores del modal
     const [ pickerAbierto, setPickerAbierto ] = useState(false);
     const [abrirConfigurarciones, setAbrirConfiguraciones ] = useState( false );
+    const [ mostrarTerminosCondiciones, setMostrarTerminosConddiciones ] = useState(false);
     //INDEV: verificamos las session y la validez del token
     useEffect(()=>{ props.navigation.addListener('focus', recargarPermisos ) },[]);
-    const recargarPermisos = async ( event ) =>{
-        console.log( JSON.stringify(event) + " Estado");
+        const recargarPermisos = async ( event ) =>{
         setLoading(true);
-            //NOTE: creando las tablas
-            storage.createOpenDB();
-            storage.createTablasBaches();
-            setTimeout( async ()=>{
-            //INDEV: obtenemos la lista de los municipios
-            let ciudadano = await storage.obtenerDatosPersona(); //NOTE: la aplicacion no tiene sessiones, solo necetia la curp de ciudadano
-            if(ciudadano != null){
-                setLoading(false);
-                await storage.setModoPantallaDatos("1");
-                props.navigation.navigate("Reportes");
-            }else{
-                //NOTE: pedimos permisos 
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    setPickerAbierto(false);
-                    setErrorMsg("¡Permisos no concedidos por el usuario!");
-                    setIconModal(SETTINGMENU[0]);
-                    setIconSource(SETTINGMENU[1]);
-                    setShowMessage(true);
-                    setTittleMesaje("¡Advertencia!");
-                    setAbrirConfiguraciones(true);
-                    return;
-                }
-                let coords = await CordenadasActualesNumerico();
-                let jsonUbicacion = await ObtenerDireccionActual(coords);
-                if(jsonUbicacion != null && jsonUbicacion != undefined )
-                {
-                    let ubicacionActual = JSON.parse(jsonUbicacion);
-                    let indicioFormato = "";
-                    if(!String(ubicacionActual.isoCountryCode).includes("MX")){
-                        indicioFormato = "Estado de Mexico";
-                    }else{
-                        indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    }
-                    console.log("Indicio: " + indicioFormato );
-                    Municipios(indicioFormato);
-                }else{
-                    Municipios("");
-                }
-                setLoading(false);
-                
+        let aceptado = await storage.getCondicionesProvacidad();
+        console.log(aceptado);
+        setMostrarTerminosConddiciones(!String(aceptado).includes("OK"));
+        //NOTE: creando las tablas
+        storage.createOpenDB();
+        storage.createTablasBaches();
+        setTimeout( async ()=>{
+        //INDEV: obtenemos la lista de los municipios
+        let ciudadano = await storage.obtenerDatosPersona(); //NOTE: la aplicacion no tiene sessiones, solo necetia la curp de ciudadano
+        if(ciudadano != null){
+            setLoading(false);
+            await storage.setModoPantallaDatos("1");
+            props.navigation.navigate("Reportes");
+        }else{
+            //NOTE: pedimos permisos 
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setPickerAbierto(false);
+                setErrorMsg("¡Permisos no concedidos por el usuario!");
+                setIconModal(SETTINGMENU[0]);
+                setIconSource(SETTINGMENU[1]);
+                setShowMessage(true);
+                setTittleMesaje("¡Advertencia!");
+                setAbrirConfiguraciones(true);
+                return;
             }
-            },500);
+            let coords = await CordenadasActualesNumerico();
+            let jsonUbicacion = await ObtenerDireccionActual(coords);
+            if(jsonUbicacion != null && jsonUbicacion != undefined )
+            {
+                let ubicacionActual = JSON.parse(jsonUbicacion);
+                let indicioFormato = "";
+                if(!String(ubicacionActual.isoCountryCode).includes("MX")){
+                    indicioFormato = "Estado de Mexico";
+                }else{
+                    indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                }
+                console.log("Indicio: " + indicioFormato );
+                Municipios(indicioFormato);
+            }else{
+                Municipios("");
+            }
+            setLoading(false);
+            
+        }
+        },500);
     } 
     const Municipios = async ( indicio:string ) =>{
         let internetAviable = await checkConnection();
@@ -302,6 +305,10 @@ export default function Log(props: any) {
                         setShowMessage(false);
                     }
                 }}
+            />
+            <Privacidad
+                onAccept={()=>{setMostrarTerminosConddiciones(false)}}
+                visible = { mostrarTerminosCondiciones }
             />
         </View>);
 }

@@ -101,4 +101,10 @@ export class StorageBaches {
     async getModoPantallaDatos( ){
         return await AsyncStorage.getItem( root+"TipoPantalla" );
     }
+    async setCondicionesPrivacidad(aceptar:string){
+        await AsyncStorage.setItem( root+"Privacidad" ,aceptar );
+    }
+    async getCondicionesProvacidad( ){
+        return await AsyncStorage.getItem(root+"Privacidad");
+    }
 }

@@ -125,7 +125,7 @@ export default function Reportar(props: any) {
       setMessageIcon(ADDPHOTO[0]);
       setIconSource(ADDPHOTO[1]);
       setHeaderMessage("Mensaje");
-      setErrorMsg("Limite de evidencia alcanzada (Maximo 3)");
+      setErrorMsg("Límite de evidencia alcanzada (Máximo 3)");
       setSHowMessage(true);
     }
   };
@@ -153,7 +153,7 @@ export default function Reportar(props: any) {
           Ciudad: ${DireccionActual.city}
           Colonia: ${DireccionActual.district}
           Calle: ${DireccionActual.street}
-          Codigo Postal: ${DireccionActual.postalCode}
+          Código Postal: ${DireccionActual.postalCode}
           `;
         setDireccionEnviar(
           `${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
@@ -263,7 +263,7 @@ export default function Reportar(props: any) {
         //NOTE: lanzamos un un mensaje de permisos 
         setMessageIcon(CAMERA[0]);
         setFuenteIcono(CAMERA[1]);
-        setErrorMsg("La apliacion necesita permisos para acceder a la camara");
+        setErrorMsg("La aplicación necesita permisos para acceder a la cámara");
         setHeaderMessage("Mensaje");
         setSHowMessage(true);
         setOnCamera(false);
@@ -434,7 +434,7 @@ export default function Reportar(props: any) {
                         multiline = {true}
                         style={ [ { textAlign:"center", fontWeight:"bold", color:"black" }] }
 
-                      >{ `Mi direcciòn` }</TextInput>
+                      >{ `Mi dirección` }</TextInput>
                 </View>
                 <View style = {{flex:1}} >
                   <TextInput 
@@ -444,7 +444,7 @@ export default function Reportar(props: any) {
                     
                     style={ [ Styles.inputBachees ,{ textAlign: existeCiudadano ? "left" : "center", fontWeight:"bold", color: existeCiudadano ? "black" : "red", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5}] }
                   >
-                    { existeCiudadano ? direccion : "Favor de iniciar session" }
+                    { existeCiudadano ? direccion : "Favor de iniciar sesión" }
                   </TextInput>
                 </View>
               </View>
@@ -516,7 +516,7 @@ export default function Reportar(props: any) {
                     color: "white",
                   }}
                   disabled = {!existeCiudadano}
-                  title={" Guardar Reporte"}
+                  title={" Guardar reporte "}
                   buttonStyle={[Styles.btnButtonLoginSuccess]}
                   onPress={verificarDatos}
                 />
@@ -570,7 +570,7 @@ export default function Reportar(props: any) {
             loadinColor={BlueColor}
             onCancelLoad={() => { 
               setSHowMessage(false);
-              if(errorMsg.includes("La apliacion necesita permisos para acceder a la camara"))
+              if(errorMsg.includes("La aplicación necesita permisos para acceder a la cámara"))
                 Linking.openSettings();
             }}
             icon={messageIcon}

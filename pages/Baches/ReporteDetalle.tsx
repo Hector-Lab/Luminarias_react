@@ -194,7 +194,7 @@ export default function DetallesReporte(props:any){
                             <Text
                                 style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
                             >
-                                {`Direccion: ${ Reporte != null ? Reporte.Ubicaci_onEscrita : "" }`}
+                                {`Dirección: ${ Reporte != null ? Reporte.Ubicaci_onEscrita : "" }`}
                             </Text>
                             <Text
                                 style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
@@ -204,28 +204,28 @@ export default function DetallesReporte(props:any){
                             <Text
                                 style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
                             >
-                                {`Fecha del Reporte: ${ Reporte != null ? Reporte.FechaTupla : "" }`}
+                                {`Fecha del reporte: ${ Reporte != null ? Reporte.FechaTupla : "" }`}
                             </Text>
                             {/**Datos del servidor publico */}
                             <Text
                                 style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
                             >
-                                {`Servidor Publico: ${ (Reporte != null ) ? (Reporte.ServidorPublicoNombre != null ? Reporte.ServidorPublicoNombre : "No asignado"  ) : "" }`}
+                                {`Servidor Público: ${ (Reporte != null ) ? (Reporte.ServidorPublicoNombre != null ? Reporte.ServidorPublicoNombre : "No asignado"  ) : "" }`}
                             </Text>
                             <Text
                                 style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
                             >
-                                {`Telefono: ${ Reporte != null ? (Reporte.Telefono != null ? Reporte.Telefono : "No asignado" ) : "No Asignado" }`}
+                                {`Teléfono: ${ Reporte != null ? (Reporte.Telefono != null ? Reporte.Telefono : "No asignado" ) : "No asignado" }`}
                             </Text>
                             <Text
                                 style = {{padding:7, backgroundColor: "white", borderRadius:10, marginTop:10}}
                             >
-                                {`Fecha de Atencion: ${ Reporte != null ? (Reporte.FechaAtendida != null ? ( Reporte.FechaAtendida ):( "Prendiente" )) : "" }`}
+                                {`Fecha de atención: ${ Reporte != null ? (Reporte.FechaAtendida != null ? ( Reporte.FechaAtendida ):( "Pendiente" )) : "" }`}
                             </Text>
                             <Text
                                 style = {{padding:7, backgroundColor:"white", borderRadius:10, marginTop:10}}
                             >
-                                {`Fecha Estimada: ${Reporte != null ? ( Reporte.FechaSolucion != null ? Reporte.FechaSolucion : "Sin asignar" ) : "Pendiente"}`}
+                                {`Fecha estimada: ${Reporte != null ? ( Reporte.FechaSolucion != null ? Reporte.FechaSolucion : "No asignado" ) : "Pendiente"}`}
                             </Text>
                             {
                                 //NOTE: Solo aparece si se rechazo el reporte
@@ -233,12 +233,12 @@ export default function DetallesReporte(props:any){
                                     <Text
                                         style = {{padding:7, backgroundColor:"white", borderRadius:10, marginTop:10}}
                                     >
-                                        {`Fecha de rechazada: ${Reporte != null ? ( Reporte.FechaRechazada != null ? Reporte.FechaRechazada : "No Aplica" ) : "No Aplica"}`}
+                                        {`Fecha de rechazo: ${Reporte != null ? ( Reporte.FechaRechazada != null ? Reporte.FechaRechazada : "No Aplica" ) : "No Aplica"}`}
                                     </Text>
                                     <Text
                                         style = {{padding:7,backgroundColor:"white",borderRadius:10, marginTop:10}}                                        
                                     >
-                                        {`Motivo de rechazo : ${Reporte != null ? (Reporte.MotivoRechazo != null ? Reporte.MotivoRechazo : "No Aplica" ) : "No Aplica"}`}
+                                        {`Motivo de rechazo: ${Reporte != null ? (Reporte.MotivoRechazo != null ? Reporte.MotivoRechazo : "No Aplica" ) : "No Aplica"}`}
                                     </Text>
                                     
                                 </View> : <></>
