@@ -72,6 +72,9 @@ export default function Log(props: any) {
                     indicioFormato = "Estado de Mexico";
                 }else{
                     indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if( !(indicioFormato.includes("Estado de Mexico") || indicioFormato.includes("Guerrero")) ){
+                        indicioFormato = "Estado de Mexico"
+                    }
                 }
                 console.log("Indicio: " + indicioFormato );
                 Municipios(indicioFormato);
