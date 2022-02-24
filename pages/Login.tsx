@@ -79,7 +79,7 @@ export default function Log(props: any) {
                 console.log("Indicio: " + indicioFormato );
                 Municipios(indicioFormato);
             }else{
-                Municipios("");
+                Municipios("Estado de Mexico");
             }
             setLoading(false);
             
