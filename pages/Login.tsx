@@ -73,10 +73,9 @@ export default function Log(props: any) {
                 }else{
                     indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     if( !(indicioFormato.includes("Estado de Mexico") || indicioFormato.includes("Guerrero")) ){
-                        indicioFormato = "Estado de Mexico"
+                        indicioFormato = "Estado de Mexico";
                     }
                 }
-                console.log("Indicio: " + indicioFormato );
                 Municipios(indicioFormato);
             }else{
                 Municipios("Estado de Mexico");
@@ -147,26 +146,51 @@ export default function Log(props: any) {
     const validarDato = async () =>{
         setErrorUI("");
         let error = "";
-        if( CURP == "" ){
-            error += "C,";
+        //INDEV: NOTE: verificamos si la cadena es la del usuario de pruebas
+        if(CURP == "ccL9LxgzD8&!09%ks"){
+            //NOTE: metemos los datos del cliente a la fuarza
+            let estructuraCiudadano = {
+                curp: "RACH950920HGRMNC05",
+                Nombres:"Hector",
+                Paterno: "Ramirez",
+                Materno: "Contreras",
+                Telefono:"6824478158",
+                Email: "AtencionPrueba@gmail.com",
+                Cliente: "56",
+                rfc:"XAXX010101000"
+            };
+            
+            await storage.GuardarDatosPersona(estructuraCiudadano);
+            await storage.guardarIdCiudadano("16");
+            await storage.setModoPantallaDatos("1")
+            .then(()=>{
+                props.navigation.navigate("Reportes");
+            }).catch((error)=>{
+                console.log(error);
+                console.log("Esto es un error");
+            })
         }else{
-            let curpValida = verificarcurp( CURP );
-            if( curpValida != 0 ){
-                setErrorMsg(curpError[curpValida]);
-                error +="C,"
+            if( CURP == "" ){
+                error += "C,";
+            }else{
+                let curpValida = verificarcurp( CURP );
+                if( curpValida != 0 ){
+                    setErrorMsg(curpError[curpValida]);
+                    error +="C,"
+                }
             }
+            if(cliente == -1 ){
+                error += "CL,"
+            }
+            if( error != "" ){
+                setErrorMsg("Mensaje");
+                setIconModal(USER_COG[0]);
+                setIconSource(USER_COG[1]);
+                setErrorMsg("Favor de revisar los datos requeridos");
+                setShowMessage(true);
+            }
+            error == "" ? AutentificarUsuario() : setErrorUI(error);
         }
-        if(cliente == -1 ){
-            error += "CL,"
-        }
-        if( error != "" ){
-            setErrorMsg("Mensaje");
-            setIconModal(USER_COG[0]);
-            setIconSource(USER_COG[1]);
-            setErrorMsg("Favor de revisar los datos requeridos");
-            setShowMessage(true);
-        }
-        error == "" ? AutentificarUsuario() : setErrorUI(error);
     }
     const AutentificarUsuario = async () =>{
         //FIXME: validar los campos 

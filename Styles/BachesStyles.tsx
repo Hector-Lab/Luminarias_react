@@ -53,8 +53,6 @@ const Styles = StyleSheet.create({
       },
       cardContainer: {
         flex:1,
-        borderRadius:10,
-        elevation:2,
         padding:15
       },
       bachesCard: {

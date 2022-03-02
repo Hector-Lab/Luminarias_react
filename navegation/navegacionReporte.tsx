@@ -32,7 +32,13 @@ const NavegacionBaches = () =>{
           tabBarOptions={{
               activeTintColor: "#f8bb68",
               inactiveTintColor: cardColor,
-              tabStyle: {backgroundColor:PrimaryColor}
+              tabStyle: {backgroundColor:PrimaryColor},
+              safeAreaInsets:{
+                top:0,
+                bottom:0,
+                left:0,
+                right:0
+              }
             }}
             >
               <Tab.Screen name = "Mis Datos" component = {StackCiudadano } ></Tab.Screen>

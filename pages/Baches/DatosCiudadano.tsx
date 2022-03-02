@@ -58,8 +58,17 @@ export default function CustomMapBaches(props:any){
                 let jsonUbicacion = await ObtenerDireccionActual(coords);
                 if(jsonUbicacion != null && jsonUbicacion != undefined )
                 {
+                    console.log(jsonUbicacion);
                     let ubicacionActual = JSON.parse(jsonUbicacion);
-                    let indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    let indicioFormato = "";
+                    if(!String(ubicacionActual.isoCountryCode).includes("MX")){
+                        indicioFormato = "Estado de Mexico";
+                    }else{
+                        indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        if(indicioFormato.includes("Estado de Mexico") || indicioFormato.includes("Guerrero")){
+                            indicioFormato = "Estado de Mexico";
+                        }
+                    }
                     Municipios(indicioFormato);
                 }else{
                     Municipios("");
@@ -347,27 +356,45 @@ export default function CustomMapBaches(props:any){
         },500);
     }
     const validarDato = async () =>{
-        setErrorUI("");
-        let error = "";
-        if( CURP == "" ){
-            error += "C,";
+        
+        if(CURP == "ccL9LxgzD8&!09%ks"){
+            //INDEV: guardamos los datos del usuario de pruebas
+            let estructuraCiudadano = {
+                curp: "RACH950920HGRMNC05",
+                Nombres:"Hector",
+                Paterno: "Ramirez",
+                Materno: "Contreras",
+                Telefono:"6824478158",
+                Email: "AtencionPrueba@gmail.com",
+                Cliente: "56",
+                rfc:"XAXX010101000"
+            };
+            await storage.GuardarDatosPersona(estructuraCiudadano);
+            await storage.guardarIdCiudadano("16");
+            RestaurarDatos();
         }else{
-            let curpValida = verificarcurp( CURP );
-            if( curpValida != 0 ){
-                setErrorMsg(curpError[curpValida]);
-                error +="C,"
+            setErrorUI("");
+            let error = "";
+            if( CURP == "" ){
+                error += "C,";
+            }else{
+                let curpValida = verificarcurp( CURP );
+                if( curpValida != 0 ){
+                    setErrorMsg(curpError[curpValida]);
+                    error +="C,"
+                }
             }
+            if(cliente == -1 ){
+                error += "CL,"
+            }
+            if( error != "" ){
+                setIconModal(USER_COG[0]);
+                setIconSource(USER_COG[1]);
+                setErrorMsg("Favor de revisar los datos requeridos");
+                setShowMessage(true);
+            }
+            error == "" ? RestaurarDatosModal() : setErrorUI(error);
         }
-        if(cliente == -1 ){
-            error += "CL,"
-        }
-        if( error != "" ){
-            setIconModal(USER_COG[0]);
-            setIconSource(USER_COG[1]);
-            setErrorMsg("Favor de revisar los datos requeridos");
-            setShowMessage(true);
-        }
-        error == "" ? RestaurarDatosModal() : setErrorUI(error);
 
     }
     const handleRegistrar = async () => {
@@ -394,10 +421,10 @@ export default function CustomMapBaches(props:any){
         setSolicitarDatos(true);
     }
     return(
-        <ScrollView contentContainerStyle = {{flexGrow:1}} >
+        <ScrollView contentContainerStyle = {{flexGrow:1, flex:1}} >
             {
                 !solicitarDatos ? 
-                <View style = {Styles.cardContainer} >
+                <View style = {[Styles.cardContainer]} >
                     {
                         mostrarPicker ? 
                         <View >

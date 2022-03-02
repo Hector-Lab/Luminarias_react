@@ -10,7 +10,7 @@ const Stack = createStackNavigator();
 function Nav() {
     return(
         <SafeAreaView style = {{flex:1}} >
-            <StatusBar barStyle = {"light-content"} animated = {true} />
+            <StatusBar barStyle = {"light-content"} />
             <NavigationContainer independent = {true}  >
                 <Stack.Navigator  screenOptions ={ 
                     { headerTintColor:"white" } } >
@@ -25,7 +25,7 @@ function Nav() {
                     <Stack.Screen name='Reportes'
                     options={({navigation, route}) => ({
                             title: "Atencion Ciudadana",
-                            headerLeft: (props) => (<HeaderBackButton {...props} onPress={() => navigation.navigate("Reportes") }  />),
+                             headerLeft: (props) => null, //(<HeaderBackButton {...props} onPress={() => navigation.navigate("Reportes") } />),
                             headerTitleAlign:"center",
                             headerTintColor:"#000000",
                     })} >
