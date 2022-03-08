@@ -421,7 +421,7 @@ export default function CustomMapBaches(props:any){
         setSolicitarDatos(true);
     }
     return(
-        <ScrollView contentContainerStyle = {{flexGrow:1, flex:1}} >
+        <ScrollView contentContainerStyle = { { flexGrow:1 } } >
             {
                 !solicitarDatos ? 
                 <View style = {[Styles.cardContainer]} >
@@ -538,7 +538,7 @@ export default function CustomMapBaches(props:any){
                                 imageProps={ {resizeMode:"contain"} }
                                 size = "xlarge"
                                 containerStyle = {{height:120,width:220}}
-                                source = {require("../../assets/banner.png")} //FIXME: se puede cambiar por el logo de mexico
+                                source = {require("../../assets/banner.png")} //FIXED: se puede cambiar por el logo de mexico
                             />
                         </View>
                     </View>

@@ -427,27 +427,6 @@ export default function Reportar(props: any) {
                     placeholder = {"Seleccione Tema"}
                   />
               </View>
-              <View style = {{flex:4}} >
-                <View style = {{flex:1,justifyContent:"center", alignContent:"center"}} >
-                  <TextInput
-                        editable = { false }
-                        multiline = {true}
-                        style={ [ { textAlign:"center", fontWeight:"bold", color:"black" }] }
-
-                      >{ `Mi dirección` }</TextInput>
-                </View>
-                <View style = {{flex:1}} >
-                  <TextInput 
-                    editable = {false}
-                    multiline = {true}
-                    numberOfLines={5}
-                    
-                    style={ [ Styles.inputBachees ,{ textAlign: existeCiudadano ? "left" : "center", fontWeight:"bold", color: existeCiudadano ? "black" : "red", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5}] }
-                  >
-                    { existeCiudadano ? direccion : "Favor de iniciar sesión" }
-                  </TextInput>
-                </View>
-              </View>
               <View style = {{ flex:4 }}>
               <Carousel
                 sliderWidth={screenWidth}
@@ -459,6 +438,30 @@ export default function Reportar(props: any) {
                 hasParallaxImages={true}
             />
               </View>
+              {
+                arrayImageEncode.length > 0 ? 
+                <View style = {{flex:4}} >
+                  <View style = {{flex:1,justifyContent:"center", alignContent:"center"}} >
+                    <TextInput
+                          editable = { false }
+                          multiline = {true}
+                          style={ [ { textAlign:"center", fontWeight:"bold", color:"black" }] }
+
+                        >{ `` }</TextInput>
+                  </View>
+                  <View style = {{flex:1}} >
+                    <TextInput 
+                      editable = {false}
+                      multiline = {true}
+                      numberOfLines={5}
+                      style={ [ Styles.inputBachees ,{ textAlign: existeCiudadano ? "left" : "center", fontWeight:"bold", color: existeCiudadano ? "black" : "red", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5}] }
+                    >
+                      { existeCiudadano ? direccion : "Favor de iniciar sesión" }
+                    </TextInput>
+                  </View>
+                </View> : <></>
+              }
+
               <View style = {{paddingLeft:20, paddingRight:20}} >
               <Button
                   disabled = {!existeCiudadano}
@@ -516,7 +519,7 @@ export default function Reportar(props: any) {
                     color: "white",
                   }}
                   disabled = {!existeCiudadano}
-                  title={" Guardar reporte "}
+                  title={" Guardar"}
                   buttonStyle={[Styles.btnButtonLoginSuccess]}
                   onPress={verificarDatos}
                 />

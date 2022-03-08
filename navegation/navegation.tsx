@@ -24,7 +24,7 @@ function Nav() {
                     </Stack.Screen>  
                     <Stack.Screen name='Reportes'
                     options={({navigation, route}) => ({
-                            title: "Atencion Ciudadana",
+                            title: "Atención Ciudadana",
                              headerLeft: (props) => null, //(<HeaderBackButton {...props} onPress={() => navigation.navigate("Reportes") } />),
                             headerTitleAlign:"center",
                             headerTintColor:"#000000",

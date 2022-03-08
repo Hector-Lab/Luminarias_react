@@ -180,6 +180,7 @@ export async function RefrescarReporte (reporte: string){
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
+    console.log(message);
     if(message.includes("Usuario")){
         return userNotFound;
     }else{

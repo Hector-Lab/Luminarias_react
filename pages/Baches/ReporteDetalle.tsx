@@ -153,7 +153,7 @@ export default function DetallesReporte(props:any){
     }
     return(
         <SafeAreaView style = {{flexGrow:1, padding:5, elevation:5 }}>
-            <View style = {{flex:1, justifyContent:"center" }} >
+            <View style = {{flex:2, justifyContent:"center" }} >
                 <View style = {{ flex:1, justifyContent:"center", flexDirection:"row" }} >
                     <View style = {{ flex:1, alignItems:"center",justifyContent:"center"}} >
                         <Pressable style = {{backgroundColor:BlueColor, borderRadius:5}} onPress = { RetrocesoReporte } >
@@ -169,7 +169,7 @@ export default function DetallesReporte(props:any){
                     </View>
                 </View>
             </View>
-            <View style = {{ flex: 10 }} >
+            <View style = {{ flex: 14 }} >
                 <ScrollView style = {{ flexGrow:1, borderRadius:5, backgroundColor: cardColor }} >
                     <View style = {{flex:1, flexDirection:"column", margin:20, backgroundColor:"white", borderRadius:10}} >
                         <TextInput editable = {false} style = {[Styles.directionTittleColor, {fontWeight:"bold", color:"black"}]}>Descripción</TextInput>
@@ -248,7 +248,7 @@ export default function DetallesReporte(props:any){
                     </View>
                 </ScrollView>
             </View>
-            <View style = {{flex:1,flexDirection:"row", marginTop:10, justifyContent:"center"}} >
+            <View style = {{flex:2,flexDirection:"row", marginTop:10, justifyContent:"center"}} >
                 <Button 
                     disabled = { evidenciaBloque }
                     icon={{

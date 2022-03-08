@@ -2,7 +2,7 @@
   "expo": {
     "name": "Atencion Ciudadana",
     "slug": "AtencionCiudadana",
-    "version": "2.1.2",
+    "version": "2.1.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -24,7 +24,7 @@
       "bundleIdentifier": "com.atencionCiudadana.suinpac"
     },
     "android": {
-      "versionCode": 2,
+      "versionCode": 4,
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
