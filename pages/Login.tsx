@@ -22,7 +22,7 @@ export default function Log(props: any) {
     const [errorUI,  setErrorUI ] = useState("");
     const curpError = ["","CURP no valida","Formato de CURP no valido"];
     const [ errorMsg, setErrorMsg] = useState(String);
-    const [cliente, setCliente ] = useState( -1 );
+    const [cliente, setCliente ] = useState( 29 );
     const [ iconModal, setIconModal ] = useState(String);
     const [ iconSource, setIconSource ] = useState(String);
     const [ showMessage, setShowMessage ] = useState(false);
@@ -62,86 +62,10 @@ export default function Log(props: any) {
                 setAbrirConfiguraciones(true);
                 return;
             }
-            let coords = await CordenadasActualesNumerico();
-            let jsonUbicacion = await ObtenerDireccionActual(coords);
-            if(jsonUbicacion != null && jsonUbicacion != undefined )
-            {
-                let ubicacionActual = JSON.parse(jsonUbicacion);
-                let indicioFormato = "";
-                if(!String(ubicacionActual.isoCountryCode).includes("MX")){
-                    indicioFormato = "Estado de Mexico";
-                }else{
-                    indicioFormato = String(ubicacionActual.region).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    if( !(indicioFormato.includes("Estado de Mexico") || indicioFormato.includes("Guerrero")) ){
-                        indicioFormato = "Estado de Mexico";
-                    }
-                }
-                Municipios(indicioFormato);
-            }else{
-                Municipios("Estado de Mexico");
-            }
             setLoading(false);
             
         }
         },500);
-    } 
-    const Municipios = async ( indicio:string ) =>{
-        let internetAviable = await checkConnection();
-        if(internetAviable){
-            await storage.LimpiarTabla("CatalogoClientes");
-            //NOTE: Obtenemos los datos desde la API, limpiamoa la tabla e insertamos los datos
-            await ObtenerMunicipios()
-            .then( async ( listaMunicipio )=>{
-                let municipiosAuxiliar = [];
-                listaMunicipio.map((item,index)=>{
-                    let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                        let itemPicker = { 
-                            label: item.Municipio , 
-                            value: item.id,
-                        };
-                        municipiosAuxiliar.push(itemPicker);
-                    }
-                })
-                setArregloMunicipios(municipiosAuxiliar);
-                await storage.InsertarMunicipios(listaMunicipio);
-            }).catch((error)=>{
-                setErrorMsg(error.message);
-                setTittleMesaje("Mensaje");
-                setIconModal(WIFI_OFF[0]);
-                setIconSource(WIFI_OFF[1]);
-                if(String(error.message).includes("internet")){
-                    setIconModal(WIFI_OFF[0]);
-                    setIconSource(WIFI_OFF[1]);
-                }
-                setShowMessage(true);
-            })
-        }else{
-            //NOTE: Obtenemos los desde la db
-            await storage.ObtenerMunicipiosDB()
-            .then( async (listaMunicipio)=>{
-                let municipiosAuxiliar = [];
-                listaMunicipio.map((item,index)=>{
-                    let municipioFormato = String(item.Municipio).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    if(municipioFormato.includes(indicio) || indicio.includes(String(item.Nombre))){
-                        let itemPicker = { 
-                            label: item.Municipio , 
-                            value: item.id,
-                        };
-                        municipiosAuxiliar.push(itemPicker);
-                    }
-                });
-                setArregloMunicipios(municipiosAuxiliar);
-            })
-            .catch( (erro) => {
-                console.log(erro);
-                setErrorMsg("!Error al obtener lista de municipios¡\nFavor de intentar más tarde");
-                setTittleMesaje("Error");
-                setIconModal(DESCONOCIDO[0]);
-                setIconSource(DESCONOCIDO[1]);
-                setShowMessage(true);
-            });
-        }
     } 
     const validarDato = async () =>{
         setErrorUI("");
@@ -261,38 +185,20 @@ export default function Log(props: any) {
                     rounded
                     imageProps={ {resizeMode:"contain"} }
                     size = "xlarge"
-                    containerStyle = {{height:120,width:220}}
+                    containerStyle = {{height:180,width:300}}
                     source = {require("../assets/banner.png")} //FIXME: se puede cambiar por el logo de mexico
                 />
             </View>
             {/** Datos de entrada */}
-            <View style = {{flex:1, paddingLeft:20, paddingRight:20, justifyContent:"flex-end", marginBottom:20 }} >
+            <View style = {{flex:1, paddingLeft:20, paddingRight:20, justifyContent:"flex-end", marginBottom:20}} >
                 <TextInput
                     placeholder = {"CURP"} 
                     autoCapitalize="characters"
                     maxLength={ 18 }
                     onChangeText = { ( text ) => {setCURP( text );}}
                     style = {[Styles.inputBachees,{borderWidth: 1 ,borderColor: String(errorUI).includes("C,") ? "red" : "black", padding:10, marginBottom:20 }]} />
-                <DropDownPicker
-                    onPress={ recargarPermisos }
-                    placeholder = {"Seleccione un municipio"}
-                    items = { arregloMunicipios }
-                    open = { pickerAbierto }
-                    setOpen = {setPickerAbierto}
-                    setValue = { setCliente }
-                    value = {cliente}
-                    min =  {10}
-                    max = {15}
-                    listMode = { "MODAL" }
-                    listItemContainerStyle = {{padding:10}}
-                    itemSeparator = {true}
-                    selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
-                    containerStyle = {{ borderWidth: errorUI.includes("CL,") ? 2 : 0, borderColor:"red", borderRadius:10 }}
-                    selectedItemLabelStyle = {{ fontWeight:"bold" }}
-                    language="ES"
-                    ></DropDownPicker>
                 </View>
-                <View style = {{ flex:1, paddingLeft:20, paddingRight:20 }} >
+                <View style = {{ flex:2, paddingLeft:20, paddingRight:20  }}  >
                     <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress = {validarDato} >
                         <Text style = {{color:"white"}}> Iniciar Sesión </Text>
                     </TouchableOpacity>

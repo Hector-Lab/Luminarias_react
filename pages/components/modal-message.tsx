@@ -37,7 +37,7 @@ export default class Message extends React.Component<
                                 tvParallaxProperties
                                     type = {this.props.iconsource}
                                     name = {this.props.icon}
-                                    color = {this.props.loadinColor}
+                                    color = {"#d9764c"}
                                     size = {50}
                                 />
                             <View style = {styles.mensajeConteiner}>

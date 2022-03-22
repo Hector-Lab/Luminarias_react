@@ -91,13 +91,15 @@ export default function Reportar(props: any) {
       let { status } = await Location.requestForegroundPermissionsAsync();
       await CatalogoSolicitud()
       .then((arrayAreasSolicitud)=>{
-        dataListSolicitudes = arrayAreasSolicitud.map((elemento)=>{
-          return  { 
-            label: elemento.descripci_on , 
-            value: elemento.id,
-            key: elemento.id
-          };    
-        })
+        if(arrayAreasSolicitud != undefined ){
+          dataListSolicitudes = arrayAreasSolicitud.map((elemento)=>{
+            return  { 
+              label: elemento.descripci_on , 
+              value: elemento.id,
+              key: elemento.id
+            };
+          })
+        }
         setCatalogoSolicitud(dataListSolicitudes);
         if (status !== "granted") {
           setErrorMsg("Permisos negados");
@@ -251,6 +253,7 @@ export default function Reportar(props: any) {
     setArrayImageEncode([]);
     setReferencia("");
     setObservaciones("");
+    setErrorUi("");
   };
   const solicitarPermisosCamara = async () => {
     //NOTE: pedir Persmisos antes de lanzar la camara
@@ -489,7 +492,7 @@ export default function Reportar(props: any) {
                     numberOfLines={2}
                     style={[
                       Styles.inputBachees,
-                      errorUi.includes("R,") ? Styles.errorDatos : {},]}
+                      errorUi.includes("R,") ? Styles.errorDatos : {},{paddingLeft:5}]}
                     ></TextInput>
                 </View>
                 <View style = {{ paddingLeft:25, paddingRight:25 }} >
@@ -504,7 +507,7 @@ export default function Reportar(props: any) {
                       numberOfLines={5}
                       style={[
                         Styles.inputBachees,
-                        errorUi.includes("D,") ? Styles.errorDatos : {},
+                        errorUi.includes("D,") ? Styles.errorDatos : {},{paddingLeft:5}
                       ]}
                     ></TextInput>
                 </View>

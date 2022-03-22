@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Atencion Ciudadana",
-    "slug": "AtencionCiudadana",
-    "version": "2.1.3",
+    "name": "Atencion Ciudadana Zihuatanejo",
+    "slug": "AtencionZihua",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -21,17 +21,17 @@
       "config": {
         "googleMapsApiKey": "AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
       },
-      "bundleIdentifier": "com.atencionCiudadana.suinpac"
+      "bundleIdentifier": "com.AtencionZihua.suinpac"
     },
     "android": {
-      "versionCode": 4,
+      "versionCode": 1,
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "permissions": ["ACCESS_COARSE_LOCATION","ACCESS_FINE_LOCATION","CAMERA"],
-      "package": "com.atencionCiudadana.suinpac",
+      "package": "com.AtencionZihua.suinpac",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"

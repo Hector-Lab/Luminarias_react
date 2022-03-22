@@ -6,8 +6,6 @@ import { Avatar, Icon } from 'react-native-elements'
 import { BlueColor, DarkPrimaryColor, cardColor, buttonSuccess } from '../../Styles/BachesColor';
 import { ScrollView } from "react-native-gesture-handler";
 import { StorageBaches } from '../controller/storage-controllerBaches';
-import { Picker } from "@react-native-picker/picker";
-import DropDownPicker from 'react-native-dropdown-picker';
 import { ObtenerMunicipios, RegistrarCiudadano, RecuperarDatos, editarDatosCiudadano } from '../controller/api-controller';
 import { checkConnection, CordenadasActualesNumerico,ObtenerDireccionActual, verificarcurp , rfcValido } from '../../utilities/utilities';
 import  * as Location from 'expo-location';
@@ -26,16 +24,14 @@ export default function CustomMapBaches(props:any){
     const [ errorUI, setErrorUI] = useState(String);
     const [ errorMsg,setErrorMsg ] = useState(String);
     const [ arregloMunicipios, setArregloMunicipios ] = useState([]);
-    const [ cliente, setCliente ] = useState(-1);
+    const [ cliente, setCliente ] = useState( 29 );
     const [ showMessage, setShowMessage ] = useState(false);
     const [ solicitarDatos, setSolicitarDatos ] = useState(false);
     const [ loading, setLoading ] = useState(false);
     const [ iconModal, setIconModal ] = useState("info");
     const [ tipoBoton , setTipoBoton ] = useState(true); // NOTE: true - Agregar, false - Editar
     const [ iconSource, setIconSource ] = useState("");
-    const [ mostrarPicker, setMostrarPicker ] = useState(true);
     //NOTE: manejador del picker agregar
-    const [ mostrarPickerAgregar , setMostrarPickerAgregar ] = useState( false );
     const curpError = ["","!CURP no válida¡","!Formato de CURP no válido¡"];
     const storage = new StorageBaches();
     const [ messageTittle, setMessageTittle ] = useState(String);
@@ -153,7 +149,6 @@ export default function CustomMapBaches(props:any){
                         setIconSource(OK[1]);
                         setShowMessage(true);
                         //NOTE: mostramos los datos
-                        setMostrarPicker(false);
                         RestaurarDatos();
 
                     }
@@ -293,9 +288,6 @@ export default function CustomMapBaches(props:any){
                 setEmail(datos['Email']);
                 setSolicitarDatos(false);
                 setLoading(false);
-                setMostrarPicker(false);
-                //INDEV:
-                
             }else{
                 setTipoBoton(true);
                 setLoading(false);
@@ -352,7 +344,6 @@ export default function CustomMapBaches(props:any){
         setTimeout(()=>{
             setLoading(false);
             setSolicitarDatos(true);
-            setMostrarPicker(true);
         },500);
     }
     const validarDato = async () =>{
@@ -401,7 +392,6 @@ export default function CustomMapBaches(props:any){
         setErrorUI("");
         setSolicitarDatos(false); 
         setLoading(false);
-        setMostrarPicker(true);
         setTipoBoton(true);
     }
     const limpiarDatosPantalla = async() =>{
@@ -425,28 +415,6 @@ export default function CustomMapBaches(props:any){
             {
                 !solicitarDatos ? 
                 <View style = {[Styles.cardContainer]} >
-                    {
-                        mostrarPicker ? 
-                        <View >
-                        <DropDownPicker
-                            language="ES"
-                            placeholder = {"Seleccione un municipio"}
-                            items = { arregloMunicipios }
-                            open = { mostrarPickerAgregar }
-                            setOpen = { setMostrarPickerAgregar }
-                            setValue = { setCliente }
-                            value = {cliente}
-                            min =  {10}
-                            max = {15}
-                            listMode = {"MODAL"}
-                            listItemContainerStyle = {{padding:10}}
-                            itemSeparator = {true}
-                            selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
-                            selectedItemLabelStyle = {{ fontWeight:"bold" }}
-                            containerStyle = {{ borderWidth: errorUI.includes("CL,") ? 3 : 0, borderColor:"red", borderRadius:10 }}
-                            ></DropDownPicker>
-                        </View> : <></>
-                    }
                     <View style = {{flex: 5, marginRight:20, marginLeft:20}}>
                             <Text style = {{marginBottom:-5, color:"gray", fontWeight:"bold"}} > CURP </Text>
                             <TextInput
@@ -527,24 +495,24 @@ export default function CustomMapBaches(props:any){
                     </View>
             </View>
             :
-            <Modal style = {{flex:1 }}  visible = {solicitarDatos} animationType = {"fade"} >
+            <Modal style = {{flex:1, justifyContent:"space-around" }}  visible = {solicitarDatos} animationType = {"fade"} >
                 <ScrollView style = {{flexGrow:1, marginTop:50}} >
                     <View style = {{ flexDirection:"column"}} >
                         {/**NOTE: cabecera de la pagina logo de suinpac o del municipio */}
                         <View style={[Styles.avatarView,{flex:3}]}>
-                        <View style={Styles.avatarElement}>
-                            <Avatar 
-                                rounded
-                                imageProps={ {resizeMode:"contain"} }
-                                size = "xlarge"
-                                containerStyle = {{height:120,width:220}}
-                                source = {require("../../assets/banner.png")} //FIXED: se puede cambiar por el logo de mexico
-                            />
+                            <View style={[Styles.avatarElement]}>
+                                <Avatar 
+                                    rounded
+                                    imageProps={ {resizeMode:"contain"} }
+                                    size = "xlarge"
+                                    containerStyle = {{height:180,width:300}}
+                                    source = {require("../../assets/banner.png")} //FIXED: se puede cambiar por el logo de mexico
+                                />
+                            </View>
                         </View>
-                    </View>
                         {/**NOTE: contenido prinpal de la pagina */}
-                        <View style = {[{flex:8}]} >
-                            <View style = {{marginTop:50, padding:20}} >
+                        <View style = {[{ flex:8 }]} >
+                            <View style = {{marginTop:50, paddingLeft:20, paddingRight:20,paddingBottom: 10 }} >
                                 <TextInput
                                     placeholder = {"CURP"} 
                                     autoCapitalize="characters"
@@ -552,26 +520,9 @@ export default function CustomMapBaches(props:any){
                                     maxLength={ 18 }
                                     style = {[Styles.inputBachees, {padding: 5 ,borderWidth: 1 ,borderColor: String(errorUI).includes("C,") ? "red" : "black" }] } />
                                 <View >
-                                    <DropDownPicker
-                                        language="ES"
-                                        placeholder = {"Seleccione un municipio"}
-                                        items = { arregloMunicipios }
-                                        open = { mostrarPickerAgregar }
-                                        setOpen = { setMostrarPickerAgregar }
-                                        setValue = { setCliente }
-                                        value = {cliente}
-                                        min =  {10}
-                                        max = {15}
-                                        listMode = {"MODAL"}
-                                        listItemContainerStyle = {{padding:10}}
-                                        itemSeparator = {true}
-                                        selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
-                                        containerStyle = {{ borderWidth: errorUI.includes("CL,") ? 3 : 0, borderColor:"red", borderRadius:10 }}
-                                        selectedItemLabelStyle = {{ fontWeight:"bold" }}
-                                        ></DropDownPicker>
                                 </View>
                             </View>
-                            <View style = {{flex: 1, padding:20  }} >
+                            <View style = {{flex: 1, paddingRight: 20, paddingLeft: 20, paddingBottom:20  }} >
                                 <TouchableOpacity style = {Styles.btnButtonLoginSuccess} onPress={ validarDato } >
                                     <Text style = {{color:"white"}}> Iniciar Sesión </Text>
                                 </TouchableOpacity>
