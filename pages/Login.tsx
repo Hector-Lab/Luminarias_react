@@ -190,7 +190,7 @@ export default function Log(props: any) {
                 />
             </View>
             {/** Datos de entrada */}
-            <View style = {{flex:1, paddingLeft:20, paddingRight:20, justifyContent:"flex-end", marginBottom:20}} >
+            <View style = {{flex:1, paddingLeft:20, paddingRight:20, justifyContent:"flex-end"}} >
                 <TextInput
                     placeholder = {"CURP"} 
                     autoCapitalize="characters"
