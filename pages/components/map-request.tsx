@@ -23,7 +23,7 @@ export default function MyLocation(props:any ){
                                         
                                         title = { "Codigo: " + props.Reporte.Codigo}
                                         description = {` Estado:  ${estatusLetra[parseInt(props.Reporte.Estatus) - 1].Nombre}`}
-                           r             coordinate={{"latitude":props.region.latitude,"longitude":props.region.longitude}}/>
+                                        coordinate={{"latitude":props.region.latitude,"longitude":props.region.longitude}}/>
                                 </View>
                             ) : <></>
                         }

@@ -5,10 +5,11 @@ import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack'
 import Home from '../pages/Login';
 import BachesHome from '../pages/Baches/home';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ReporteC4 from '../pages/Baches/ReporteC4';
 
 const Stack = createStackNavigator();
 function Nav() {
-    return(
+    return( 
         <SafeAreaView style = {{flex:1}} >
             <StatusBar barStyle = {"light-content"} />
             <NavigationContainer independent = {true}  >
@@ -31,6 +32,16 @@ function Nav() {
                     })} >
                         {props => <BachesHome  {...props} ></BachesHome>}
                     </Stack.Screen>
+                    <Stack.Screen name='ReporteC4'
+                    options={({navigation, route}) => ({
+                            title: "ReporteC4",
+                             headerLeft: (props) => null, //(<HeaderBackButton {...props} onPress={() => navigation.navigate("Reportes") } />),
+                            headerTitleAlign:"center",
+                            headerTintColor:"#000000",
+                    })} >
+                        {props => <ReporteC4  {...props} ></ReporteC4>}
+                    </Stack.Screen>
+
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaView>

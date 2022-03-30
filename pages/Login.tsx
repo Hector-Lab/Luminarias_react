@@ -252,6 +252,11 @@ export default function Log(props: any) {
         setIconModal(nombreIcono);
         setTittleMesaje(titulo)
         setShowMessage(true);
+    } 
+
+
+    const NavegarReporteC4 = ()=>{
+        props.navigation.navigate("ReporteC4"); 
     }
     return(
         <View style = {{flex:1 , flexDirection:"column", backgroundColor:"#ffffff"}} >
@@ -301,6 +306,22 @@ export default function Log(props: any) {
                         <Text style = {{color: DarkPrimaryColor , fontWeight:"bold",  }}> Regístrame </Text>
                     </TouchableOpacity>
                 </View>
+
+                <View style = {{flex:1 , flexDirection:"column", backgroundColor:"#ffffff"}} >
+                    <View style = {{flex:1, justifyContent:"center",  alignItems:"center"}} >
+                    <TouchableOpacity onPress={NavegarReporteC4}>    
+                        <Avatar
+                            avatarStyle={{ }}
+                            rounded
+                            imageProps={ {resizeMode:"contain"} }
+                            size = "xlarge"
+                            containerStyle = {{height:120,width:220}}
+                            source = {require("../assets/LogoC4.jpeg")} 
+                        />
+                    </TouchableOpacity>
+                    </View>
+                </View>
+
                 <View style = {{flex:1, justifyContent:"flex-end", alignItems:"center"}} >
                     <Text style = {{color: DarkPrimaryColor , fontWeight:"bold", marginBottom:5 }}> Suinpac </Text>
                 </View>
@@ -338,4 +359,5 @@ export default function Log(props: any) {
                 visible = { mostrarTerminosCondiciones }
             />
         </View>);
+        
 }
