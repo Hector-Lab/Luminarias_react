@@ -19,3 +19,4 @@ export const ADDLUMIN = ['more-time','material'];
 export const LOGINEXIT = ['watch-later','material'];
 export const ICONLIST = ['receipt-long','material'];
 export const APPSETTINGS = ['settings-applications','material'];
+export const PREVIEW = ['collections','material'];

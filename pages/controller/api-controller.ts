@@ -177,6 +177,21 @@ export async function RefrescarReporte (reporte: string){
         throw verificarErrores(error);
     }
 }
+export async function GuardarReporteC4(Reporte:any) {
+    try{
+        let jsonReport = await service.insertarReporteC4(Reporte);
+        let reportData = await jsonReport.json();
+        if( reportData.Code == 200 ){
+            
+        }if(reportData.Code == 223) {
+
+        }
+    }catch( error ){
+        console.log(error);
+    }
+}
+
+
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;

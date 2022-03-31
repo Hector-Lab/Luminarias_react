@@ -9,6 +9,7 @@ const { width: viewportWidth, height: viewportHeight } = Dimensions.get('window'
 
 export default class Evidencias extends React.Component<
 {   
+    local: boolean,
     transparente:boolean,
     visible: boolean,
     reference: any,
@@ -18,7 +19,7 @@ export default class Evidencias extends React.Component<
     onButtonPress: any,
     activeIndex: any,
     arrayLength: number,
-    activeIndexFunction: Function
+    activeIndexFunction: Function,
 }>{
   //INDEV: agregar la vista de la evidencia
     render(){

@@ -2,6 +2,9 @@ import { Dimensions, StyleSheet } from "react-native";
 import { SuinpacRed, BackgrounBlue } from "./Color";
 import { buttonSuccess,cardColor,BlueColor, DarkPrimaryColor } from './BachesColor';
 const Styles = StyleSheet.create({
+    errorCamposBaches: {
+      borderColor:"red"
+    },
     inputs: {
         marginTop: 10,
         backgroundColor:cardColor+45
