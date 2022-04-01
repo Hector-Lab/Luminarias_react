@@ -18,6 +18,9 @@ const ErrorSinAreas = new Error("¡El municipio no cuenta con temas disponibles!
 const ErrorAreas = new Error("¡Hubo un problema al obtener la lista de temas!");
 const ErrorDatos = new Error("¡Favor de ingresar los datos requeridos!");
 const noAutizado = new Error("¡El servicio aún no está disponible en tu municipio!!");
+const Error223ReporteC4 = new Error("¡Favor de llenar los campos requeridos!");
+const Error500ReporteC4 = new Error("Servicio en Mantenimiento")
+
 
 //INDEV: Nuevas funciones para la aplicacion de los baches
 export async function CatalogoSolicitud(){
@@ -181,10 +184,15 @@ export async function GuardarReporteC4(Reporte:any) {
     try{
         let jsonReport = await service.insertarReporteC4(Reporte);
         let reportData = await jsonReport.json();
+        console.log(reportData);
         if( reportData.Code == 200 ){
-            
+            return("¡Reporte Guardado con Éxito!"); //Mensaje Guaradado
         }if(reportData.Code == 223) {
-
+            throw(Error223ReporteC4);
+        }
+       
+        if(reportData.Code == 500){
+            throw(Error500ReporteC4);
         }
     }catch( error ){
         console.log(error);

@@ -7,7 +7,7 @@ import { Marker } from 'react-native-maps';
 import {ObtenerDireccionActual,CordenadasActualesNumerico} from  "../../utilities/utilities";
 import { Camera } from "expo-camera";
 //NOTE:  ccomponentes importados desde la carpeta components
-import { CAMERA, PREVIEW } from '../../Styles/Iconos';
+import { CAMERA, ERROR, OK, PREVIEW } from '../../Styles/Iconos';
 import Loading from '../components/modal-loading';
 import Message from '../components/modal-message';
 import { BlueColor } from "../../Styles/BachesColor";
@@ -230,13 +230,16 @@ export default function ReporteC4(props: any) {
     }
     const verificarDatosReporte = () =>{
       let errores = "";
-      Nombre.trim().length != 0 ?"" : errores += "N,";
+      console.log(errores);
+      /*Nombre.trim().length != 0 ?"" : errores += "N,";
       Telefono.trim().length != 0 ? "" : errores += "T,";
       Problema.trim().length != 0 ? "" : errores += "P,";
       arregloFotos.length != 0 ? "": errores += "G,";
       Locacion != null ? "" : errores += "L,";
       setInterfazError(errores);
-      arregloFotos.length != 0 ? GuardarReporte() : lanzarMensaje("¡Favor de verificar los campos requeridos!","Mensaje de Error",PREVIEW[0],PREVIEW[1]);
+      */
+      Locacion != null ? "" : errores += "L,";
+      arregloFotos.length >= 0 ? GuardarReporte() : lanzarMensaje("¡Favor de verificar los campos requeridos!","Mensaje de Error",PREVIEW[0],PREVIEW[1]);
     }
     const GuardarReporte = async () =>{
         //INDEV: reunimos los datos del reporte
@@ -250,7 +253,8 @@ export default function ReporteC4(props: any) {
           'Direccion':JSON.stringify(direccion)
         }
         console.log("Guardando reporte...")
-        await GuardarReporteC4(datosReposte).then(()=>{});
+        await GuardarReporteC4(datosReposte).then((MensajeGuardado)=>{lanzarMensaje(MensajeGuardado,"Mensaje Exitoso", OK[0], OK[1])})
+        .catch((MensajeError)=>{lanzarMensaje(MensajeError, "Mensaje de Error", ERROR[0], ERROR[1] )});
     }
     const lanzarMensaje = (msj:string,tMensaje:string,mIcono:string,mFuenteIcono:string ,colorIcono = BlueColor ) => {
       setTipoMensaje(tMensaje);
