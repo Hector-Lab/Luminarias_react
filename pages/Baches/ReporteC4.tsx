@@ -10,7 +10,7 @@ import { Camera } from "expo-camera";
 import { CAMERA, ERROR, OK, PREVIEW } from '../../Styles/Iconos';
 import Loading from '../components/modal-loading';
 import Message from '../components/modal-message';
-import { BlueColor } from "../../Styles/BachesColor";
+import { BlueColor, DarkPrimaryColor } from "../../Styles/BachesColor";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
 import ImageView from "react-native-image-viewing";
 import { GuardarReporteC4 } from "../controller/api-controller";
@@ -40,6 +40,7 @@ export default function ReporteC4(props: any) {
     const [ InterfazError, setInterfazError ] = useState( String );
     //NOTE: modal de evidencias
     const [ mostraModalEvidencia, setMostraModalEvidencia ] = useState( Boolean );
+    const [ cargando, setCargando ] = useState(false);
 
     let camera: Camera;
     useEffect(() => {
@@ -103,6 +104,7 @@ export default function ReporteC4(props: any) {
             quality: 0.4,
           });
           //setImagenSeleccionada(photo.uri);
+          console.log();
           setArregloFotos( (arregloFotos) => [...arregloFotos, photo]);
           setCamaraActiva(false);
           let coordenadas = await CordenadasActualesNumerico();
@@ -229,32 +231,37 @@ export default function ReporteC4(props: any) {
       }
     }
     const verificarDatosReporte = () =>{
+      setCargando(true);
       let errores = "";
-      console.log(errores);
-      /*Nombre.trim().length != 0 ?"" : errores += "N,";
-      Telefono.trim().length != 0 ? "" : errores += "T,";
-      Problema.trim().length != 0 ? "" : errores += "P,";
-      arregloFotos.length != 0 ? "": errores += "G,";
-      Locacion != null ? "" : errores += "L,";
-      setInterfazError(errores);
-      */
       Locacion != null ? "" : errores += "L,";
       arregloFotos.length >= 0 ? GuardarReporte() : lanzarMensaje("¡Favor de verificar los campos requeridos!","Mensaje de Error",PREVIEW[0],PREVIEW[1]);
     }
     const GuardarReporte = async () =>{
         //INDEV: reunimos los datos del reporte
+        //NOTE: recorremos el reporte 
+        let encodeFotos = new Array();
+        arregloFotos.map((imagen)=>{
+          encodeFotos.push( "data:image/jpeg;base64," + imagen.base64);
+        });
         let datosReposte = {
           'Cliente': 56,
           'Nombre':Nombre,
           'Telefono':Telefono,
           'Problema':Problema,
-          'Evidencia':arregloFotos,
+          'Evidencia':encodeFotos,
           'Locacion':JSON.stringify(Locacion.coords),
           'Direccion':JSON.stringify(direccion)
         }
-        console.log("Guardando reporte...")
-        await GuardarReporteC4(datosReposte).then((MensajeGuardado)=>{lanzarMensaje(MensajeGuardado,"Mensaje Exitoso", OK[0], OK[1])})
-        .catch((MensajeError)=>{lanzarMensaje(MensajeError, "Mensaje de Error", ERROR[0], ERROR[1] )});
+        console.log(datosReposte);
+        await GuardarReporteC4(datosReposte).
+        then((MensajeGuardado)=>{
+          lanzarMensaje(MensajeGuardado,"Mensaje Exitoso", OK[0], OK[1])
+        }).
+        catch((MensajeError)=>{
+          lanzarMensaje(MensajeError, "Mensaje de Error", ERROR[0], ERROR[1] )
+        }).finally(()=>{
+          setCargando(true);
+        })
     }
     const lanzarMensaje = (msj:string,tMensaje:string,mIcono:string,mFuenteIcono:string ,colorIcono = BlueColor ) => {
       setTipoMensaje(tMensaje);
@@ -406,6 +413,16 @@ return(
               </View>
           )}
           animationType = "fade"
+          />
+        <Loading
+          loading={ cargando }
+          loadinColor={DarkPrimaryColor}
+          message={ "Enviando Reporte" }
+          onCancelLoad={() => {
+            setCargando(false);
+          }}
+          tittle={"Cargando"}
+          transparent={true}
           />
       </SafeAreaView>
 )
