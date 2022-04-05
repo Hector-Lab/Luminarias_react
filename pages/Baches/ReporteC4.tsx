@@ -260,7 +260,7 @@ export default function ReporteC4(props: any) {
         catch((MensajeError)=>{
           lanzarMensaje(MensajeError, "Mensaje de Error", ERROR[0], ERROR[1] )
         }).finally(()=>{
-          setCargando(true);
+          setCargando(false);
         })
     }
     const lanzarMensaje = (msj:string,tMensaje:string,mIcono:string,mFuenteIcono:string ,colorIcono = BlueColor ) => {
