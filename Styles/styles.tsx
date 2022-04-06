@@ -192,7 +192,8 @@ const Styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  
+  ContenedorElemento: {flex:4, justifyContent:"center" } 
 });
+
 
 export default Styles;

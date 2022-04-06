@@ -255,8 +255,8 @@ export default function Log(props: any) {
     } 
 
 
-    const NavegarReporteC4 = ()=>{
-        props.navigation.navigate("ReporteC4"); 
+    const NavegarMenuReportes = ()=>{
+        props.navigation.navigate("Menu"); 
     }
     return(
         <View style = {{flex:1 , flexDirection:"column", backgroundColor:"#ffffff"}} >
@@ -309,7 +309,7 @@ export default function Log(props: any) {
 
                 <View style = {{flex:1 , flexDirection:"column", backgroundColor:"#ffffff"}} >
                     <View style = {{flex:1, justifyContent:"center",  alignItems:"center"}} >
-                    <TouchableOpacity onPress={NavegarReporteC4}>    
+                    <TouchableOpacity onPress={NavegarMenuReportes}>    
                         <Avatar
                             avatarStyle={{ }}
                             rounded

@@ -6,6 +6,7 @@ import Home from '../pages/Login';
 import BachesHome from '../pages/Baches/home';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ReporteC4 from '../pages/Baches/ReporteC4';
+import MenuReportes from '../pages/Reportes/Menu';
 
 const Stack = createStackNavigator();
 function Nav() {
@@ -32,14 +33,11 @@ function Nav() {
                     })} >
                         {props => <BachesHome  {...props} ></BachesHome>}
                     </Stack.Screen>
-                    <Stack.Screen name='ReporteC4'
+                    <Stack.Screen name='Menu'
                     options={({navigation, route}) => ({
-                            title: "ReporteC4",
-                             headerLeft: (props) => null, //(<HeaderBackButton {...props} onPress={() => navigation.navigate("Reportes") } />),
-                            headerTitleAlign:"center",
-                            headerTintColor:"#000000",
+                            headerShown: false
                     })} >
-                        {props => <ReporteC4  {...props} ></ReporteC4>}
+                        {props => <MenuReportes  {...props} ></MenuReportes>}
                     </Stack.Screen>
 
                 </Stack.Navigator>
