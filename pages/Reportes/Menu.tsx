@@ -49,8 +49,8 @@ export default function MenuReportes(props: any) {
                         TextoArriba='Boton'
                         TextoAbajo ='Rosa'
                         colorBoton ='#e6acdd'
-                        marginBotton={ 12 }
-                        marginLeft = { 7 }
+                        marginBotton={ 10 }
+                        marginLeft = { 11 }
                         onPress= { ()=>{ } }
                         colorSombraBoton='rgba(230, 172, 221, .3)'
                         fondo = {require('../../assets/Botones/btnRosa.png')}
@@ -61,8 +61,8 @@ export default function MenuReportes(props: any) {
                         TextoArriba='Reporte a'
                         TextoAbajo ='Terceros'
                         colorBoton ='#39b54a'
-                        marginBotton={ 12 }
-                        marginLeft = { 7 }
+                        marginBotton={ 10 }
+                        marginLeft = { 11 }
                         colorSombraBoton='rgba(57, 181, 74, .3)'
                         onPress= { reporteTerceros }
                         fondo = {require('../../assets/Botones/btnTeerceros.png')}

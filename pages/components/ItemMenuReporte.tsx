@@ -46,7 +46,7 @@ export default class Message extends React.Component
 const estilosElemento = StyleSheet.create({
     contedorFondo:{
         flex:1, 
-        marginRight:18
+        marginRight:18,
     },
     contenedorElemento: {
         flex:1 , 
@@ -73,7 +73,7 @@ const estilosElemento = StyleSheet.create({
         elevation:10
     },
     bloqueTexto: {
-        marginLeft: 10
+        marginLeft: 10, marginBottom:10
     },
     textoArriba:{
         fontSize:16
