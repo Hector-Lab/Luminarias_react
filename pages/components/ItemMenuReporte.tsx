@@ -13,7 +13,8 @@ export default class Message extends React.Component
     TextoAbajo:string,
     fondo: any,
     marginBotton: number,
-    marginLeft: number
+    marginLeft: number,
+    onPress: Function
 }>{
     //'rgba(158, 150, 150, .5)'
     render(){
@@ -33,7 +34,7 @@ export default class Message extends React.Component
                             marginBottom: this.props.marginBotton,
                             marginRight: this.props.marginLeft,
                             backgroundColor:this.props.colorBoton
-                            }]}></TouchableOpacity>
+                            }]} onPress = { ()=>{ this.props.onPress() } } ></TouchableOpacity>
                     </View>
                     <View style = { estilosElemento.contenedorVacio }/>
                 </View>

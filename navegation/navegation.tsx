@@ -35,9 +35,19 @@ function Nav() {
                     </Stack.Screen>
                     <Stack.Screen name='Menu'
                     options={({navigation, route}) => ({
-                            headerShown: false
+                            headerShown: true,
+                            headerTintColor:'rgba(0,0,0,1)',
+                            headerStyle: { elevation:5 }
                     })} >
                         {props => <MenuReportes  {...props} ></MenuReportes>}
+                    </Stack.Screen>
+                    <Stack.Screen name='Terceros'
+                        options={({navigation, route}) => ({
+                                title: "Reporte a Terceros",
+                                headerTitle:"Reporte a Terceros",
+                                headerTintColor:"#000000",
+                    })} >
+                        {props => <ReporteC4  {...props} ></ReporteC4>}
                     </Stack.Screen>
 
                 </Stack.Navigator>
