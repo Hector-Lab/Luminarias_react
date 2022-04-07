@@ -239,12 +239,7 @@ export default function Log(props: any) {
         })
     }
     const RegistrarUsuario = async () =>{
-        storage.setModoPantallaDatos("1")
-        .then(()=>{
-            props.navigation.navigate("Reportes");
-        }).catch((erro)=>{
-            console.log("Error en el storage");
-        })
+        props.navigation.navigate("Registrame");
     }
     const lanzarMensaje =  ( mensaje:string, titulo:string , fuenteIconos: string, nombreIcono:string )=>{
         setErrorMsg(mensaje);

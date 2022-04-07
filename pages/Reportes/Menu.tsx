@@ -1,21 +1,33 @@
-import React,{} from  'react';
-import { View, Text, ImageBackground } from "react-native";
+import React,{ useEffect, useState } from  'react';
+import { View, Text, ImageBackground, Settings } from "react-native";
 import { Avatar } from 'react-native-elements';
 import  Styles from  '../../Styles/styles';
 import MenuItem from '../components/ItemMenuReporte';
+import * as Location from 'expo-location';
+import { IniciarTarea,detenerServicionUbicacion } from '../../utilities/BotonRosa';
 
 export default function MenuReportes(props: any) {
-    const reporteTerceros = () =>{
+    //Solicitamos los permisos del telefono
+    const [ permisos, setPermisos ] = useState(Boolean);
+
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestBackgroundPermissionsAsync();
+            setPermisos(status !== 'granted');
+            await Location.enableNetworkProviderAsync()
+        })();
+      }, []);
+    const ReporteTerceros = () =>{
         props.navigation.navigate("Terceros");
     }
-    const reporteBotonRosa = () =>{
-
+    const BotonRosa = async () =>{
+        //INDEV: verificamos el servicio de ubicacion
+        IniciarTarea();
+        //await Location.enableNetworkProviderAsync()
     }
-    const reporteEmpatiaCiudadana = () => {
-
-
+    const deteneServicio = () => {
+        detenerServicionUbicacion();
     }
-
     return(
         <View style = {{ flex:1 }} >
             <ImageBackground source = { require('../../assets/Fondo.jpeg') } style = {{ flex:1 }} >
@@ -40,7 +52,7 @@ export default function MenuReportes(props: any) {
                         colorSombraBoton='rgba(158, 150, 150, .3)'
                         marginBotton={ 0 }
                         marginLeft = { 7 }
-                        onPress= { ()=>{ } }
+                        onPress = { deteneServicio }
                         fondo = {require('../../assets/Botones/BtnRedonda.png')}
                     />
                 </View>
@@ -51,7 +63,7 @@ export default function MenuReportes(props: any) {
                         colorBoton ='#e6acdd'
                         marginBotton={ 10 }
                         marginLeft = { 11 }
-                        onPress= { ()=>{ } }
+                        onPress= { BotonRosa  }
                         colorSombraBoton='rgba(230, 172, 221, .3)'
                         fondo = {require('../../assets/Botones/btnRosa.png')}
                     />
@@ -63,8 +75,8 @@ export default function MenuReportes(props: any) {
                         colorBoton ='#39b54a'
                         marginBotton={ 10 }
                         marginLeft = { 11 }
+                        onPress = { ReporteTerceros }
                         colorSombraBoton='rgba(57, 181, 74, .3)'
-                        onPress= { reporteTerceros }
                         fondo = {require('../../assets/Botones/btnTeerceros.png')}
                     />
                 </View>

@@ -7,6 +7,7 @@ import BachesHome from '../pages/Baches/home';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ReporteC4 from '../pages/Baches/ReporteC4';
 import MenuReportes from '../pages/Reportes/Menu';
+import Registro from '../pages/Registrame';
 
 const Stack = createStackNavigator();
 function Nav() {
@@ -35,21 +36,33 @@ function Nav() {
                     </Stack.Screen>
                     <Stack.Screen name='Menu'
                     options={({navigation, route}) => ({
-                            headerShown: true,
-                            headerTintColor:'rgba(0,0,0,1)',
-                            headerStyle: { elevation:5 }
+                            headerTitle:"Menu",
+                            headerTintColor:"rgba(0,0,0,1 )",
                     })} >
                         {props => <MenuReportes  {...props} ></MenuReportes>}
                     </Stack.Screen>
                     <Stack.Screen name='Terceros'
                         options={({navigation, route}) => ({
-                                title: "Reporte a Terceros",
                                 headerTitle:"Reporte a Terceros",
-                                headerTintColor:"#000000",
-                    })} >
+                                headerTintColor:"rgba(0,0,0,1 )",
+                        })} >
                         {props => <ReporteC4  {...props} ></ReporteC4>}
                     </Stack.Screen>
-
+                    <Stack.Screen name='btnRosa'
+                        options={({navigation, route}) => ({
+                                headerTitle:"Reporte a Terceros",
+                                headerTintColor:"rgba(0,0,0,1 )",
+                        })} >
+                        {props => <ReporteC4  {...props} ></ReporteC4>}
+                    </Stack.Screen>
+                    <Stack.Screen name='Registrame'
+                        options={({navigation, route}) => ({
+                            headerTitle:"Registrar",
+                            headerTintColor:"rgba(0,0,0,1 )",
+                    })}
+                    >
+                        {props => <Registro  {...props} ></Registro>}
+                    </Stack.Screen>
                 </Stack.Navigator>
             </NavigationContainer>
         </SafeAreaView>

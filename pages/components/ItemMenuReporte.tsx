@@ -34,7 +34,7 @@ export default class Message extends React.Component
                             marginBottom: this.props.marginBotton,
                             marginRight: this.props.marginLeft,
                             backgroundColor:this.props.colorBoton
-                            }]} onPress = { ()=>{ this.props.onPress() } } ></TouchableOpacity>
+                            }]} onPress = { ()=>{this.props.onPress();} } ></TouchableOpacity>
                     </View>
                     <View style = { estilosElemento.contenedorVacio }/>
                 </View>
