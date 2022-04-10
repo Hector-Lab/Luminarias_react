@@ -1,32 +1,44 @@
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import { Vibration } from 'react-native';
+import { StorageBaches } from '../pages/controller/storage-controllerBaches'; 
 
 const TASK_LOCATION = "TRACK_LOCATION";
 const TIME = 1000;
+let storage;
 
 export function iniciarServicioUbicacion() {
-
+     
 }
 
 export function detenerServicionUbicacion() {
     Location.stopLocationUpdatesAsync(TASK_LOCATION);
 }
 
-export function guardarReporte(  ){
-
-}
 
 export async function IniciarTarea (){
+    let storage = new StorageBaches();
+    let Ciudadano = storage.obtenerDatosPersona();
+    let fecha = new Date();
+    let fechaTula = fecha.getFullYear()+"-"+(fecha.getMonth() + 1) + " - " + fecha.getDay();
+    console.log();
+    let historialReporte = {
+        idCiudadano: Ciudadano,
+        TipoReporte: 2,
+        Fecha:fechaTula,
+        //FechaReporte: "Es la fecha del reporte"
+        Estatus
+
+    }
+    
     TaskManager.defineTask(TASK_LOCATION, async ({ data,error,executionInfo })=>{
         if( error ){
             console.log(error);
             return;
         }
         if( data ){
-            console.log("________________________________________");
             console.log(data);
-            console.log("________________________________________");
+            guardarReporte();
         }
     });
     IniciarServicio();
