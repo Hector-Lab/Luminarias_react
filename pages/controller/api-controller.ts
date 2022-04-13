@@ -1,6 +1,8 @@
+import { ServerContainer } from '@react-navigation/native';
 import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageBaches } from '../controller/storage-controllerBaches';
+
 const service = new APIServices();
 const storageBaches = new StorageBaches();
 const networkError = new Error("!Sin acceso a internet¡");
@@ -19,7 +21,8 @@ const ErrorAreas = new Error("¡Hubo un problema al obtener la lista de temas!")
 const ErrorDatos = new Error("¡Favor de ingresar los datos requeridos!");
 const noAutizado = new Error("¡El servicio aún no está disponible en tu municipio!!");
 const Error223ReporteC4 = new Error("¡Favor de llenar los campos requeridos!");
-const Error500ReporteC4 = new Error("Servicio en Mantenimiento")
+const Error500ReporteC4 = new Error("Servicio en Mantenimiento");
+const Error224ReporteC4 = new Error("Error al enviar alerta, Reintentando");
 
 
 //INDEV: Nuevas funciones para la aplicacion de los baches
@@ -196,6 +199,42 @@ export async function GuardarReporteC4(Reporte:any) {
         }
     }catch( error ){
         console.log(error);
+    }
+}
+export async function GuardarReporteRosaC4(Ciudadano:any){
+    try{
+        console.log(Ciudadano);
+        let jsonReport = await service.realizarBotonRosa(Ciudadano);
+        let reportData = await jsonReport.json();
+        console.log(reportData);
+        if(reportData.Code == 200){
+            //NOTE: guardamos el id en el storge 
+            storageBaches.guardarIdReporteRosa(String(reportData.Mensaje));
+            return;
+        }else if (reportData.Code == 223){
+            throw Error224ReporteC4;
+        }else if (reportData.Code == 500){
+            throw ErrorDesconocido;
+        }
+    }catch( error ){
+        throw verificarErrores(error);
+    }
+}
+export async function ActualizarCoordenadas( datos:any  ){
+    try{
+        let idReporte = await storageBaches.obtenerIdReporteRosa();
+        let Reporte = {
+            Ubicacion:datos.Ubicacion_GPS,
+            Cliente:56,
+            Ciudadano:7,
+            Direccion:datos.Direccion,
+            Reporte:idReporte
+        }
+        let result = await service.ActualizarPocision(Reporte);
+        let jsonResult = await result.json();
+        console.log(jsonResult);
+    }catch( error ){
+        console.log(error.message);
     }
 }
 
