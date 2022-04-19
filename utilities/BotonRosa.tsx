@@ -27,8 +27,6 @@ export async function IniciarTarea (){
         TipoReporte: 2,
         Fecha:fechaTula,
         //FechaReporte: "Es la fecha del reporte"
-        Estatus
-
     }
     
     TaskManager.defineTask(TASK_LOCATION, async ({ data,error,executionInfo })=>{
