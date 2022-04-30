@@ -48,7 +48,7 @@ export default function Log(props: any) {
         if(ciudadano != null){
             setLoading(false);
             await storage.setModoPantallaDatos("1");
-            props.navigation.navigate("Reportes");
+            //props.navigation.navigate("Reportes");
         }else{
             //NOTE: pedimos permisos 
             let { status } = await Location.requestForegroundPermissionsAsync();

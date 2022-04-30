@@ -107,4 +107,10 @@ export class StorageBaches {
     async getCondicionesProvacidad( ){
         return await AsyncStorage.getItem(root+"Privacidad");
     }
+    async guardarIdReporteRosa( idReporte:string ){
+        await AsyncStorage.setItem(root+"ReporteRosa",idReporte);
+    }
+    async obtenerIdReporteRosa(){
+        return await AsyncStorage.getItem(root+"ReporteRosa");
+    }
 }
