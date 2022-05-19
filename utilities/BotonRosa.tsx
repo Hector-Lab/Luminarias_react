@@ -3,6 +3,7 @@ import * as TaskManager from 'expo-task-manager';
 import { Vibration } from 'react-native';
 import { StorageBaches } from '../pages/controller/storage-controllerBaches'; 
 import { GuardarReporteRosaC4, ActualizarCoordenadas } from '../pages/controller/api-controller';
+import { CLIENTE } from '../utilities/utilities';
 //NOTE: session de errores
 
 const TASK_LOCATION = "TRACK_LOCATION";
@@ -23,6 +24,7 @@ export async function detenerServicionUbicacion() {
 
 
 export async function IniciarTarea(){
+    //Obtenemos el id del ciudadano 
     if(await TaskManager.isTaskRegisteredAsync(TASK_LOCATION)){
         return ;
     }
@@ -35,7 +37,6 @@ export async function IniciarTarea(){
         if( data ){
             //NOTE: las fechas las generamos desde el API ( Lo convertimos en array y tomamos e ultimo actualizado )
             let arregloCoordenadas = JSON.parse(JSON.stringify(data)).locations;   
-            let idReporte = storage.obtenerIdReporteRosa();
             if(arregloCoordenadas.length > 0){
                 //INDEV: inveiamos los datos a la api
                 let coords = { latitude : arregloCoordenadas[arregloCoordenadas.length-1].coords.latitude ,longitude : arregloCoordenadas[arregloCoordenadas.length-1].coords.longitude };
@@ -43,19 +44,22 @@ export async function IniciarTarea(){
                 //let direccion = await ObtenerDireccionActual(coords);
                 let datos = {
                     Ubicacion_GPS:JSON.stringify(arregloCoordenadas[arregloCoordenadas.length-1].coords),
-                    idCiudadano:16, //NOTE: Estatico solo para laxws pruebas
-                    Direccion: /*JSON.stringify(direccion)*/ '',
+                    idCiudadano: storage.obtenerIdReporteRosa(),
+                    Direccion:/*direccion*/'',
                 }
-                await ActualizarCoordenadas(datos);
+                let estadoReporte = await ActualizarCoordenadas(datos);
+                if(estadoReporte == 0){
+                    detenerServicionUbicacion();
+                }
             }
         }
     });
     IniciarServicio();
     //INDEV: Enviamos los datos de la 
     let historialReporte = {
-        Ciudadano: 16,
+        Ciudadano: await storage.obtenerIdCiudadano(),
         Tipo: 2,
-        Cliente:56,
+        Cliente:CLIENTE,
     };
     return await GuardarReporteRosaC4(historialReporte);
 }   
@@ -70,10 +74,11 @@ export function IniciarServicio(){
         },
         activityType:Location.ActivityType.Fitness,
         deferredUpdatesInterval:5000,
+        //deferredUpdatesDistance:2
     }).then(()=>{
         Vibration.vibrate(TIME);
     }).catch((error)=>{
+        console.log("Error de incio");
         console.log(error);
-
     });
 }

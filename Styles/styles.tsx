@@ -1,6 +1,7 @@
 import { Dimensions, StyleSheet } from "react-native";
-import { SuinpacRed, BackgrounBlue } from "./Color";
+import { SuinpacRed, BackgrounBlue,azulColor,azulClaro } from "./Color";
 import { cardColor, buttonSuccess } from '../Styles/BachesColor';
+
 const Styles = StyleSheet.create({
   containerKeyboard: {
     flex: 1,
@@ -192,7 +193,55 @@ const Styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  ContenedorElemento: {flex:4, justifyContent:"center" } 
+  ContenedorElemento: {flex:4, justifyContent:"center" },
+  TemaCampo:{
+    borderWidth: 0.5,
+    padding: 5,
+    marginLeft:20,
+    marginRight:20,
+    marginBottom:10,
+    borderRadius: 5,
+    backgroundColor:"white"
+  },
+  TemaLabalCampo: {
+    marginLeft:20,
+    marginBottom:5,
+    color: azulColor,
+    fontWeight:"bold"
+  },
+  btnGeneral: {
+    borderRadius:5,
+    backgroundColor:azulColor,
+    padding:8,
+    marginLeft:20,
+    marginRight:20,
+  },
+  textoSubrayado: {
+    marginTop:20,
+    textAlign:"center",
+    textDecorationLine:"underline",
+    color:azulClaro,
+    fontWeight: "bold",
+  },
+  itemPerfil:{
+    flexDirection:"row",
+    marginTop:20, 
+    marginLeft:20, 
+    marginRight:20, 
+    borderBottomWidth:1, 
+    borderColor:"lightgray"
+  },
+  TemaCampoError:{
+    borderWidth: 2,
+    padding: 5,
+    marginLeft:20,
+    marginRight:20,
+    marginBottom:10,
+    borderRadius: 5,
+    backgroundColor:"white",
+    borderColor:"red"
+  },
+
 });
 
 

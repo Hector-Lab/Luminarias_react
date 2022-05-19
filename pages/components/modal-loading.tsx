@@ -3,6 +3,7 @@ import React,{Component} from 'react';
 import { ActivityIndicator, View, StyleSheet,Text, Modal, TouchableOpacity} from 'react-native';
 import { Card} from 'react-native-elements'
 import { Button } from 'react-native-elements/dist/buttons/Button';
+import { azulClaro, azulColor } from '../../Styles/Color';
 
 export default class Loading extends React.Component<
 {   
@@ -17,20 +18,19 @@ export default class Loading extends React.Component<
     render(){
         return(
                 <Modal
-                style = { styles.modalContainer}
+                style = { [styles.modalContainer] }
                 visible = {this.props.loading}
-                transparent = {this.props.transparent}
-                 >
-                    <View style = {styles.modalHeaderContaine} >
-                         
+                transparent = {this.props.transparent}>
+                <View style = {{flex:1,opacity:.9, backgroundColor:"lightgrey"}} >
+                <View style = {styles.modalHeaderContaine} >       
                     </View>
                     <View style = {styles.modalBodyConteiner}>
-                        <Card containerStyle = {styles.cardConteiner} >
+                        <Card containerStyle = {[styles.cardConteiner]} >
                             <Card.Title>
                                 {this.props.tittle == "" ? "Verificando Credenciales" : this.props.tittle}
                             </Card.Title>
                             <Card.Divider/>
-                            <ActivityIndicator size = "large" color = "#B20115" />
+                            <ActivityIndicator size = "large" color = {this.props.loadinColor} />
                             <View style = {styles.mensajeConteiner}>
                                 <Text >Cargando...</Text>
                             </View>
@@ -39,6 +39,7 @@ export default class Loading extends React.Component<
                     <View style = {styles.modalFooterConainer}>
                     
                     </View>
+                </View>
                 </Modal>
         )
     };
@@ -68,8 +69,9 @@ const styles = StyleSheet.create({
     },
     cardConteiner: {
         borderRadius: 10,
-        shadowColor:"#B20115", //Solo funciona en ios
-        elevation: 10
+        shadowColor: azulColor, //Solo funciona en ios
+        marginLeft:50,
+        marginRight:50
     },
     mensajeConteiner:{
         marginTop:"5%",

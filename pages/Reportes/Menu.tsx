@@ -1,5 +1,6 @@
 import React,{ useEffect, useState } from  'react';
 import { View, Text, ImageBackground, Settings } from "react-native";
+import { Appbar } from 'react-native-paper';
 import { Avatar } from 'react-native-elements';
 import  Styles from  '../../Styles/styles';
 import MenuItem from '../components/ItemMenuReporte';
@@ -7,7 +8,7 @@ import * as Location from 'expo-location';
 import { IniciarTarea,detenerServicionUbicacion } from '../../utilities/BotonRosa';
 import Loading from '../../pages/components/modal-loading';
 import Message from  '../../pages/components/modal-message';
-import { SuinpacRed } from '../../Styles/Color';
+import { azulColor, SuinpacRed } from '../../Styles/Color';
 import { BlueColor } from '../../Styles/BachesColor';
 import { PERSONPIN, DESCONOCIDO } from '../../Styles/Iconos';
 
@@ -53,20 +54,26 @@ export default function MenuReportes(props: any) {
         setMensajeIconFuente(FuenteIcono);
         setMostrarMensaje(true);
     }
+    const PerfilCiudadano = () =>{
+        props.navigation.navigate("Perfil");
+    }
 
     return(
         <View style = {{ flex:1 }} >
+            <Appbar style = {{backgroundColor:"white"}} >
+                <Appbar.Content title="Menu" />
+                <Appbar.Action icon={'account-details'} onPress={ PerfilCiudadano } />
+            </Appbar>
             <ImageBackground source = { require('../../assets/Fondo.jpeg') } style = {{ flex:1 }} >
                 <View style = {{flex:2, borderRadius:1, borderColor:"black", justifyContent:"center" }} >
                     <View style = {{ justifyContent:"center" , alignItems:"center"}}  >
                         <Avatar
-                        avatarStyle={{  }}
+                            avatarStyle={{  }}
                             rounded
                             imageProps={ {resizeMode:"contain"} }
                             size = "xlarge"
                             containerStyle = {{height:120,width:220}}
-                            source = {require("../../assets/banner.png")} 
-                        />
+                            source = {require("../../assets/banner.png")}/>
                     </View>
                 </View>
                 {/*INDEV: */ }

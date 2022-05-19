@@ -14,6 +14,7 @@ import { BlueColor, DarkPrimaryColor } from "../../Styles/BachesColor";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
 import ImageView from "react-native-image-viewing";
 import { GuardarReporteC4 } from "../controller/api-controller";
+import { CLIENTE } from  '../../utilities/utilities';
 
 
 export default function ReporteC4(props: any) {
@@ -244,7 +245,7 @@ export default function ReporteC4(props: any) {
           encodeFotos.push( "data:image/jpeg;base64," + imagen.base64);
         });
         let datosReposte = {
-          'Cliente': 56,
+          'Cliente': CLIENTE,
           'Nombre':Nombre,
           'Telefono':Telefono,
           'Problema':Problema,
@@ -252,13 +253,12 @@ export default function ReporteC4(props: any) {
           'Locacion':JSON.stringify(Locacion.coords),
           'Direccion':JSON.stringify(direccion)
         }
-        console.log(datosReposte);
         await GuardarReporteC4(datosReposte).
         then((MensajeGuardado)=>{
           lanzarMensaje(MensajeGuardado,"Mensaje Exitoso", OK[0], OK[1])
         }).
         catch((MensajeError)=>{
-          lanzarMensaje(MensajeError, "Mensaje de Error", ERROR[0], ERROR[1] )
+          lanzarMensaje(MensajeError, "Mensaje de Error", ERROR[0], ERROR[1])
         }).finally(()=>{
           setCargando(false);
         })

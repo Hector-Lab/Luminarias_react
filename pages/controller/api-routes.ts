@@ -22,7 +22,7 @@ export class APIServices {
             },
         });
     }
-    insertarCiudadano( data:any ){
+    /*insertarCiudadano( data:any ){
         let jsonData = JSON.stringify(data);
         return fetch("https://api.servicioenlinea.mx/api-movil/RegistrarCiudadano",{
             method:"POST",
@@ -32,7 +32,7 @@ export class APIServices {
             },
             body:jsonData
         });
-    }
+    }*/
     insertarReporte( data:any ){
         let jsonData = JSON.stringify(data);
         return fetch(`https://api.servicioenlinea.mx/api-movil/GuardarReporte`,{
@@ -113,6 +113,17 @@ export class APIServices {
     ActualizarPocision ( data:any ){
         let jsonData = JSON.stringify( data );
         return fetch('https://api.servicioenlinea.mx/api-movil/ReporteC4/ActualizarCoordenadas',{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
+    RegistrarCiudadano ( datosCiudadanos: any ){
+        let jsonData =  JSON.stringify(datosCiudadanos);
+        return fetch('https://api.servicioenlinea.mx/api-movil/ReporteC4/RegistrarCiudadano',{
             method:"POST",
             headers:{
                 Accept: 'application/json',

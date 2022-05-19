@@ -2,6 +2,7 @@ import { ServerContainer } from '@react-navigation/native';
 import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageBaches } from '../controller/storage-controllerBaches';
+import { CLIENTE } from  '../../utilities/utilities';
 
 const service = new APIServices();
 const storageBaches = new StorageBaches();
@@ -15,7 +16,7 @@ const ErrorInsertar = new Error("¡Error al registrar el reporte!\nFavor de inte
 const NoRowSelect = new Error("¡Aún no tiene registros!");
 const ErrorLista = new Error("¡Error al obtener el historial!\nFavor de intentar más tarde");
 const MunicipiosVacios = new Error( "¡Municipios no encontrados!" );
-const ErrorListaMunicipios = new Error( "!Error al obtener lista de municipios¡\nFavor de intentar más tarde" );
+const ErrorListaMunicipios = new Error( "!Error al obtener lista de municipios¡\nFavor de intentar más tarde");
 const ErrorSinAreas = new Error("¡El municipio no cuenta con temas disponibles!");
 const ErrorAreas = new Error("¡Hubo un problema al obtener la lista de temas!");
 const ErrorDatos = new Error("¡Favor de ingresar los datos requeridos!");
@@ -23,6 +24,10 @@ const noAutizado = new Error("¡El servicio aún no está disponible en tu munic
 const Error223ReporteC4 = new Error("¡Favor de llenar los campos requeridos!");
 const Error500ReporteC4 = new Error("Servicio en Mantenimiento");
 const Error224ReporteC4 = new Error("Error al enviar alerta, Reintentando");
+const ErrorC4UsuarioRegistrado = new Error("¡La CURP ingresada esta registrada!");
+const ErrorC4Registro = new Error("¡Error al registrar ciudadano!\nFavor de intentar más tarde");
+
+
 
 
 //INDEV: Nuevas funciones para la aplicacion de los baches
@@ -187,18 +192,15 @@ export async function GuardarReporteC4(Reporte:any) {
     try{
         let jsonReport = await service.insertarReporteC4(Reporte);
         let reportData = await jsonReport.json();
-        console.log(reportData);
         if( reportData.Code == 200 ){
             return("¡Reporte Guardado con Éxito!"); //Mensaje Guaradado
         }if(reportData.Code == 223) {
             throw(Error223ReporteC4);
-        }
-       
-        if(reportData.Code == 500){
+        }if(reportData.Code == 500){
             throw(Error500ReporteC4);
         }
     }catch( error ){
-        console.log(error);
+        throw verificarErrores(error);
     }
 }
 export async function GuardarReporteRosaC4(Ciudadano:any){
@@ -206,7 +208,6 @@ export async function GuardarReporteRosaC4(Ciudadano:any){
         console.log(Ciudadano);
         let jsonReport = await service.realizarBotonRosa(Ciudadano);
         let reportData = await jsonReport.json();
-        console.log(reportData);
         if(reportData.Code == 200){
             //NOTE: guardamos el id en el storge 
             storageBaches.guardarIdReporteRosa(String(reportData.Mensaje));
@@ -232,9 +233,41 @@ export async function ActualizarCoordenadas( datos:any  ){
         }
         let result = await service.ActualizarPocision(Reporte);
         let jsonResult = await result.json();
-        console.log(jsonResult);
+        return jsonResult.Estado;
     }catch( error ){
         console.log(error.message);
+    }
+}
+export async function FinalizarRegistro( Contactos ){
+    //NOTE: Obtenemos todos los datos de la db
+    try{
+        let jsonDatosPersonales = await storageBaches.obtenerDatosPersonalesPreregistro();
+        let jsonDatosDomicilio = await storageBaches.obtenerDatosDomicilioPreRegistro();
+        if( jsonDatosPersonales != null && jsonDatosDomicilio != null ){
+            let jsonDatosContactos = JSON.stringify(Contactos);
+            let DatosCiudadanos = {
+                'Personales':jsonDatosPersonales,
+                'Domicilio':jsonDatosDomicilio,
+                'Contactos':jsonDatosContactos,
+                'Cliente':CLIENTE
+            }
+            //NOTE: enviamos los datos a la API
+            let respuesta = await service.RegistrarCiudadano(DatosCiudadanos);
+            let jsonRespuesta = await respuesta.json();
+            console.log(jsonRespuesta);
+            if(jsonRespuesta.Code == 200){
+                //NOTE: guardamos los datos del ciudadano
+                await storageBaches.guardarDatosCiudadanos(jsonDatosPersonales,jsonDatosDomicilio,jsonDatosContactos);
+                await storageBaches.guardarIdCiudadano(String(jsonRespuesta.Ciudadano));
+                return jsonRespuesta.Mensaje;
+            }else if ( jsonRespuesta.Code == 403 ){
+                throw ErrorC4UsuarioRegistrado;
+            }else if ( jsonRespuesta.Code = 402 ){
+                throw ErrorC4Registro;
+            }
+        }
+    }catch( error ){
+        throw verificarErrores(error);
     }
 }
 
@@ -242,7 +275,6 @@ export async function ActualizarCoordenadas( datos:any  ){
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
-    console.log(message);
     if(message.includes("Usuario")){
         return userNotFound;
     }else{
