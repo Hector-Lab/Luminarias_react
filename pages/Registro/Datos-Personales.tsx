@@ -11,6 +11,7 @@ import { StorageBaches } from '../controller/storage-controllerBaches';
 
 export default function Personales(props: any) {
     let [ curpValida, sertCurpValida ] = useState( false );
+    let [ passValida, setPassValido ] = useState(false);
     let [ mensaje, setMensaje ] = useState( "" );
     let [ titulo, setTitulo ] = useState( "Mensaje" );
     let [ icono, setIcono ] = useState( "info" );
@@ -25,7 +26,8 @@ export default function Personales(props: any) {
         ApellidoM:'',
         CURP:'',
         Email:'',
-        Telefono:''
+        Telefono:'',
+        Password:''
     }
     let validacion = Yup.object().shape({
         Nombre: Yup.string().required('Requerido'),
@@ -33,7 +35,8 @@ export default function Personales(props: any) {
         ApellidoM:Yup.string().required('Requerido'),
         CURP:Yup.string().min(18).max(18).required('Requerido'),
         Email:Yup.string().required('Requerido').email(),
-        Telefono:Yup.number().required('Requerido')
+        Telefono:Yup.number().required('Requerido'),
+        Password:Yup.string().min(8).required('Requerido')
     });
     const SiguientePaso = () =>{
         props.navigation.navigate("Domicilio");
@@ -119,6 +122,13 @@ export default function Personales(props: any) {
                                     placeholder = "Ejemplo: Juan Perez"
                                     onChangeText={handleChange('Telefono')}
                                     value = {values.Telefono} />
+                                <Text style = {Styles.TemaLabalCampo} >Contraseña { (values.Password.length < 8 && touched.Password ) ? <Text style = {{color:"red"}} > Minimo 8 caracteres </Text> : <></> } </Text>
+                                <TextInput 
+                                    style = { ( errors.Password && touched.Password ) ? Styles.TemaCampoError : Styles.TemaCampo } 
+                                    placeholder = "Contraseña"
+                                    secureTextEntry = {true}
+                                    onChangeText={handleChange('Password')}
+                                    value = {values.Password} />
                                 <TouchableOpacity style = { [Styles.btnGeneral,{marginTop:20}] } onPress = { handleSubmit }>
                                     <Text style = {[Styles.btnTexto,{textAlign:"center"}]} > Siguiente Paso </Text>
                                 </TouchableOpacity>

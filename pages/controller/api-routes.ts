@@ -22,17 +22,6 @@ export class APIServices {
             },
         });
     }
-    /*insertarCiudadano( data:any ){
-        let jsonData = JSON.stringify(data);
-        return fetch("https://api.servicioenlinea.mx/api-movil/RegistrarCiudadano",{
-            method:"POST",
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body:jsonData
-        });
-    }*/
     insertarReporte( data:any ){
         let jsonData = JSON.stringify(data);
         return fetch(`https://api.servicioenlinea.mx/api-movil/GuardarReporte`,{
@@ -49,17 +38,6 @@ export class APIServices {
         return fetch(`https://api.servicioenlinea.mx/api-movil/ListaReportes`,{
             method:"POST",
             headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body:jsonData
-        });
-    }
-    recuperarDatosCiudadano( data:any ){
-        let jsonData = JSON.stringify(data);
-        return fetch(`https://api.servicioenlinea.mx/api-movil/DatosCiudadano`,{
-            method:"POST",
-            headers:{
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
@@ -124,6 +102,17 @@ export class APIServices {
     RegistrarCiudadano ( datosCiudadanos: any ){
         let jsonData =  JSON.stringify(datosCiudadanos);
         return fetch('https://api.servicioenlinea.mx/api-movil/ReporteC4/RegistrarCiudadano',{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
+    iniciarSessionCiudadano( data:any ){
+        let jsonData = JSON.stringify(data);
+        return fetch('https://api.servicioenlinea.mx/api-movil/ReporteC4/LoginReportes',{
             method:"POST",
             headers:{
                 Accept: 'application/json',

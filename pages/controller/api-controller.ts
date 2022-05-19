@@ -22,7 +22,7 @@ const ErrorAreas = new Error("¡Hubo un problema al obtener la lista de temas!")
 const ErrorDatos = new Error("¡Favor de ingresar los datos requeridos!");
 const noAutizado = new Error("¡El servicio aún no está disponible en tu municipio!!");
 const Error223ReporteC4 = new Error("¡Favor de llenar los campos requeridos!");
-const Error500ReporteC4 = new Error("Servicio en Mantenimiento");
+const Error500ReporteC4 = new Error("Servicio en Mantenimiento\nDisculpe las molestias");
 const Error224ReporteC4 = new Error("Error al enviar alerta, Reintentando");
 const ErrorC4UsuarioRegistrado = new Error("¡La CURP ingresada esta registrada!");
 const ErrorC4Registro = new Error("¡Error al registrar ciudadano!\nFavor de intentar más tarde");
@@ -245,6 +245,7 @@ export async function FinalizarRegistro( Contactos ){
         let jsonDatosDomicilio = await storageBaches.obtenerDatosDomicilioPreRegistro();
         if( jsonDatosPersonales != null && jsonDatosDomicilio != null ){
             let jsonDatosContactos = JSON.stringify(Contactos);
+
             let DatosCiudadanos = {
                 'Personales':jsonDatosPersonales,
                 'Domicilio':jsonDatosDomicilio,
@@ -257,7 +258,17 @@ export async function FinalizarRegistro( Contactos ){
             console.log(jsonRespuesta);
             if(jsonRespuesta.Code == 200){
                 //NOTE: guardamos los datos del ciudadano
-                await storageBaches.guardarDatosCiudadanos(jsonDatosPersonales,jsonDatosDomicilio,jsonDatosContactos);
+                let objetoPersonales = JSON.parse(jsonDatosPersonales);
+                let valores = {
+                    Nombre:objetoPersonales.Nombre,
+                    ApellidoP:objetoPersonales.ApellidoP,
+                    ApellidoM:objetoPersonales.ApellidoM,
+                    CURP:objetoPersonales.CURP,
+                    Email:objetoPersonales.Email,
+                    Telefono:objetoPersonales.Telefono,
+                    Password:objetoPersonales.Password
+                }
+                await storageBaches.guardarDatosCiudadanos(JSON.stringify(valores),jsonDatosDomicilio,jsonDatosContactos);
                 await storageBaches.guardarIdCiudadano(String(jsonRespuesta.Ciudadano));
                 return jsonRespuesta.Mensaje;
             }else if ( jsonRespuesta.Code == 403 ){
@@ -270,7 +281,27 @@ export async function FinalizarRegistro( Contactos ){
         throw verificarErrores(error);
     }
 }
-
+export async function  IniciarSession( Credenciales ) {
+    try{
+        let datos = {
+            'Curp':Credenciales.Curp,
+            'Password':Credenciales.Password,
+            'Cliente':CLIENTE
+        }
+        let data = await service.iniciarSessionCiudadano( datos );
+        let Ciudadano = await data.json();
+        console.log(Ciudadano);
+        if( Ciudadano.Status ){
+            storageBaches.guardarIdCiudadano(String(Ciudadano.id));
+            storageBaches.guardarDatosPersonalesCiudadano(JSON.stringify(Ciudadano.Ciudadano));
+            return Ciudadano;
+        }else{
+            throw userNotFound;
+        }
+    }catch( error ){
+        throw verificarErrores(error);
+    }
+}
 
 //NOTE: metodo interno
 function verificarErrores(error:Error) {

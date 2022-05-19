@@ -72,7 +72,6 @@ export class StorageBaches {
             cliente = objectUsuario.Cliente;
         }
         return cliente;
-
     }
     async obtenerDatosPersona() {
         let persona = await AsyncStorage.getItem(root + "Persona");
@@ -118,28 +117,19 @@ export class StorageBaches {
         await AsyncStorage.setItem(root + "DatosContacto", Contactos);
     }
     async verificarDatosCiudadano() { 
-        return (
-            await AsyncStorage.getItem(root + "DatosPersonales") != null &&
-            await AsyncStorage.getItem(root + "DatosDomicilio") != null &&
-            await AsyncStorage.getItem(root + "DatosContacto") != null
-        );
+        return ( await AsyncStorage.getItem(root + "DatosPersonales") != null && await AsyncStorage.getItem(root+"idCiudadano") != null );
     }
     async cerrarSsesion(){
         await AsyncStorage.multiRemove([root + "DatosPersonales",root + "DatosDomicilio",root + "DatosContacto"]);
     }
     async ObtenerPerfilCiudadano(){
-        /**
-         * 
-         *    Nombre:'',
-        ApellidoP:'',
-        ApellidoM:'',
-        CURP:'',
-        Email:'',
-         */
         let jsonCiudadano = await AsyncStorage.getItem(root + "DatosPersonales");
         let objectCiudadano = JSON.parse(jsonCiudadano);
-        let idCiudadano = await AsyncStorage.getItem(root + "idCiudadano");
-        console.log(idCiudadano);
+        console.log(objectCiudadano);
+        //console.log(idCiudadano);
         return [objectCiudadano.Nombre + " " + objectCiudadano.ApellidoP + " "+objectCiudadano.ApellidoM ,objectCiudadano.Email];
+    }
+    async guardarDatosPersonalesCiudadano( Personales ){
+        await AsyncStorage.setItem(root + "DatosPersonales", Personales);
     }
 }
