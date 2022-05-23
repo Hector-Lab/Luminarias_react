@@ -1,5 +1,5 @@
 import React,{ useEffect, useState } from  'react';
-import { View, Text, ImageBackground, Settings } from "react-native";
+import { View, Text, ImageBackground, Settings, SafeAreaView, StatusBar } from "react-native";
 import { Appbar } from 'react-native-paper';
 import { Avatar } from 'react-native-elements';
 import  Styles from  '../../Styles/styles';
@@ -59,7 +59,8 @@ export default function MenuReportes(props: any) {
     }
 
     return(
-        <View style = {{ flex:1 }} >
+        <SafeAreaView style = {{ flex:1 }} >
+            <StatusBar backgroundColor = "#000000" ></StatusBar>
             <Appbar style = {{backgroundColor:"white"}} >
                 <Appbar.Content title="Menu" />
                 <Appbar.Action icon={'account-details'} onPress={ PerfilCiudadano } />
@@ -138,6 +139,6 @@ export default function MenuReportes(props: any) {
                 tittle = { "Mensaje" }
                 transparent = {false}
             />
-        </View>
+        </SafeAreaView>
     );
 }

@@ -121,5 +121,17 @@ export class APIServices {
             body:jsonData
         });
     }
+    actualizarDatosPersonales( data:any ){
+        let jsonData = JSON.stringify(data);
+        return fetch('https://api.servicioenlinea.mx/api-movil/ReporteC4/ActualizarDatosPersonales',{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
+
     
 }

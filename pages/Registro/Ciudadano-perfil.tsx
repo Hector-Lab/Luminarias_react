@@ -31,6 +31,9 @@ export default function Contactos(props: any) {
         setNombre(datos[0]);
         setEmail(datos[1]);
     }
+    const EditarDatosPersonales = async () =>{
+        props.navigation.navigate("EditarPersonales");
+    }
 
     return(
         <SafeAreaView style = {{flex:1}} >
@@ -53,7 +56,7 @@ export default function Contactos(props: any) {
                         <Text style = {{marginTop:20,marginBottom:5, fontWeight:"bold", fontSize:18}} > {nombre} </Text>
                         <Text> { email } </Text>
                         <View style = { [Styles.itemPerfil,{marginTop:100}]}>
-                            <TouchableOpacity style ={{flex:1, flexDirection:"row"}} >
+                            <TouchableOpacity style ={{flex:1, flexDirection:"row"}} onPress = {EditarDatosPersonales} >
                                 <Text style = {{textAlign:"left",flex:10,fontWeight:"bold" }} > Editar Datos Personales </Text>
                                 <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style = {{textAlign:"left",flex:2,fontWeight:"bold"}} > Domicilio </Icon>
                             </TouchableOpacity>
@@ -65,7 +68,7 @@ export default function Contactos(props: any) {
                             </TouchableOpacity>
                         </View>
                         <View style = {Styles.itemPerfil} >
-                            <TouchableOpacity style ={{flex:1, flexDirection:"row"}}  >
+                            <TouchableOpacity style ={{flex:1, flexDirection:"row"}} >
                                 <Text style = {{textAlign:"left",flex:10,fontWeight:"bold" }} > Editar Contactos </Text>
                                 <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style = {{textAlign:"left",flex:2,fontWeight:"bold"}} > Domicilio </Icon>
                             </TouchableOpacity>

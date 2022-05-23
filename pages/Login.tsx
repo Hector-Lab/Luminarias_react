@@ -153,6 +153,7 @@ export default function Log(props: any) {
                     loadinColor={azulColor}
                     message={mensaje}
                     onCancelLoad={() => { setMostrarMensaje(false) }}
+                    onConfirmarLoad = { ()=>{ setMostrarMensaje(false) } }
                     transparent={true}
                 />
             </ImageBackground>

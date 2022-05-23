@@ -282,7 +282,7 @@ export async function FinalizarRegistro( Contactos ){
         throw verificarErrores(error);
     }
 }
-export async function  IniciarSession( Credenciales ) {
+export async function IniciarSession( Credenciales ) {
     try{
         let datos = {
             'Curp':Credenciales.Curp,
@@ -291,7 +291,6 @@ export async function  IniciarSession( Credenciales ) {
         }
         let data = await service.iniciarSessionCiudadano( datos );
         let Ciudadano = await data.json();
-        console.log(Ciudadano);
         if( Ciudadano.Status ){
             storageBaches.guardarIdCiudadano(String(Ciudadano.id));
             storageBaches.guardarDatosPersonalesCiudadano(JSON.stringify(Ciudadano.Ciudadano));
@@ -299,6 +298,23 @@ export async function  IniciarSession( Credenciales ) {
         }else{
             throw userNotFound;
         }
+    }catch( error ){
+        throw verificarErrores(error);
+    }
+}
+export async function actualiarDatosPersonales( datosPersonales:{ Nombre:String,ApellidoP:String,ApellidoM:String,CURP:String,Email:String,Telefono:String,Password:String} ){
+    try{
+        let ciudadano = await storageBaches.obtenerIdCiudadano();
+        
+        let datos = {
+            'Cliente':String(CLIENTE),
+            'Ciudadano':String(ciudadano),
+            'Personales':JSON.stringify(datosPersonales)
+        }
+        let respuesta = await service.actualizarDatosPersonales(datos);
+        let jsonRepuesta = await respuesta.json();
+        return jsonRepuesta;
+
     }catch( error ){
         throw verificarErrores(error);
     }

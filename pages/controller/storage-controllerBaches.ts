@@ -125,11 +125,13 @@ export class StorageBaches {
     async ObtenerPerfilCiudadano(){
         let jsonCiudadano = await AsyncStorage.getItem(root + "DatosPersonales");
         let objectCiudadano = JSON.parse(jsonCiudadano);
-        console.log(objectCiudadano);
         //console.log(idCiudadano);
         return [objectCiudadano.Nombre + " " + objectCiudadano.ApellidoP + " "+objectCiudadano.ApellidoM ,objectCiudadano.Email];
     }
     async guardarDatosPersonalesCiudadano( Personales ){
         await AsyncStorage.setItem(root + "DatosPersonales", Personales);
+    }
+    async obtenerDatosPersonalesCiudadano( ){
+        return await AsyncStorage.getItem(root + "DatosPersonales");
     }
 }
