@@ -3,19 +3,22 @@ import React,{Component} from 'react';
 import { View, StyleSheet,Text, Modal, TouchableOpacity} from 'react-native';
 import { Icon } from 'react-native-elements'
 import { Card} from 'react-native-elements'
+import { azulColor } from '../../Styles/Color';
 
 export default class Message extends React.Component<
 {   
     transparent:boolean,
     loading: boolean,
     loadinColor: string,
-    onCancelLoad: any
+    onCancelLoad: any,
     icon: string,
     iconsource: string,
     color:string,
     message: string,
     tittle: string,
-    buttonText: string
+    buttonText: string,
+    buttonCancel?:boolean
+    onConfirmarLoad?:any
 }>{
     render(){
         return(
@@ -43,11 +46,30 @@ export default class Message extends React.Component<
                             <View style = {styles.mensajeConteiner}>
                             <Text >{this.props.message}</Text>
                             </View>
-                            <TouchableOpacity 
-                                style={styles.btnButton}
-                                onPress = {this.props.onCancelLoad} >
-                                    <Text style = {{color: "white"}}  >{this.props.buttonText}</Text>
-                            </TouchableOpacity>
+                            {
+                                this.props.buttonCancel ? (
+                                    <View style = { {flexDirection:"row"} } >
+                                        <TouchableOpacity 
+                                            style={[styles.btnButton,{ flex:6, marginRight:10, backgroundColor:azulColor }]}
+                                            onPress = {this.props.onConfirmarLoad} >
+                                                <Text style = {{color: "white"}}  >{this.props.buttonText}</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity 
+                                            style={[styles.btnButton,{flex:6}]}
+                                            onPress = {this.props.onCancelLoad} >
+                                                <Text style = {{color: "white"}}  >{"Cancelar"}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                ):
+                                (<View>
+                                    <TouchableOpacity 
+                                        style={styles.btnButton}
+                                        onPress = {this.props.onConfirmarLoad} >
+                                            <Text style = {{color: "white"}}  >{"Aceptar"}</Text>
+                                    </TouchableOpacity>
+                                </View>)
+                            }
+                            
                         </Card>
                     </View>
                     <View style = {styles.modalFooterConainer}>

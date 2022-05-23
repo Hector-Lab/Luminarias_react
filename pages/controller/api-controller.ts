@@ -272,7 +272,8 @@ export async function FinalizarRegistro( Contactos ){
                 await storageBaches.guardarIdCiudadano(String(jsonRespuesta.Ciudadano));
                 return jsonRespuesta.Mensaje;
             }else if ( jsonRespuesta.Code == 403 ){
-                throw ErrorC4UsuarioRegistrado;
+                return "-1";
+                //throw ErrorC4UsuarioRegistrado;
             }else if ( jsonRespuesta.Code = 402 ){
                 throw ErrorC4Registro;
             }

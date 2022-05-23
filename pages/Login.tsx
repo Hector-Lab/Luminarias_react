@@ -10,15 +10,15 @@ import * as Yup from 'yup';
 import { IniciarSession } from './controller/api-controller';
 import Loading from './components/modal-loading';
 import Message from './components/modal-message';
-import { USER_COG, WIFI_OFF,DESCONOCIDO,APPSETTINGS } from '../Styles/Iconos';
+import { USER_COG, WIFI_OFF, DESCONOCIDO, APPSETTINGS } from '../Styles/Iconos';
 
 export default function Log(props: any) {
-    const [ cargando, setCargando ] = useState(false);
-    const [ mensaje, setMensaje ] = useState("");
-    const [ icono, setIcono ] = useState( USER_COG[0] );
-    const [ fuenteIcono, setFuenteIcono ] =  useState( USER_COG[1] );
-    const [ titulo, setTitilo ] =  useState('Mensaje');
-    const [ mostrarMensaje, setMostrarMensaje ] = useState( true );
+    const [cargando, setCargando] = useState(false);
+    const [mensaje, setMensaje] = useState("");
+    const [icono, setIcono] = useState(USER_COG[0]);
+    const [fuenteIcono, setFuenteIcono] = useState(USER_COG[1]);
+    const [titulo, setTitilo] = useState('Mensaje');
+    const [mostrarMensaje, setMostrarMensaje] = useState(false);
     let storage = new StorageBaches();
     useEffect(
         () => {
@@ -26,7 +26,6 @@ export default function Log(props: any) {
         },
         [])
     const verificandoSession = async () => {
-        console.log(await storage.verificarDatosCiudadano());
         if (await storage.verificarDatosCiudadano()) {
             setCargando(false);
             props.navigation.dispatch(
@@ -35,7 +34,7 @@ export default function Log(props: any) {
                     routes: [{ name: 'Menu' }]
                 })
             );
-        }else{
+        } else {
             setCargando(false);
         }
     }
@@ -44,28 +43,28 @@ export default function Log(props: any) {
         props.navigation.navigate("Personales");
     }
     const iniciarSession = async (datos) => {
-        setCargando( true );
+        setCargando(true);
         await IniciarSession(datos)
-        .then(()=>{
-            setCargando( false );
-            props.navigation.dispatch(
-                CommonActions.reset({
-                    index: 1,
-                    routes: [{ name: 'Menu' }]
-                })
-            );
-        }).catch((error)=>{
-            lanzarMensaje("Mensaje",error.message,APPSETTINGS[0],APPSETTINGS[1]);
-            /*if(String(error).includes("!Sin acceso a internet¡")){
-                lanzarMensaje("Mensaje",error.message,WIFI_OFF[0],WIFI_OFF[1]);
-            }else if (String(error).includes("¡Error desconocido!")){
-                lanzarMensaje("Mensaje",error.message,DESCONOCIDO[0],DESCONOCIDO[1]);
-            }else if(String(error).includes("Servicio en Mantenimiento")){
-                lanzarMensaje("Mensaje",error.message,APPSETTINGS[0],APPSETTINGS[1]);
-            }*/
-            
-            setCargando( false );
-        })
+            .then(() => {
+                setCargando(false);
+                props.navigation.dispatch(
+                    CommonActions.reset({
+                        index: 1,
+                        routes: [{ name: 'Menu' }]
+                    })
+                );
+            }).catch((error) => {
+                lanzarMensaje("Mensaje", error.message, APPSETTINGS[0], APPSETTINGS[1]);
+                /*if(String(error).includes("!Sin acceso a internet¡")){
+                    lanzarMensaje("Mensaje",error.message,WIFI_OFF[0],WIFI_OFF[1]);
+                }else if (String(error).includes("¡Error desconocido!")){
+                    lanzarMensaje("Mensaje",error.message,DESCONOCIDO[0],DESCONOCIDO[1]);
+                }else if(String(error).includes("Servicio en Mantenimiento")){
+                    lanzarMensaje("Mensaje",error.message,APPSETTINGS[0],APPSETTINGS[1]);
+                }*/
+
+                setCargando(false);
+            })
     }
     let valores = {
         Curp: '',
@@ -75,10 +74,10 @@ export default function Log(props: any) {
         Curp: Yup.string().min(18).required('Requerido'),
         Password: Yup.string().min(8).required('Requerido')
     });
-    const lanzarMensaje = ( titulo,mensaje,icono,fuenteIcono ) =>{
-        setTitilo( titulo );
+    const lanzarMensaje = (titulo, mensaje, icono, fuenteIcono) => {
+        setTitilo(titulo);
         setMensaje(mensaje);
-        setIcono( icono );
+        setIcono(icono);
         setFuenteIcono(fuenteIcono);
         setMostrarMensaje(true);
     }
@@ -88,10 +87,10 @@ export default function Log(props: any) {
                 <Formik
                     initialValues={valores}
                     validationSchema={validacion}
-                    onSubmit = { datos => iniciarSession(datos) }
+                    onSubmit={datos => iniciarSession(datos)}
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => {
-                        return <View  style ={{flex:1}} >
+                        return <View style={{ flex: 1 }} >
                             <View style={{ flex: 2 }} >
                                 <View style={{ flex: 2, borderColor: "black", justifyContent: "center" }} >
                                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
@@ -108,23 +107,23 @@ export default function Log(props: any) {
                             </View>
                             <View style={{ flex: 5, flexDirection: "column", justifyContent: "center" }}>
                                 <Text style={Styles.TemaLabalCampo} >CURP</Text>
-                                <TextInput 
-                                    style = { ( errors.Curp && touched.Curp ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                    placeholder = "Ejemplo: Juan Perez"
+                                <TextInput
+                                    style={(errors.Curp && touched.Curp) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                    placeholder="Ejemplo: Juan Perez"
                                     onChangeText={handleChange('Curp')}
-                                    value = {values.Curp}
+                                    value={values.Curp}
                                 ></TextInput>
 
                                 <Text style={Styles.TemaLabalCampo} >Contraseña</Text>
-                                <TextInput 
-                                    style = { ( errors.Password && touched.Password ) ? Styles.TemaCampoError : Styles.TemaCampo }  
+                                <TextInput
+                                    style={(errors.Password && touched.Password) ? Styles.TemaCampoError : Styles.TemaCampo}
                                     secureTextEntry
-                                    placeholder = "Ejemplo: Juan Perez"
+                                    placeholder="Ejemplo: Juan Perez"
                                     onChangeText={handleChange('Password')}
-                                    value = {values.Password}
+                                    value={values.Password}
                                 ></TextInput>
 
-                                <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 20 }]} onPress = {handleSubmit} >
+                                <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 20 }]} onPress={handleSubmit} >
                                     <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Ingresar </Text>
                                 </TouchableOpacity>
                                 <Text style={[Styles.textoSubrayado]} onPress={RegistrarUsuario} > Registrate </Text>
@@ -137,25 +136,25 @@ export default function Log(props: any) {
                     }}
                 </Formik>
                 <Loading
-                    loading = { cargando }
-                    message = { "" }
-                    loadinColor = { azulColor }
-                    onCancelLoad = { ()=>{setCargando(false)}}
-                    tittle = { "" }
-                    transparent = { true }
-                    />
+                    loading={cargando}
+                    message={""}
+                    loadinColor={azulColor}
+                    onCancelLoad={() => { setCargando(false) }}
+                    tittle={""}
+                    transparent={true}
+                />
                 <Message
-                    loading = { mostrarMensaje }
-                    tittle = {titulo}
-                    buttonText = {"Aceptar"}
-                    color = { azulColor }
-                    icon = { icono }
-                    iconsource = { fuenteIcono }
-                    loadinColor = {azulColor}
-                    message = { mensaje }
-                    onCancelLoad  = {()=>{setMostrarMensaje(false)}}
-                    transparent = {true}
-                    />
+                    loading={mostrarMensaje}
+                    tittle={titulo}
+                    buttonText={"Aceptar"}
+                    color={azulColor}
+                    icon={icono}
+                    iconsource={fuenteIcono}
+                    loadinColor={azulColor}
+                    message={mensaje}
+                    onCancelLoad={() => { setMostrarMensaje(false) }}
+                    transparent={true}
+                />
             </ImageBackground>
         </View>);
 

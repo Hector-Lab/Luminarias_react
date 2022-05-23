@@ -37,7 +37,7 @@ let validacion = Yup.object().shape({
 });
 export default function Perfil(props: any) {
     let [ cargando, setCargando ] = useState( false );
-    let [ mostrarMensaje, setMostrarMensaje ] = useState( false );
+    let [ mostrarMensaje, setMostrarMensaje ] = useState( true );
     let [ icono, setIcono ] = useState("info");
     let [ fuenteIcono, setFuenteIcono ] = useState("material");
     let [ tituloMensaje, setTituloMensaje ] = useState("Mensaje");
@@ -49,8 +49,12 @@ export default function Perfil(props: any) {
         await FinalizarRegistro(Contactos)
             .then(( respuesta ) => {
                 setCargando( false );
-                lanzarMensaje(respuesta,"Mensaje","info","material");
-                setAbrirMenu(true);
+                if (String(respuesta).includes("-1")){
+                    lanzarMensaje("¡La CURP ingresada esta registrada!|\nActualizar Información","Mensaje","info","material");
+                }else{
+                    lanzarMensaje(respuesta,"Mensaje","info","material");
+                    setAbrirMenu(true);
+                }
             })
             .catch(( error ) => {
                 setCargando( false );
@@ -77,6 +81,9 @@ export default function Perfil(props: any) {
             setMostrarMensaje(false);
         }
         
+    }
+    const actualizarDatosCiudadano = () =>{
+        console.log("Actualizando datos");
     }
     return (
         <SafeAreaView style={{ flex: 1 }} >
@@ -193,6 +200,8 @@ export default function Perfil(props: any) {
                     message = { mensaje }
                     tittle = { tituloMensaje }
                     buttonText = {"Aceptar"}
+                    buttonCancel = { true }
+                    onConfirmarLoad = { actualizarDatosCiudadano }
                 />
             </ImageBackground>
         </SafeAreaView>
