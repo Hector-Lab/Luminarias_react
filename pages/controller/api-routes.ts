@@ -132,6 +132,60 @@ export class APIServices {
             body:jsonData
         });
     }
-
+    obtenerDatosDomicilio( data:any ){
+        let jsonData = JSON.stringify(data);
+        return fetch(`https://api.servicioenlinea.mx/api-movil/ReporteC4/DatosDomicilio`,{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
+    actualizarDatosDomicilio( data:any ){
+        let jsonData = JSON.stringify(data);
+        return fetch(`https://api.servicioenlinea.mx/api-movil/ReporteC4/ActualizarDomicilio`,{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
+    obtenerContactosCiudadano(data:object){
+        let jsonData = JSON.stringify(data);
+        return fetch(`https://api.servicioenlinea.mx/api-movil/ReporteC4/DatosContacto`,{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
+    actualizarDatosContactos( data:object ){
+        let jsonData = JSON.stringify(data);
+        return fetch(`https://api.servicioenlinea.mx/api-movil/ReporteC4/ActualizarDatosContacto`,{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
+    actualizarRegistro( data:object ){
+        let jsonData = JSON.stringify(data);
+        return fetch(`https://api.servicioenlinea.mx/api-movil/ReporteC4/ActualizarCiudadano`,{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
     
 }

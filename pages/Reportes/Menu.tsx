@@ -128,7 +128,9 @@ export default function MenuReportes(props: any) {
                 loadinColor = {BlueColor}
                 loading = {MostrarMendaje}
                 message = {mensaje}
+                onConfirmarLoad = {()=>{setMostrarMensaje(false)}}
                 onCancelLoad = {()=>{setMostrarMensaje(false)}
+                
             }
             />
             <Loading

@@ -14,6 +14,8 @@ import Contactos from '../pages/Registro/Datos-Contacto';
 import Perfil from '../pages/Registro/Ciudadano-perfil';
 import EditarPersonales from '../pages/Editar/DatosPersonales';
 import EditarDomicilio from '../pages/Editar/DatosDomicilio';
+import EditarContacto from '../pages/Editar/DatosContacto';
+
 
 const Stack = createStackNavigator();
 function Nav() {
@@ -43,6 +45,9 @@ function Nav() {
                     </Stack.Screen>
                     <Stack.Screen name='EditarDomicilio'>
                         { props=> < EditarDomicilio {...props } ></ EditarDomicilio> }
+                    </Stack.Screen>
+                    <Stack.Screen name='EditarContacto'>
+                        { props=> < EditarContacto {...props } ></ EditarContacto> }
                     </Stack.Screen>
                     { /*NOTE: Final de seccion */ }
                     <Stack.Screen name='Reportes'

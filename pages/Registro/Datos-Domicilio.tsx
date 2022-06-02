@@ -57,7 +57,7 @@ export default function Domicilio(props: any) {
                                 <Text style = {Styles.TemaLabalCampo} >Localidad</Text>
                                 <TextInput 
                                     style = { ( errors.Localidad && touched.Localidad ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                    placeholder = "Ejemplo: Juan Perez"
+                                    placeholder = "Ejemplo: Ciatitlan Izcalli"
                                     onChangeText={handleChange('Localidad')}
                                     value = {values.Localidad} />
                                 <Text style = {Styles.TemaLabalCampo} >Calle</Text>
@@ -80,6 +80,7 @@ export default function Domicilio(props: any) {
                                     value = {values.Colonia} />
                                 <Text style = {Styles.TemaLabalCampo} >Codigo Postal {( errors.CodigoPostal && touched.CodigoPostal && values.CodigoPostal != "" ) ? <Text style = {{ color:"red" }} > No valido </Text>: <></>} </Text>
                                 <TextInput 
+                                    keyboardType="numeric"
                                     style = { ( errors.CodigoPostal && touched.CodigoPostal) ? Styles.TemaCampoError : Styles.TemaCampo } 
                                     placeholder = "Ejemplo: 54716"
                                     onChangeText={handleChange('CodigoPostal')}

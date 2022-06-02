@@ -108,6 +108,7 @@ export default function Log(props: any) {
                             <View style={{ flex: 5, flexDirection: "column", justifyContent: "center" }}>
                                 <Text style={Styles.TemaLabalCampo} >CURP</Text>
                                 <TextInput
+                                    autoCapitalize="characters"                                
                                     style={(errors.Curp && touched.Curp) ? Styles.TemaCampoError : Styles.TemaCampo}
                                     placeholder="Ejemplo: Juan Perez"
                                     onChangeText={handleChange('Curp')}
@@ -116,8 +117,10 @@ export default function Log(props: any) {
 
                                 <Text style={Styles.TemaLabalCampo} >Contraseña</Text>
                                 <TextInput
+                                    textContentType="password"
+                                    keyboardAppearance="dark"m
                                     style={(errors.Password && touched.Password) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                    secureTextEntry
+                                    secureTextEntry = { true }
                                     placeholder="Ejemplo: Juan Perez"
                                     onChangeText={handleChange('Password')}
                                     value={values.Password}

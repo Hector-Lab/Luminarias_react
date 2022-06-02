@@ -84,46 +84,59 @@ export default function Personales(props: any) {
                             return <View>
                                 <Text style = {Styles.TemaLabalCampo} >Nombre</Text>
                                 <TextInput 
+                                    keyboardType="default"
                                     style = { ( errors.Nombre && touched.Nombre ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                    placeholder = "Ejemplo: Juan Perez"
+                                    placeholder = "Ejemplo: Juan"
                                     onChangeText={handleChange('Nombre')}
                                     value = {values.Nombre}
                                     />
 
                                 <Text style = {Styles.TemaLabalCampo} >Apellido Paterno</Text>
                                 <TextInput 
+                                    keyboardType="default"
+                                    textContentType="name"
                                     style = { ( errors.ApellidoP && touched.ApellidoP ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                    placeholder = "Ejemplo: Juan Perez"
+                                    placeholder = "Ejemplo: Perez"
                                     onChangeText={handleChange('ApellidoP')}
                                     value = { values.ApellidoP } />
 
                                 <Text style = {Styles.TemaLabalCampo} >Apellido Materno</Text>
                                 <TextInput 
+                                    keyboardType="default"
+                                    textContentType="name"
                                     style = { ( errors.ApellidoM && touched.ApellidoM ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                    placeholder = "Ejemplo: Juan Perez"
+                                    placeholder = "Ejemplo: Perez"
                                     onChangeText={handleChange('ApellidoM')}
                                     value = {values.ApellidoM} />
 
                                 <Text style = {Styles.TemaLabalCampo} >CURP</Text>
-                                <TextInput 
+                                <TextInput
+                                    textContentType="name"
+                                    keyboardType="default"
+                                    autoCapitalize="characters"
                                     style = { ( errors.CURP && touched.CURP ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                    placeholder = "Ejemplo: Juan Perez"
+                                    placeholder = "XXXXXXXXXXXXXXXXXX"
                                     onChangeText={handleChange('CURP')}
                                     value = {values.CURP} />
                                 <Text style = {Styles.TemaLabalCampo} >Correo Electrónico</Text>
                                 <TextInput 
+                                    textContentType="emailAddress"
+                                    keyboardType="email-address"
                                     style = { ( errors.Email && touched.Email ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                    placeholder = "Ejemplo: Juan Perez"
+                                    placeholder = "Ejemplo: ccuatrotest@gmail.com"
                                     onChangeText={handleChange('Email')}
                                     value = {values.Email} />
                                 <Text style = {Styles.TemaLabalCampo} >Telefono</Text>
                                 <TextInput 
+                                    textContentType="telephoneNumber"
+                                    keyboardType="phone-pad"
                                     style = { ( errors.Telefono && touched.Telefono ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                    placeholder = "Ejemplo: Juan Perez"
+                                    placeholder = "Ejemplo: 55 12 34 56 78"
                                     onChangeText={handleChange('Telefono')}
                                     value = {values.Telefono} />
                                 <Text style = {Styles.TemaLabalCampo} >Contraseña { (values.Password.length < 8 && touched.Password ) ? <Text style = {{color:"red"}} > Minimo 8 caracteres </Text> : <></> } </Text>
-                                <TextInput 
+                                <TextInput
+                                    textContentType="password"
                                     style = { ( errors.Password && touched.Password ) ? Styles.TemaCampoError : Styles.TemaCampo } 
                                     placeholder = "Contraseña"
                                     secureTextEntry = {true}
@@ -138,7 +151,7 @@ export default function Personales(props: any) {
                 </ScrollView>
                 <Message
                     transparent = {true}
-                    loading = { mostrarMensaje }
+                    loading = { false }
                     loadinColor = { azulColor }
                     icon = { icono }
                     iconsource = { fuenteIcono }

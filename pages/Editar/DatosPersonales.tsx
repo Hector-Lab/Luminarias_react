@@ -4,11 +4,12 @@ import { Avatar } from 'react-native-elements';
 import Styles  from '../../Styles/styles';
 import { Formik,useFormik, useFormikContext, validateYupSchema } from 'formik';
 import * as Yup from 'yup';
-import { verificarcurp } from '../../utilities/utilities';
 import Message  from '../components/modal-message';
 import { azulColor, SuinpacRed } from "../../Styles/Color";
 import { StorageBaches } from '../controller/storage-controllerBaches';
 import { actualiarDatosPersonales } from '../controller/api-controller';
+import Loading from "../components/modal-loading";
+import { DESCONOCIDO, ERROR, OK } from "../../Styles/Iconos";
 
 export default function Personales(props: any) {
     let [ curpValida, sertCurpValida ] = useState( false );
@@ -18,9 +19,9 @@ export default function Personales(props: any) {
     let [ icono, setIcono ] = useState( "info" );
     let [ fuenteIcono, setFuenteIcono ] = useState("material");
     let [ mostrarMensaje, setMostrarMensaje ] = useState(false);
+    let [ cargando, setCargando ] =  useState(true);
     
     let storage = new StorageBaches();
-    let errorMensajeCurp = ['','CURP no Valida','Formato no Valido'];
     let validacion = Yup.object().shape({
         Nombre: Yup.string().required('Requerido'),
         ApellidoP:Yup.string().required('Requerido'),
@@ -39,31 +40,15 @@ export default function Personales(props: any) {
             Telefono:'',
             Password:''
         },
-        onSubmit:( values =>{ ActualizarDatos(values) } ),
+        onSubmit:( values =>{ 
+            setCargando( true );
+            ActualizarDatos(values); }),
         validationSchema:validacion
     })
     useEffect(()=>{
+        //NOTE: lo cambiam
         obtenerDatosPersonales();
     },[])
-    const SiguientePaso = () =>{
-        props.navigation.navigate("Domicilio");
-    }
-    const ValidarDatosEspeciales = async ( datos ) =>{
-        //NOTE: validamos la curp
-        let mensajeError = errorMensajeCurp[verificarcurp(datos.CURP)] ;
-        if( mensajeError.length != 0 ){
-            setMensaje(mensajeError);
-            setMostrarMensaje( mensajeError.length != 0);
-            setIcono('info');
-            setFuenteIcono('material');
-        }else{
-            //NOTE: guardamos los datos en la base de datos
-            await storage.datosPersonalesPreRegistro(JSON.stringify(datos))
-            .then(()=>{
-                SiguientePaso();
-            });
-        }
-    }
     const obtenerDatosPersonales = async () =>{
         let personales = await storage.obtenerDatosPersonalesCiudadano();
         if(personales != undefined ){
@@ -75,6 +60,7 @@ export default function Personales(props: any) {
             formik.setFieldValue("Email",datosPersonales.Email);
             formik.setFieldValue("Telefono",datosPersonales.Telefono);
         }
+        setCargando(false);
     }
     let values = {}
     const ActualizarDatos = async ( value:{ Nombre:String,ApellidoP:String,ApellidoM:String,CURP:String,Email:String,Telefono:String,Password:String} ) => {
@@ -83,17 +69,25 @@ export default function Personales(props: any) {
             //NOTE: Enviamos los datos a la api para su actualizacion
             await actualiarDatosPersonales(value)
             .then((result)=>{
-                console.log(result)
+                obtenerDatosPersonales();
+                lanzarMensaje( "Datos Actualizados","Mensaje",OK[0],OK[1]);
             })
-            .catch((erro)=>{
-                console.log(erro);
+            .catch((error)=>{
+                lanzarMensaje(mensaje,"Mensaje", mensaje.includes("¡Error al actualizar personales!") ? ERROR[0] : DESCONOCIDO[0],  mensaje.includes("¡Error al actualizar personales!") ? ERROR[1] : DESCONOCIDO[1]);
+            }).finally(()=>{
+                setCargando(false);
             })
         }else{
             formik.setFieldError("Password","Minimo 8 Caracteres");
         }
-
-
      }
+     const lanzarMensaje = async (mensaje: string, titulo: string, icono: string, iconoFuente: string) => {
+        setMensaje(mensaje);
+        setTitulo(titulo);
+        setIcono(icono);
+        setFuenteIcono(iconoFuente);
+        setMostrarMensaje( true );
+    }
     return(
         <SafeAreaView style = {{flex:1}}>
             <ImageBackground source = { require('../../assets/Fondo.jpeg') } style = {{ flex:1 }} >
@@ -164,7 +158,7 @@ export default function Personales(props: any) {
                                         onChangeText={formik.handleChange("Password")}
                                         value = {formik.values.Password} />
                                     <TouchableOpacity style = { [Styles.btnGeneral,{marginTop:20}] } onPress = { formik.handleSubmit }>
-                                        <Text style = {[Styles.btnTexto,{textAlign:"center"}]} > Siguiente Paso </Text>
+                                        <Text style = {[Styles.btnTexto,{textAlign:"center"}]} > Guardar </Text>
                                     </TouchableOpacity>
                                 </View>
                             }}
@@ -181,7 +175,16 @@ export default function Personales(props: any) {
                     tittle = { titulo }
                     buttonText = { 'Aceptar' }
                     color = { azulColor }
-                    onCancelLoad = {()=>{ setMostrarMensaje( false ) }}
+                    onCancelLoad = {()=>{ }}
+                    onConfirmarLoad = {()=>{ setMostrarMensaje( false ) }}
+                />
+                <Loading
+                    transparent = { true }
+                    loading = { cargando }
+                    tittle = {"Mensaje"}
+                    loadinColor = { azulColor }
+                    onCancelLoad = {()=>{ setCargando(false) }}
+                    message = {""}
                 />
             </ImageBackground> 
         </SafeAreaView>

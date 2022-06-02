@@ -1,8 +1,8 @@
-import { ServerContainer } from '@react-navigation/native';
+import { ServerContainer, TabRouter } from '@react-navigation/native';
 import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageBaches } from '../controller/storage-controllerBaches';
-import { CLIENTE } from  '../../utilities/utilities';
+import { CLIENTE, verificarcurp } from  '../../utilities/utilities';
 
 const service = new APIServices();
 const storageBaches = new StorageBaches();
@@ -26,7 +26,12 @@ const Error500ReporteC4 = new Error("Servicio en Mantenimiento\nDisculpe las mol
 const Error224ReporteC4 = new Error("Error al enviar alerta, Reintentando");
 const ErrorC4UsuarioRegistrado = new Error("¡La CURP ingresada esta registrada!");
 const ErrorC4Registro = new Error("¡Error al registrar ciudadano!\nFavor de intentar más tarde");
-
+const ErrorDatosDomiclio = new Error("¡Error al obtener domicilio!\nFavor de intentar más tarde");
+const ErrorActualizarDomiclio = new Error("¡Error al actulizar el domicilio!\nFavor de intentar más tarde");
+const ErrorDatosContactos = new Error("¡Error al obtener los contatos!\nFavor de intentar más tarde");
+const ErrorActualizatContactos = new Error("¡Error al actualizar contactos!\nFavor de intentar más tarde");
+const ErrorActualizarPersonales = new Error("¡Error al actualizar personales!\nFavor de intentar más tarde");
+const ErrorActualizarCiudadano = new Error("¡Error al actualizar ciudadano!\nFavor de intentar más tarde")
 
 
 
@@ -279,6 +284,7 @@ export async function FinalizarRegistro( Contactos ){
             }
         }
     }catch( error ){
+        console.log(error);
         throw verificarErrores(error);
     }
 }
@@ -305,7 +311,6 @@ export async function IniciarSession( Credenciales ) {
 export async function actualiarDatosPersonales( datosPersonales:{ Nombre:String,ApellidoP:String,ApellidoM:String,CURP:String,Email:String,Telefono:String,Password:String} ){
     try{
         let ciudadano = await storageBaches.obtenerIdCiudadano();
-        
         let datos = {
             'Cliente':String(CLIENTE),
             'Ciudadano':String(ciudadano),
@@ -313,13 +318,151 @@ export async function actualiarDatosPersonales( datosPersonales:{ Nombre:String,
         }
         let respuesta = await service.actualizarDatosPersonales(datos);
         let jsonRepuesta = await respuesta.json();
-        return jsonRepuesta;
-
+        console.log(jsonRepuesta);
+        if(jsonRepuesta.Status){
+            //NOTE: Guardamos los datos personales del ciudadano
+            storageBaches.guardarDatosPersonalesCiudadano(datos.Personales);
+            return true;
+        }else{
+            throw ErrorActualizarPersonales;
+        }
     }catch( error ){
+        console.log(error);
         throw verificarErrores(error);
     }
 }
-
+export async function obtenerDatosDomicilio(){
+    try{
+        let idCiudadano = await storageBaches.obtenerIdCiudadano();
+        let datos = {
+            'Cliente': CLIENTE,
+            'Ciudadano':idCiudadano
+        };
+        let result = await service.obtenerDatosDomicilio(datos);
+        let jsonResult = await result.json();
+        if( jsonResult.Status ){
+            return jsonResult.Datos[0];
+        }else{
+            throw ErrorDatosDomiclio;
+        }
+    }catch( error ){
+        throw verificarErrores( error );
+    }
+}
+export async function ActualizarDatosDomiclio( jsonDatos ){
+    try {
+        let idCiudadano = await storageBaches.obtenerIdCiudadano(); 
+        let datos = {
+            Cliente: CLIENTE,
+            Ciudadano:parseInt(idCiudadano),
+            DatosDomiclio: jsonDatos
+        };
+        let result = await service.actualizarDatosDomicilio( datos );
+        let jsonResult = await result.json();
+        console.log(jsonResult);
+        if( jsonResult.Status ){
+            console.log(jsonResult);
+            return true;
+        }else{
+            throw ErrorActualizarDomiclio;
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
+export async function ObtenerDatosContacto(  ) {
+    try {
+        let idCiudadano = await storageBaches.obtenerIdCiudadano();
+        let datos = {
+            'Cliente':CLIENTE,
+            'Ciudadano':parseInt(idCiudadano)
+        };
+        let result = await service.obtenerContactosCiudadano(datos);
+        let jsonResult = await result.json();
+        //NOTE: Guardamos los contactos 
+        if(jsonResult.Status){
+            return jsonResult.Data;
+        }else{
+            throw ErrorDatosContactos;
+        }
+    }catch( error ){
+        console.log(error);
+        throw verificarErrores(error);
+    }
+}
+export async function ActualizarDatosContactos( Contactos,ids ){
+    try{
+        let idCiudadano = await storageBaches.obtenerIdCiudadano();
+        let Datoscontactos = {
+            UnoId:String(ids[0]).split(":")[1],
+            UnoNombre:Contactos.UnoNombre,
+            UnoTelefono:Contactos.UnoTelefono,
+            UnoDireccion:Contactos.UnoDireccion,
+            UnoEmail:Contactos.UnoEmail,
+            DosId:String(ids[1]).split(":")[1],
+            DosNombre:Contactos.DosNombre,
+            DosTelefono:Contactos.DosTelefono,
+            DosDireccion:Contactos.DosDireccion,
+            DosEmail:Contactos.DosEmail
+        }
+        let datos = {
+            'Cliente':CLIENTE,
+            'Ciudadano':parseInt(idCiudadano),
+            'Contactos':JSON.stringify(Datoscontactos)
+        };
+        let result = await service.actualizarDatosContactos( datos );
+        let jsonResult = await result.json();
+        console.log(jsonResult);
+        if(jsonResult.Status){
+            return true;
+        }else{
+            throw ErrorActualizatContactos;
+        }
+    }catch( error ){
+        console.log(error);
+        throw verificarErrores(error);
+    }
+}
+export async function ActualiarRegistroCiudadano( Contactos ){
+        //NOTE: Obtenemos todos los datos de la db
+        try{
+            let jsonDatosPersonales = await storageBaches.obtenerDatosPersonalesPreregistro();
+            let jsonDatosDomicilio = await storageBaches.obtenerDatosDomicilioPreRegistro();
+            if( jsonDatosPersonales != null && jsonDatosDomicilio != null ){
+                let jsonDatosContactos = JSON.stringify(Contactos);
+    
+                let DatosCiudadanos = {
+                    'Personales':jsonDatosPersonales,
+                    'Domicilio':jsonDatosDomicilio,
+                    'Contactos':jsonDatosContactos,
+                    'Cliente':CLIENTE
+                }
+                //NOTE: enviamos los datos a la API
+                let respuesta = await service.actualizarRegistro(DatosCiudadanos);
+                let jsonRespuesta = await respuesta.json();
+                if(jsonRespuesta.Status){
+                     //NOTE: guardamos los datos del ciudadano
+                    let objetoPersonales = JSON.parse(jsonDatosPersonales);
+                    let valores = {
+                        Nombre:objetoPersonales.Nombre,
+                        ApellidoP:objetoPersonales.ApellidoP,
+                        ApellidoM:objetoPersonales.ApellidoM,
+                        CURP:objetoPersonales.CURP,
+                        Email:objetoPersonales.Email,
+                        Telefono:objetoPersonales.Telefono,
+                        Password:objetoPersonales.Password
+                    }
+                    await storageBaches.guardarDatosCiudadanos(JSON.stringify(valores),jsonDatosDomicilio,jsonDatosContactos);
+                    await storageBaches.guardarIdCiudadano(String(jsonRespuesta.Ciudadano));
+                    return true;
+                }else{
+                    throw ErrorActualizarCiudadano;
+                }
+            }
+        }catch( error ){
+            throw verificarErrores(error);
+        }
+}
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
@@ -333,3 +476,4 @@ function verificarErrores(error:Error) {
     return error;
 
 }
+

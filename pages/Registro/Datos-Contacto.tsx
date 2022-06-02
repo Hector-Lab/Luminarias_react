@@ -6,11 +6,11 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { CommonActions } from '@react-navigation/native';
 import { StorageBaches } from '../controller/storage-controllerBaches';
-import { FinalizarRegistro } from '../controller/api-controller';
+import { FinalizarRegistro, ActualiarRegistroCiudadano } from '../controller/api-controller';
 import Loading from '../components/modal-loading';
 import { azulColor } from "../../Styles/Color";
 import Message from '../components/modal-message';
-import { DESCONOCIDO } from '../../Styles/Iconos';
+import { DESCONOCIDO,ERROR } from '../../Styles/Iconos';
 
 let Storage = new StorageBaches();
 let valores = {
@@ -37,20 +37,26 @@ let validacion = Yup.object().shape({
 });
 export default function Perfil(props: any) {
     let [ cargando, setCargando ] = useState( false );
-    let [ mostrarMensaje, setMostrarMensaje ] = useState( true );
+    let [ mostrarMensaje, setMostrarMensaje ] = useState( false );
     let [ icono, setIcono ] = useState("info");
     let [ fuenteIcono, setFuenteIcono ] = useState("material");
     let [ tituloMensaje, setTituloMensaje ] = useState("Mensaje");
     let [ mensaje, setMensaje ] =  useState("");
     let [ abrirMenu, setAbrirMenu ] = useState( false );
-    const finalizarRegistro = async (Contactos) => {
+    let [ contactos, setContactos ] = useState(null);
+    let [ botonCanelar, setBotonCancelar ] = useState( false );
+    let [actualizarCiudadano, setActualizarCiudadano] = useState(false);
+    const finalizarRegistro = async (datosContactos) => {
         //NOTE: Verificamos los datos del storage y lo enviamos al api
         setCargando( true );
-        await FinalizarRegistro(Contactos)
+        await FinalizarRegistro(datosContactos)
             .then(( respuesta ) => {
                 setCargando( false );
                 if (String(respuesta).includes("-1")){
+                    setBotonCancelar(true);
+                    setActualizarCiudadano(true);
                     lanzarMensaje("¡La CURP ingresada esta registrada!|\nActualizar Información","Mensaje","info","material");
+                    setContactos(datosContactos);
                 }else{
                     lanzarMensaje(respuesta,"Mensaje","info","material");
                     setAbrirMenu(true);
@@ -79,12 +85,38 @@ export default function Perfil(props: any) {
               );
         }else{
             setMostrarMensaje(false);
+        }  
+    }
+    const irMenu = () =>{
+        //NOTE: guardamos los datos 
+        props.navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [{ name:'Menu'}]
+            })
+          );
+    }
+    const actualizarDatosCiudadano = async () =>{
+        setMostrarMensaje(false);
+        setCargando(true);
+        if(contactos != null){
+            await ActualiarRegistroCiudadano(contactos)
+            .then(( result )=>{
+                setActualizarCiudadano(false);
+                setBotonCancelar(false);
+                setCargando(false);
+                irMenu();
+            })
+            .catch((error)=>{
+                let mensaje = String(error.message);
+                lanzarMensaje(mensaje,'Mensaje',mensaje.includes("¡Error al actualizar ciudadano!") ? Error[0] : DESCONOCIDO[0], mensaje.includes("¡Error al actualizar ciudadano!") ? Error[1] : DESCONOCIDO[1] );
+                setCargando(false);
+            })
+        }else{
+            console.log("No hay contactos");
         }
-        
     }
-    const actualizarDatosCiudadano = () =>{
-        console.log("Actualizando datos");
-    }
+
     return (
         <SafeAreaView style={{ flex: 1 }} >
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
@@ -118,13 +150,17 @@ export default function Perfil(props: any) {
                                     <View style={{ borderWidth: 1, borderRadius: 5, borderColor: "black", marginLeft: 20, marginRight: 20, borderStyle: "dashed" }} >
                                         <Text style={Styles.TemaLabalCampo} >Nombre</Text>
                                         <TextInput
+                                            keyboardType="default"
+                                            textContentType="name"
                                             style={(errors.UnoNombre && touched.UnoNombre) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Juan Perez"
+                                            placeholder="Ejemplo: Juan Perez Perez"
                                             onChangeText={handleChange('UnoNombre')}
                                             value={values.UnoNombre} />
 
                                         <Text style={Styles.TemaLabalCampo} >Telefono</Text>
                                         <TextInput
+                                            keyboardType="phone-pad"
+                                            textContentType="telephoneNumber"
                                             style={(errors.UnoTelefono && touched.UnoTelefono) ? Styles.TemaCampoError : Styles.TemaCampo}
                                             placeholder="Ejemplo: Avenida Violetas"
                                             onChangeText={handleChange('UnoTelefono')}
@@ -132,6 +168,8 @@ export default function Perfil(props: any) {
 
                                         <Text style={Styles.TemaLabalCampo} >Dirección</Text>
                                         <TextInput
+                                            keyboardType="default"
+                                            textContentType="fullStreetAddress"
                                             style={(errors.UnoDireccion && touched.UnoDireccion) ? Styles.TemaCampoError : Styles.TemaCampo}
                                             placeholder="Ejemplo: 20"
                                             onChangeText={handleChange('UnoDireccion')}
@@ -139,8 +177,10 @@ export default function Perfil(props: any) {
 
                                         <Text style={Styles.TemaLabalCampo} >Correo Electronico</Text>
                                         <TextInput
+                                            keyboardType="email-address"
+                                            textContentType="emailAddress"
                                             style={(errors.UnoEmail && touched.UnoEmail) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Colinas del Lago"
+                                            placeholder="Ejemplo: ccuatrotest@gmail.com"
                                             onChangeText={handleChange('UnoEmail')}
                                             value={values.UnoEmail} />
                                     </View>
@@ -148,29 +188,37 @@ export default function Perfil(props: any) {
                                     <View style={{ borderWidth: 1, borderRadius: 5, borderColor: "black", marginLeft: 20, marginRight: 20, borderStyle: "dashed" }} >
                                         <Text style={Styles.TemaLabalCampo} >Nombre</Text>
                                         <TextInput
+                                            keyboardType="default"
+                                            textContentType="name"
                                             style={(errors.DosNombre && touched.DosNombre) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Juan Perez"
+                                            placeholder="Ejemplo: Juan Perez Perez"
                                             onChangeText={handleChange('DosNombre')}
                                             value={values.DosNombre} />
 
                                         <Text style={Styles.TemaLabalCampo} >Telefono</Text>
                                         <TextInput
+                                            keyboardType="phone-pad"
+                                            textContentType="telephoneNumber"
                                             style={(errors.DosTelefono && touched.DosTelefono) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Avenida Violetas"
+                                            placeholder="Ejemplo: 55 12 34 56 78"
                                             onChangeText={handleChange('DosTelefono')}
                                             value={values.DosTelefono} />
 
                                         <Text style={Styles.TemaLabalCampo} >Direccion</Text>
                                         <TextInput
+                                            keyboardType="default"
+                                            textContentType="fullStreetAddress"
                                             style={(errors.DosDireccion && touched.DosDireccion) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: 20"
+                                            placeholder="Ejemplo: Olivos primero de marzo 20"
                                             onChangeText={handleChange('DosDireccion')}
                                             value={values.DosDireccion} />
 
                                         <Text style={Styles.TemaLabalCampo} > Correo Electronico </Text>
                                         <TextInput
+                                            keyboardType="email-address"
+                                            textContentType="emailAddress"
                                             style={(errors.DosEmail && touched.DosEmail) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Colinas del Lago"
+                                            placeholder="Ejemplo: ccuatrotest@gmail.com"
                                             onChangeText={handleChange('DosEmail')}
                                             value={values.DosEmail} />
                                     </View>
@@ -182,7 +230,7 @@ export default function Perfil(props: any) {
                     </Formik>
                 </ScrollView>
                 <Loading
-                    transparent={true}
+                    transparent={ true }
                     loading={ cargando }
                     loadinColor={ azulColor }
                     onCancelLoad={ ManejadorBotonMensaje }
@@ -200,8 +248,8 @@ export default function Perfil(props: any) {
                     message = { mensaje }
                     tittle = { tituloMensaje }
                     buttonText = {"Aceptar"}
-                    buttonCancel = { true }
-                    onConfirmarLoad = { actualizarDatosCiudadano }
+                    buttonCancel = { botonCanelar }
+                    onConfirmarLoad = { actualizarCiudadano ? actualizarDatosCiudadano : ()=>{ setMostrarMensaje( false ) } }
                 />
             </ImageBackground>
         </SafeAreaView>
