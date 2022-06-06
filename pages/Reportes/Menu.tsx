@@ -44,9 +44,6 @@ export default function MenuReportes(props: any) {
             setCargando( false );
         });
     }
-    const deteneServicio = () => {
-        detenerServicionUbicacion();
-    }
     const lanzarMensaje = ( mensaje: string , Titulo: string, Icono: string, FuenteIcono: string ) => {
         setTituloMensaje(Titulo);
         setMensaje(mensaje);
@@ -56,6 +53,9 @@ export default function MenuReportes(props: any) {
     }
     const PerfilCiudadano = () =>{
         props.navigation.navigate("Perfil");
+    }
+    const AtencionCiudadana = () =>{
+        props.navigation.navigate("Reportes");
     }
 
     return(
@@ -80,13 +80,13 @@ export default function MenuReportes(props: any) {
                 {/*INDEV: */ }
                 <View style = { [Styles.ContenedorElemento,{borderColor:"green"} ] } >
                     <MenuItem
-                        TextoArriba='Empatía'
+                        TextoArriba='Atencion'
                         TextoAbajo ='Ciudadana'
                         colorBoton ='#003356'
                         colorSombraBoton='rgba(158, 150, 150, .3)'
                         marginBotton={ 0 }
                         marginLeft = { 7 }
-                        onPress = { deteneServicio }
+                        onPress = { AtencionCiudadana }
                         fondo = {require('../../assets/Botones/BtnRedonda.png')}
                     />
                 </View>
@@ -120,7 +120,7 @@ export default function MenuReportes(props: any) {
             </ImageBackground>
             <Message
                 tittle = {tituloMensaje}
-                transparent = {false}
+                transparent = { true }
                 buttonText = {"Aceptar"}
                 color = {SuinpacRed}
                 icon = {mensajeIcon}

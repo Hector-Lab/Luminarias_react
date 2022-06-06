@@ -38,9 +38,8 @@ const ErrorActualizarCiudadano = new Error("¡Error al actualizar ciudadano!\nFa
 //INDEV: Nuevas funciones para la aplicacion de los baches
 export async function CatalogoSolicitud(){
     try{
-        let cliente = await storageBaches.obtenerCliente();
         let data = {
-            Cliente: cliente 
+            Cliente: CLIENTE
         };
         let rawData = await service.ObtenerCatalogoAreas(data);
         let result = await rawData.json();
@@ -68,16 +67,6 @@ export async function ObtenerMunicipios(){
         }else{
             return ErrorListaMunicipios;
         }
-    }catch( error ){
-        throw verificarErrores(error);
-    }
-}
-export async function RegistrarCiudadano( ciudadadano:any ){
-    //NOTE: esta validano en la interfaz
-    try{
-        let idCiudadano = await service.insertarCiudadano(ciudadadano);
-        let jsonRespuesta = await idCiudadano.json();
-        return jsonRespuesta;
     }catch( error ){
         throw verificarErrores(error);
     }
@@ -122,26 +111,6 @@ export async function ObtenerMisReportes (){
                 throw ErrorDesconocido;
             }
         }
-    }catch(error){
-        throw verificarErrores(error);
-    }
-}
-export async function RecuperarDatos(inputCliente: string, inputCurp: string ){
-    try{
-        let datos = {
-            "Cliente": inputCliente,
-            "Curp": inputCurp
-        };
-        let rawData = await service.recuperarDatosCiudadano(datos);
-        let ciudadano = await rawData.json();
-        if(ciudadano.Code == 200){
-            return JSON.stringify(ciudadano.Mensaje[0]);
-        }else if (ciudadano.Code == 404){
-            throw usuarioNoEncontrado;
-        } else if (ciudadano.Code == 403){
-            throw ErrorDesconocido;
-        }
-        
     }catch(error){
         throw verificarErrores(error);
     }
@@ -197,11 +166,12 @@ export async function GuardarReporteC4(Reporte:any) {
     try{
         let jsonReport = await service.insertarReporteC4(Reporte);
         let reportData = await jsonReport.json();
+        console.log(reportData);
         if( reportData.Code == 200 ){
             return("¡Reporte Guardado con Éxito!"); //Mensaje Guaradado
         }if(reportData.Code == 223) {
             throw(Error223ReporteC4);
-        }if(reportData.Code == 500){
+        }if(reportData.Code == 403){
             throw(Error500ReporteC4);
         }
     }catch( error ){

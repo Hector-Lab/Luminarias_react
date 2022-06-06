@@ -1,19 +1,10 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import DatosCiudadano from '../pages/Baches/DatosCiudadano';
 import Reportar from '../pages/Baches/CiudadanoReporte';
 import HistorialReporte from '../pages/Baches/HistorialReportes';
 import DetallesReporte from  '../pages/Baches/ReporteDetalle';
 import DetalleMapa from '../pages/Baches/ReporteMapa';
 const Stack = createStackNavigator();
-
-const StackCiudadano = () =>{
-    return(
-        <Stack.Navigator headerMode="none" >
-            <Stack.Screen name = "Mis datos" component = {DatosCiudadano} ></Stack.Screen>
-        </Stack.Navigator>
-    );
-}
 const StackReporte = () =>{
     return (
         <Stack.Navigator headerMode="none" >
@@ -31,4 +22,4 @@ const StackHistorial = () =>{
     );
 }
 
-export {StackCiudadano,StackReporte,StackHistorial}
+export {StackReporte,StackHistorial}

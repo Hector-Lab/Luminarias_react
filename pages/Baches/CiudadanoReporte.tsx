@@ -1,64 +1,39 @@
 import React, { useState, useEffect, useRef, Component } from "react";
-import Styles from "../../Styles/BachesStyles";
 import {
   TouchableOpacity,
   View,
-  Image,
   Dimensions,
-  Alert,
-  ScrollView,
-  TextInput,
-  Platform,
-  Linking,
+  ImageBackground,
+  Text
 } from "react-native";
-import { BlueColor, cardColor, DarkPrimaryColor } from "../../Styles/BachesColor";
-import { Text, Icon, Button, Card } from "react-native-elements";
-import Carousel, { ParallaxImage } from 'react-native-snap-carousel';
+import { Form, Formik, useFormik } from 'formik';
+import Style from '../../Styles/styles';
+import * as Yup from 'yup';
 import { Camera } from "expo-camera";
-import {
-  checkConnection,
-  CordenadasActualesNumerico,
-  ObtenerDireccionActual,
-} from "../../utilities/utilities";
-import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
 import * as Location from "expo-location";
-import {
-  CatalogoSolicitud,
-  EnviarReportes,
-} from "../controller/api-controller";
+import { CatalogoSolicitud } from "../controller/api-controller";
 import { StorageBaches } from "../controller/storage-controllerBaches";
 import Loading from "../components/modal-loading";
 import Message from "../components/modal-message";
-import {
-  OK,
-  DESCONOCIDO,
-  WIFI_OFF,
-  INFO,
-  ERROR,
-  CAMERA,
-  APPSETTINGS,
-  ADDPHOTO
-} from "../../Styles/Iconos";
+import { BlueColor } from '../../Styles/BachesColor';
+import { CAMERA, PREVIEW } from "../../Styles/Iconos";
 import DropDownPicker from 'react-native-dropdown-picker';
-import ImageView from "react-native-image-viewing";
-import ImageViewer from "../components/image-view";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, TextInput } from "react-native-gesture-handler";
+import { Icon } from "react-native-elements";
+
+const validacion = Yup.object().shape({
+  Referencia: Yup.string().required(),
+  Descripcion: Yup.string().required()
+});
+let initialValues = {
+  Referencia: "",
+  Descripcion: ""
+};
+
 export default function Reportar(props: any) {
   const storage = new StorageBaches();
   const [cameraPermissions, setCameraPermision] = useState(false);
-  const [arrayImageEncode, setArrayImageEncode] = useState([]);
-  const [flashOn, setFlashOn] = useState(false);
-  const [onCamera, setOnCamera] = useState(false);
-  const [coords, setCoords] = useState(null);
-  const [direccion, setDireccion] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [catalogoSolicitud, setCatalogoSolicitud] = useState([]);
-  const [seleccionSolicitud, setSeleccionSolicitud] = useState("-1");
-  const [referencia, setReferencia] = useState(String);
-  const [observaciones, setObservaciones] = useState(String);
-  const [direccionEnviar, setDireccionEnviar] = useState(String);
-  const [errorUi, setErrorUi] = useState(String);
-  const [iconSource, setIconSource] = useState(String);
   //NOTE: message title
   const [showMessage, setSHowMessage] = useState(false);
   const [messageIcon, setMessageIcon] = useState("info");
@@ -71,66 +46,54 @@ export default function Reportar(props: any) {
   const [modalImagenVisible, setModalImagenVisible] = useState(false);
   const { width: screenWidth } = Dimensions.get('window')
   //NOTE: manejadores del picker
-  const [ pickerAbierto, setPikcerAbierto ] = useState(false);
-  const [ FuenteIcono, setFuenteIcono ] = useState(String);
-  //NOTE: variable que identifica los datos
-  const [existeCiudadano , setExisteCiudadano ] = useState(false);
-  
-
+  const [pickerAbierto, setPikcerAbierto] = useState(false);
+  const [FuenteIcono, setFuenteIcono] = useState(String);
+  const [catalogoSolicitud, setCatalogoSolicitud] = useState([]);
+  const [seleccionSolicitud, setSeleccionSolicitud] = useState(String);
   let camera: Camera;
-  let dataListSolicitudes = [];
-  useEffect(()=>{
-    props.navigation.addListener('focus', VerificaSession );
-  },[]);
 
-  //INDEV: render con hooks
-  const VerificaSession = async () =>{
-    //NOTE: verificamos si existe el ciudadno para  habilitar los campos
-    let ciudadano = await storage.obtenerDatosPersona();
-    setExisteCiudadano( ciudadano != null );
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      await CatalogoSolicitud()
-      .then((arrayAreasSolicitud)=>{
-        dataListSolicitudes = arrayAreasSolicitud.map((elemento)=>{
-          return  { 
-            label: elemento.descripci_on , 
-            value: elemento.id,
-            key: elemento.id
-          };    
-        })
-        setCatalogoSolicitud(dataListSolicitudes);
-        if (status !== "granted") {
-          setErrorMsg("Permisos negados");
-          return;
-        }
-      })
-      .catch((error)=>{
-        if(String(error.message).includes("Sin acceso a internet")){
-          setMessageIcon(WIFI_OFF[0]);
-          setIconSource(WIFI_OFF[1]);
-        }else{
-          setMessageIcon(DESCONOCIDO[0]);
-          setIconSource(DESCONOCIDO[1]);
-        }
-        setErrorMsg(String(error.message));
-        setSHowMessage(true);
-      });
-    setLoading(false);
-  }
+  let formik = useFormik({
+    initialValues: initialValues,
+    onSubmit: () => { },
+    validationSchema: validacion
+  });
+
+  useEffect(() => {
+    obtenerTemas();
+  }, []);
+
+
   const iniciarCamara = async () => {
-    if(arrayImageEncode.length <= 2) {
+    /*if (arrayImageEncode.length <= 2) {
       setOnCamera(true);
-    }else{
+    } else {
       setOnCamera(false);
       setMessageIcon(ADDPHOTO[0]);
       setIconSource(ADDPHOTO[1]);
       setHeaderMessage("Mensaje");
       setErrorMsg("Límite de evidencia alcanzada (Máximo 3)");
       setSHowMessage(true);
-    }
+    }*/
   };
+  const obtenerTemas = async () => {
+    await CatalogoSolicitud()
+      .then((catalogo) => {
+        let listaSolicitudes = catalogo.map((elemento, index) => {
+          return {
+            label: elemento.descripci_on,
+            value: elemento.id,
+            key: elemento.id
+          };
+        });
+        console.log(listaSolicitudes);
+        setCatalogoSolicitud(listaSolicitudes);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  }
   const __takePicture = async () => {
-    if (arrayImageEncode.length <= 2) {
+    /*if (arrayImageEncode.length <= 2) {
       if (cameraPermissions) {
         if (!camera) {
           return;
@@ -164,10 +127,10 @@ export default function Reportar(props: any) {
         setCameraPermision(status === "granted");
       }
     }
-    setLoading(false);
+    setLoading(false);*/
   };
   const GuardarReporte = async () => {
-    setLoading(true);
+    /*setLoading(true);
     let connection = checkConnection();
     let ciudadano = await storage.obtenerIdCiudadano();
     let cliente = await storage.obtenerCliente();
@@ -218,39 +181,7 @@ export default function Reportar(props: any) {
       })
       .finally(() => {
         setLoading(false);
-      });
-  };
-  const verificarDatos = async () => {
-    //NOTE: verificamos los datos antes de enviar
-    //REVIEW: el tema, la direccion, la foto, la descripcion
-    setLoading(true);
-    let error = "";
-    seleccionSolicitud == "-1" ? (error += "T,") : error;
-    arrayImageEncode.length == 0 ? (error += error += "E,") : error;
-    referencia == "" ? (error += "R,") : error;
-    observaciones == "" ? (error += "D,") : error;
-    if (error != "") {
-      setErrorUi(error);
-      setErrorMsg("Favor de capturar los campos requeridos");
-      setHeaderMessage("Mensaje");
-      setMessageIcon(INFO[0]);
-      setIconSource(INFO[1]);
-      setSHowMessage(true);
-      setLoading(false);
-    } else {
-      //INDEV: mandamos los datos a la API
-      setErrorMsg("");
-      GuardarReporte();
-    }
-  };
-  const limpiarPantalla = () => {
-    setImagenSeleccionada("");
-    setSeleccionSolicitud("");
-    setDireccion("");
-    setCoords(null);
-    setArrayImageEncode([]);
-    setReferencia("");
-    setObservaciones("");
+      });*/
   };
   const solicitarPermisosCamara = async () => {
     //NOTE: pedir Persmisos antes de lanzar la camara
@@ -263,329 +194,186 @@ export default function Reportar(props: any) {
         //NOTE: lanzamos un un mensaje de permisos 
         setMessageIcon(CAMERA[0]);
         setFuenteIcono(CAMERA[1]);
-        setErrorMsg("La aplicación necesita permisos para acceder a la cámara");
+        //setErrorMsg("La aplicación necesita permisos para acceder a la cámara");
         setHeaderMessage("Mensaje");
         setSHowMessage(true);
-        setOnCamera(false);
+        //setOnCamera(false);
       }
     } catch (error) {
-      setOnCamera(false);
+      //setOnCamera(false);
     }
   };
-  const eliminarFoto = () => {
-    console.log(indexImagenSeleccionada);
-    if( arrayImageEncode[indexImagenSeleccionada] == undefined ){
-      setArrayImageEncode([]);
-      setIndexImagenSeleccionada(0);
-    }else{
-      setArrayImageEncode( arrayImageEncode.filter((item) => item.uri !== arrayImageEncode[indexImagenSeleccionada].uri ));
-    }
-    
-  };
-  const GenerarCamara = ( ) => {
+  const GenerarCamara = () => {
+    /*
     return <View style={{ flex: 1 }}>
-        <Camera
-          ref={(r) => {
-            camera = r;
+      <Camera
+        ref={(r) => {
+          camera = r;
+        }}
+        style={{ flex: 1 }}
+        autoFocus={true}
+        flashMode={
+          flashOn
+            ? Camera.Constants.FlashMode.torch
+            : Camera.Constants.FlashMode.off
+        }
+      >
+        <View
+          style={{
+            flex: 20,
+            marginTop: 10,
+            flexDirection: "row-reverse",
+            marginLeft: 20,
           }}
-          style={{ flex: 1 }}
-          autoFocus={true}
-          flashMode={
-            flashOn
-              ? Camera.Constants.FlashMode.torch
-              : Camera.Constants.FlashMode.off
-          }
         >
-          <View
+          <TouchableOpacity
             style={{
-              flex: 20,
-              marginTop: 10,
-              flexDirection: "row-reverse",
-              marginLeft: 20,
+              justifyContent: "center",
+              backgroundColor: SuinpacRed,
+              opacity: 0.5,
+              height: 40,
+              width: 40,
+              borderRadius: 50,
+            }}
+            onPress={() => {
+              setOnCamera(false);
             }}
           >
-            <TouchableOpacity
-              style={{
-                justifyContent: "center",
-                backgroundColor: SuinpacRed,
-                opacity: 0.5,
-                height: 40,
-                width: 40,
-                borderRadius: 50,
-              }}
-              onPress={() => {
-                setOnCamera(false);
-              }}
-            >
-              <Icon
-                tvParallaxProperties
-                name="cancel"
-                color={iconColorBlue}
-              ></Icon>
-            </TouchableOpacity>
-          </View>
-          <View
+            <Icon
+              tvParallaxProperties
+              name="cancel"
+              color={iconColorBlue}
+            ></Icon>
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            flex: 2,
+            marginTop: 10,
+            flexDirection: "row",
+            marginLeft: 20,
+          }}
+        >
+          <TouchableOpacity
             style={{
-              flex: 2,
-              marginTop: 10,
-              flexDirection: "row",
-              marginLeft: 20,
+              justifyContent: "center",
+              backgroundColor: torchButton,
+              opacity: 0.5,
+              height: 40,
+              width: 40,
+              borderRadius: 50,
+            }}
+            onPress={() => {
+              setFlashOn(!flashOn);
             }}
           >
-            <TouchableOpacity
-              style={{
-                justifyContent: "center",
-                backgroundColor: torchButton,
-                opacity: 0.5,
-                height: 40,
-                width: 40,
-                borderRadius: 50,
-              }}
-              onPress={() => {
-                setFlashOn(!flashOn);
-              }}
-            >
-              <Icon
-                type="feather"
-                tvParallaxProperties
-                name={flashOn ? "zap" : "zap-off"}
-                color={iconColorBlue}
-              ></Icon>
-            </TouchableOpacity>
-          </View>
-          <View style={{ alignItems: "center", marginBottom: 10 }}>
-            <TouchableOpacity
-              style={{
-                justifyContent: "center",
-                backgroundColor: "white",
-                opacity: 0.5,
-                height: 60,
-                width: 60,
-                borderRadius: 50,
-              }}
-              onPress={solicitarPermisosCamara}
-            >
-              <Icon
-                tvParallaxProperties
-                name="camera"
-                color={SuinpacRed}
-              ></Icon>
-            </TouchableOpacity>
-          </View>
-        </Camera>
-      </View>
+            <Icon
+              type="feather"
+              tvParallaxProperties
+              name={flashOn ? "zap" : "zap-off"}
+              color={iconColorBlue}
+            ></Icon>
+          </TouchableOpacity>
+        </View>
+        <View style={{ alignItems: "center", marginBottom: 10 }}>
+          <TouchableOpacity
+            style={{
+              justifyContent: "center",
+              backgroundColor: "white",
+              opacity: 0.5,
+              height: 60,
+              width: 60,
+              borderRadius: 50,
+            }}
+            onPress={solicitarPermisosCamara}
+          >
+            <Icon
+              tvParallaxProperties
+              name="camera"
+              color={SuinpacRed}
+            ></Icon>
+          </TouchableOpacity>
+        </View>
+      </Camera>
+    </View>
+    */
   }
-  const renderItem = ({item, index}, parallaxProps) => {
-    let evidencia = `${(index + 1)}/${ arrayImageEncode.length }`;  
+  const renderItem = ({ item, index }, parallaxProps) => {
+    /*
+    let evidencia = `${(index + 1)}/${arrayImageEncode.length}`;
     return (
-      <View style = {{alignItems:"center"}}>
+      <View style={{ alignItems: "center" }}>
         <Card>
           <Card.Title> {evidencia} </Card.Title>
           <Card.Image
-             source={{uri: item.uri}}
-             containerStyle = {{    flex: 1,
-               marginBottom: Platform.select({ios: 0, android: 1}), // Prevent a random Android rendering issue
-               backgroundColor: 'white',
-               borderRadius: 8,
-               paddingBottom:5 }}
-               style = {{height:200,width:200}}
-             parallaxFactor={0.4}
-             onPress = {()=>{setModalImagenVisible(true)}}
-             {...parallaxProps}
+            source={{ uri: item.uri }}
+            containerStyle={{
+              flex: 1,
+              marginBottom: Platform.select({ ios: 0, android: 1 }), // Prevent a random Android rendering issue
+              backgroundColor: 'white',
+              borderRadius: 8,
+              paddingBottom: 5
+            }}
+            style={{ height: 200, width: 200 }}
+            parallaxFactor={0.4}
+            onPress={() => { setModalImagenVisible(true) }}
+            {...parallaxProps}
           ></Card.Image>
-          <Card.Divider/>
-          <Button onPress={ eliminarFoto } title={"Eliminar"} />
+          <Card.Divider />
+          <Button onPress={eliminarFoto} title={"Eliminar"} />
         </Card>
       </View>
-    );
+    );*/
   }
   return (
-      <SafeAreaView style = {{flex:1, flexDirection:"row"}} >
-        {
-          onCamera ? GenerarCamara() :
-          <ScrollView style = {{flexGrow:1}} >
-            <View style = {{flex:1}} >
-              <View style = {{flex:2}} >
-                {/* Generamos el picker*/ }
-                <DropDownPicker
-                    disabled = { !existeCiudadano }
-                    language="ES"
-                    containerStyle = {{ borderRadius:10, padding:15 }}
-                    style = {{borderColor: errorUi.includes("T,") ? "red" : cardColor, borderWidth:2}}
-                    items = { catalogoSolicitud }
-                    setOpen = { setPikcerAbierto }
-                    open = { pickerAbierto }
-                    setValue={ setSeleccionSolicitud }
-                    value = { seleccionSolicitud }
-                    min =  {10}
-                    max = {15}
-                    listMode = {"MODAL"}
-                    listItemContainerStyle = {{padding:10}}
-                    itemSeparator = {true}
-                    selectedItemContainerStyle = { {backgroundColor:BlueColor + 45 } }
-                    selectedItemLabelStyle = {{ fontWeight:"bold" }}
-                    placeholder = {"Seleccione Tema"}
-                  />
+    <SafeAreaView style={{ flex: 1, flexDirection: "row" }} >
+      <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
+        <ScrollView>
+          <DropDownPicker
+            language="ES"
+            containerStyle={{ borderRadius: 10, padding: 20 }}
+            items={catalogoSolicitud}
+            setOpen={setPikcerAbierto}
+            open={pickerAbierto}
+            setValue={setSeleccionSolicitud}
+            value={seleccionSolicitud}
+            min={10}
+            max={15}
+            listMode={"MODAL"}
+            listItemContainerStyle={{ padding: 10 }}
+            itemSeparator={true}
+            selectedItemContainerStyle={{ backgroundColor: BlueColor + 45 }}
+            selectedItemLabelStyle={{ fontWeight: "bold" }}
+            placeholder={"Seleccione Tema"}
+          />
+          <Formik
+            initialValues={{}}
+            onSubmit={(values) => { }}
+          >
+            {() => {
+              return <View>
+                <Text style={Style.TemaLabalCampo} > Referencea </Text>
+                <TextInput style={Style.TemaCampo} placeholder="Entre calles..." ></TextInput>
+                <Text style={Style.TemaLabalCampo} > Descripción </Text>
+                <TextInput style={[Style.TemaCampo, { textAlignVertical: "top", color: "black" }]} multiline={true} numberOfLines={5}></TextInput>
               </View>
-              <View style = {{ flex:4 }}>
-              <Carousel
-                sliderWidth={screenWidth}
-                sliderHeight={screenWidth}
-                itemWidth={screenWidth - 60}
-                data={arrayImageEncode}
-                renderItem = { renderItem }
-                onSnapToItem = {indexs => setIndexImagenSeleccionada(indexs) }
-                hasParallaxImages={true}
-            />
-              </View>
-              {
-                arrayImageEncode.length > 0 ? 
-                <View style = {{flex:4}} >
-                  <View style = {{flex:1,justifyContent:"center", alignContent:"center"}} >
-                    <TextInput
-                          editable = { false }
-                          multiline = {true}
-                          style={ [ { textAlign:"center", fontWeight:"bold", color:"black" }] }
-
-                        >{ `` }</TextInput>
-                  </View>
-                  <View style = {{flex:1}} >
-                    <TextInput 
-                      editable = {false}
-                      multiline = {true}
-                      numberOfLines={5}
-                      style={ [ Styles.inputBachees ,{ textAlign: existeCiudadano ? "left" : "center", fontWeight:"bold", color: existeCiudadano ? "black" : "red", borderColor: cardColor,borderWidth:1 , marginLeft:25, marginRight:25, borderRadius:10, padding:5}] }
-                    >
-                      { existeCiudadano ? direccion : "Favor de iniciar sesión" }
-                    </TextInput>
-                  </View>
-                </View> : <></>
-              }
-
-              <View style = {{paddingLeft:20, paddingRight:20}} >
-              <Button
-                  disabled = {!existeCiudadano}
-                  icon={{
-                    name: "camera",
-                    type: "font-awesome",
-                    size: 15,
-                    color: "white",
-                  }}
-                  title={"Capturar"}
-                  buttonStyle={[Styles.btnButtonLoginSuccess,{ borderColor:"red", borderWidth: errorUi.includes("E,") ? 2 : 0 }]}
-                  onPress={iniciarCamara}
-                />
-              </View>
-              <View style = {{flex:4}} >
-                <View  style = {{ paddingLeft:25, paddingRight:25 }} >
-                  <TextInput
-                    editable = { existeCiudadano }
-                    onChangeText={(text) => {
-                        setReferencia(text);
-                    }}
-                    value={referencia}
-                    placeholder="Referencia"
-                    multiline
-                    numberOfLines={2}
-                    style={[
-                      Styles.inputBachees,
-                      errorUi.includes("R,") ? Styles.errorDatos : {},]}
-                    ></TextInput>
-                </View>
-                <View style = {{ paddingLeft:25, paddingRight:25 }} >
-                  <TextInput
-                      onChangeText={(text) => {
-                        setObservaciones(text);
-                      }}
-                      editable = { existeCiudadano }
-                      value={observaciones}
-                      placeholder="Descripción"
-                      multiline
-                      numberOfLines={5}
-                      style={[
-                        Styles.inputBachees,
-                        errorUi.includes("D,") ? Styles.errorDatos : {},
-                      ]}
-                    ></TextInput>
-                </View>
-              </View>
-              <Text></Text>
-              <View style = {{paddingLeft:20, paddingRight:20}} >
-              <Button
-                  icon={{
-                    name: "save",
-                    type: "font-awesome",
-                    size: 15,
-                    color: "white",
-                  }}
-                  disabled = {!existeCiudadano}
-                  title={" Guardar"}
-                  buttonStyle={[Styles.btnButtonLoginSuccess]}
-                  onPress={verificarDatos}
-                />
-              </View>
+            }}
+          </Formik>
+          <View>
+            {/* INDEV: mostramos un boton para las evidencias */}
+            <Text style={{ marginBottom: 10, marginTop: 10, marginLeft: -5, marginRight: 15, color: "black", fontWeight: "bold", justifyContent: "center", alignItems: "center" }}>Foto Evidencia (Opcional)</Text>
+            <View style={{ flex: 1, flexDirection: "row" }} >
+              <TouchableOpacity style = {{ flex:4, marginLeft:20,marginRight:5 }}>
+                <Text style={{ color: "white", textAlign: "center",backgroundColor:BlueColor,padding:15, borderRadius:5   }}> Seleccionar Imagenes </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ flex: 1, borderRadius: 5, padding: 10, marginBottom: 10, marginRight: 20, borderWidth: 1, borderColor: BlueColor }}>
+                <Icon name={PREVIEW[0]} tvParallaxProperties color={BlueColor} type={PREVIEW[1]}></Icon>
+              </TouchableOpacity>
             </View>
-            <Text></Text>
-            <Message
-              transparent={true}
-              loading={showMessage}
-              loadinColor={BlueColor}
-              onCancelLoad={() => {
-                setSHowMessage(false);
-              }}
-              icon={messageIcon}
-              iconsource={FuenteIcono}
-              color={BlueColor}
-              message={errorMsg}
-              tittle={headerMessage}
-              buttonText={"Aceptar"}
-            />
-          <Loading
-            loading={ loading }
-            loadinColor={DarkPrimaryColor}
-            message={ loadingMessage }
-            onCancelLoad={() => {
-              setLoading(false);
-            }}
-            tittle={"Cargando"}
-            transparent={existeCiudadano}
-          />
-          <ImageView
-            images={arrayImageEncode}
-            imageIndex={indexImagenSeleccionada}
-            visible={modalImagenVisible}
-            onRequestClose={() => {
-              setModalImagenVisible(false);
-            }}
-            swipeToCloseEnabled={false}
-            FooterComponent={({ imageIndex }) => (
-              <View style = {{flex:1, alignItems:"center", marginBottom:"5%"}} >
-                  <View >
-                      <Text style = {{color:"white", fontWeight:"bold", fontSize:16}} >{`${ imageIndex + 1 }/${arrayImageEncode.length}`}</Text>
-                  </View>
-              </View>
-          )}
-          />
-          {/**Mesaje para los solicitar los permisos desde la aplicacion*/}
-          <Message
-            transparent={true}
-            loading={showMessage}
-            loadinColor={BlueColor}
-            onCancelLoad={() => { 
-              setSHowMessage(false);
-              if(errorMsg.includes("La aplicación necesita permisos para acceder a la cámara"))
-                Linking.openSettings();
-            }}
-            icon={messageIcon}
-            iconsource={FuenteIcono}
-            color={BlueColor}
-            message={errorMsg}
-            tittle={headerMessage}
-            buttonText={"Aceptar"}
-          />
+          </View>
+        </ScrollView>
 
-          </ScrollView> 
-        }
-      </SafeAreaView>
+      </ImageBackground>
+    </SafeAreaView >
   );
 }

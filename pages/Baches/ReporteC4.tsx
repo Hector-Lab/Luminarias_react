@@ -299,11 +299,9 @@ return(
                 <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Nombre</Text>
                     <TextInput
                                 placeholder="Ejemplo: Juan Perez"
-                                //maxLength={ 50 }
                                 keyboardType="default"
                                 value= {Nombre}
                                 onChangeText={ text => { setNombre(text); }}
-                                autoCapitalize = {"characters"}
                                 style = { [ InterfazError.includes('N,') ? { borderColor: "red" } : { borderColor: "black" }  ,{ borderWidth: 1, padding: 3, marginLeft: 15, marginRight: 15, marginBottom: 10, borderRadius: 5}] }
                     />   
             </View>
@@ -315,7 +313,6 @@ return(
                                 keyboardType="number-pad"
                                 value= {Telefono}
                                 onChangeText={ text => { setTelefono(text); }}
-                                autoCapitalize = {"characters"}
                                 style = {[ InterfazError.includes('T,') ? { borderColor: "red" } : { borderColor: "black" } , { borderWidth: 1, padding: 3, marginLeft: 15, marginRight: 15, marginBottom: 10, borderRadius: 5 }]}
                     />   
             </View>    
@@ -328,7 +325,7 @@ return(
                                 keyboardType="default"
                                 value= {Problema}
                                 onChangeText={ text => { setProblema(text); }}
-                                autoCapitalize = {"characters"}
+
                                 style = {[InterfazError.includes('P,') ? { borderColor: "red" } : { borderColor: "black" },{ borderWidth: 1, padding: 3, marginLeft: 15, marginRight: 15, marginBottom: 10, borderRadius: 5}]}
                     />   
             </View>    
@@ -385,6 +382,11 @@ return(
           transparent={true}
           loading={ mostraMensaje }
           loadinColor={ BlueColor }
+          onConfirmarLoad = {()=>{
+            setMonstrarMensaje(false);
+            if(mensaje.includes("La aplicación necesita permisos para acceder a la cámara"))
+              Linking.openSettings();
+          }}
           onCancelLoad={() => { 
             setMonstrarMensaje(false);
             if(mensaje.includes("La aplicación necesita permisos para acceder a la cámara"))
@@ -396,6 +398,7 @@ return(
           message={mensaje}
           tittle={tipoMensaje}
           buttonText={"Aceptar"}
+          
         />
         <ImageView
           images={arregloFotos}
