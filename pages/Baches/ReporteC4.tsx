@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, Component } from "react";
-import { ScrollView, TextInput, TouchableOpacity, View, SafeAreaView,Linking, StyleSheet, ActivityIndicator } from "react-native";
+import { ScrollView, TextInput, TouchableOpacity, View, SafeAreaView,Linking, StyleSheet, ActivityIndicator, StatusBar } from "react-native";
 import { Avatar, Button, Card, Icon, Text } from "react-native-elements";
 import MapView from "react-native-maps";
 import * as Location from 'expo-location';
@@ -105,7 +105,6 @@ export default function ReporteC4(props: any) {
             quality: 0.4,
           });
           //setImagenSeleccionada(photo.uri);
-          console.log();
           setArregloFotos( (arregloFotos) => [...arregloFotos, photo]);
           setCamaraActiva(false);
           let coordenadas = await CordenadasActualesNumerico();
@@ -129,6 +128,7 @@ export default function ReporteC4(props: any) {
     };
     const GenerarCamara = ( ) => {
       return <View style={{ flex: 1 }}>
+        <StatusBar animated={true} barStyle = {"dark-content"}/>
           <Camera
             ref={(r) => {
               camera = r;
@@ -272,6 +272,7 @@ export default function ReporteC4(props: any) {
     }
 return(
       <SafeAreaView style = {{flex:1}} >
+        <StatusBar animated={true} barStyle = {"dark-content"}/>
         {
           camaraActiva ? GenerarCamara():
             <ScrollView contentContainerStyle = { { flexGrow:1 } } >

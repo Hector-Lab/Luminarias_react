@@ -4,375 +4,352 @@ import {
   View,
   Dimensions,
   ImageBackground,
-  Text
+  Text,
+  TextInput,
+  Linking,
+  StatusBar
 } from "react-native";
 import { Form, Formik, useFormik } from 'formik';
 import Style from '../../Styles/styles';
 import * as Yup from 'yup';
+import { CordenadasActualesNumerico, ObtenerDireccionActual } from '../../utilities/utilities';
 import { Camera } from "expo-camera";
-import * as Location from "expo-location";
-import { CatalogoSolicitud } from "../controller/api-controller";
+import { CatalogoSolicitud, EnviarReportes } from "../controller/api-controller";
 import { StorageBaches } from "../controller/storage-controllerBaches";
 import Loading from "../components/modal-loading";
 import Message from "../components/modal-message";
 import { BlueColor } from '../../Styles/BachesColor';
-import { CAMERA, PREVIEW } from "../../Styles/Iconos";
+import { CAMERA, DESCONOCIDO, PREVIEW, WIFI_OFF, OK } from "../../Styles/Iconos";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, TextInput } from "react-native-gesture-handler";
-import { Icon } from "react-native-elements";
+import { ScrollView } from "react-native-gesture-handler";
+import { Avatar, Icon } from "react-native-elements";
+import { azulColor } from "../../Styles/Color";
+import Camara from '../components/Camara';
+import { obtenerBase64 } from '../../utilities/utilities';
+import ImageView from "react-native-image-viewing";
 
-const validacion = Yup.object().shape({
+let validacion = Yup.object().shape({
   Referencia: Yup.string().required(),
   Descripcion: Yup.string().required()
 });
-let initialValues = {
-  Referencia: "",
-  Descripcion: ""
-};
+
 
 export default function Reportar(props: any) {
   const storage = new StorageBaches();
   const [cameraPermissions, setCameraPermision] = useState(false);
   //NOTE: message title
   const [showMessage, setSHowMessage] = useState(false);
-  const [messageIcon, setMessageIcon] = useState("info");
-  const [headerMessage, setHeaderMessage] = useState("Mensaje");
+  const [mensaje, setMensaje] = useState(String);
+  const [ icono , setIcono ] = useState( String );
   //NOTE: modal loading
-  const [loadingMessage, setLoadingMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [imagenSeleccionada, setImagenSeleccionada] = useState("");
-  const [indexImagenSeleccionada, setIndexImagenSeleccionada] = useState(0);
-  const [modalImagenVisible, setModalImagenVisible] = useState(false);
-  const { width: screenWidth } = Dimensions.get('window')
+  const [cargando, setCargando] = useState(false);
   //NOTE: manejadores del picker
   const [pickerAbierto, setPikcerAbierto] = useState(false);
   const [FuenteIcono, setFuenteIcono] = useState(String);
   const [catalogoSolicitud, setCatalogoSolicitud] = useState([]);
   const [seleccionSolicitud, setSeleccionSolicitud] = useState(String);
-  let camera: Camera;
+  const [errorPicker, setErrorPicker] = useState(false);
+  //NOTE: Controladores de la camara
+  const [camaraActiva, setCamaraActiva] = useState(false);
+  const [flashActivo, setFlashActivo] = useState(false);
+  const [listaImagenes, setListaImagenes] = useState([]);
+  const [listaImagenesCodificadas, setListaImagenesCodificadas] = useState([]);
+  const [direccion, setDireccion] = useState(String);
+  const [coordenadas, setCoordenadas] = useState(String);
+  //NOTE: controlador de la galerai
+  const [ indiceGaleria, setIndiceGaleria ] = useState( 0 );
+  const [ mostrarGalera, setMostrarGaleria ] = useState( false );
 
   let formik = useFormik({
-    initialValues: initialValues,
-    onSubmit: () => { },
+    initialValues: {
+      Referencia: '',
+      Descripcion: ''
+    },
+    onSubmit: (values) => { setCargando(true); GuardarReporte(values); },
     validationSchema: validacion
   });
-
   useEffect(() => {
     obtenerTemas();
   }, []);
+  useEffect(() => {
+    //NOTE: obtenemos los datos que genero el componente camara
+    if (!camaraActiva) {
+      setCargando(true);
+      obtenerDatosCamara();
+    }
+  }, [camaraActiva]);
+  useEffect(() => {
+    //NOTE: Verificamos los permisos de la cara
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setCameraPermision(status === "granted");
+    })();
+  });
 
-
-  const iniciarCamara = async () => {
-    /*if (arrayImageEncode.length <= 2) {
-      setOnCamera(true);
-    } else {
-      setOnCamera(false);
-      setMessageIcon(ADDPHOTO[0]);
-      setIconSource(ADDPHOTO[1]);
-      setHeaderMessage("Mensaje");
-      setErrorMsg("Límite de evidencia alcanzada (Máximo 3)");
-      setSHowMessage(true);
-    }*/
-  };
   const obtenerTemas = async () => {
-    await CatalogoSolicitud()
-      .then((catalogo) => {
-        let listaSolicitudes = catalogo.map((elemento, index) => {
-          return {
-            label: elemento.descripci_on,
-            value: elemento.id,
-            key: elemento.id
-          };
-        });
-        console.log(listaSolicitudes);
-        setCatalogoSolicitud(listaSolicitudes);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-  }
-  const __takePicture = async () => {
-    /*if (arrayImageEncode.length <= 2) {
-      if (cameraPermissions) {
-        if (!camera) {
-          return;
-        }
-        const photo = await camera.takePictureAsync({
-          base64: true,
-          quality: 0.4,
-        });
-        setImagenSeleccionada(photo.uri);
-        setArrayImageEncode((arrayImageEncode) => [...arrayImageEncode, photo]);
-        setOnCamera(false);
-        let coordenadas = await CordenadasActualesNumerico();
-        setCoords(coordenadas);
-        //NOTE: verificamos los datos de localizacion
-        let DireccionActual = JSON.parse(
-          await ObtenerDireccionActual(coordenadas)
-        );
-        let formatoDireccion = `
-          Estado: ${DireccionActual.region}
-          Ciudad: ${DireccionActual.city}
-          Colonia: ${DireccionActual.district}
-          Calle: ${DireccionActual.street}
-          Código Postal: ${DireccionActual.postalCode}
-          `;
-        setDireccionEnviar(
-          `${DireccionActual.region}  ${DireccionActual.city} ${DireccionActual.district} ${DireccionActual.street} ${DireccionActual.postalCode}`
-        );
-        setDireccion(formatoDireccion);
-      } else {
-        let { status } = await Camera.requestCameraPermissionsAsync();
-        setCameraPermision(status === "granted");
-      }
-    }
-    setLoading(false);*/
-  };
-  const GuardarReporte = async () => {
-    /*setLoading(true);
-    let connection = checkConnection();
-    let ciudadano = await storage.obtenerIdCiudadano();
-    let cliente = await storage.obtenerCliente();
-    let arrayImages = new Array();
-    if (connection) {
-      arrayImageEncode.map((item, index) => {
-        arrayImages.push("data:image/jpeg;base64," + item.base64);
-      });
+    //NOTE: Obtenemos los dato del storage si no los descargamos de internet
+    if (await storage.CatalogoTemaActualizado()) {
+      await CatalogoSolicitud()
+        .then(async (catalogo) => {
+          let listaSolicitudes = catalogo.map((elemento, index) => {
+            return {
+              label: elemento.descripci_on,
+              value: elemento.id,
+              key: elemento.id
+            };
+          });
+          //Guardamos el catalogo de temas
+          await storage.guardarFechaActualizacionCatalogoTema();
+          await storage.guardarListaTemas(JSON.stringify(listaSolicitudes));
+          setCatalogoSolicitud(listaSolicitudes);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
     } else {
-      arrayImageEncode.map((item, index) => {
-        arrayImages.push(item.uri);
-      });
+      //NOTE: lo obtenemos de la DB
+      await storage.obtenerCatalogoTemas()
+        .then((temas) => {
+          let arrayTemas = JSON.parse(temas);
+          setCatalogoSolicitud(arrayTemas);
+        }).catch((erro) => {
+          console.log(erro)
+        })
     }
-    let data = {
-      Tema: seleccionSolicitud,
-      Descripcion: observaciones,
-      gps: JSON.stringify(coords),
-      direccion: direccionEnviar,
-      Referencia: referencia,
-      Ciudadano: ciudadano,
-      Cliente: cliente,
-      Evidencia: arrayImages,
-    };
-    await EnviarReportes(data)
-      .then((result) => {
-        //NOTE: Todo bien
-        limpiarPantalla();
-        setErrorMsg("Reporte Guardado");
-        setHeaderMessage("Mensaje");
-        //NOTE: Cambiar los datos por el archvo de iconos
-        setIconSource(OK[1]);
-        setMessageIcon(OK[0]);
-        setSHowMessage(true);
-      })
-      .catch((error) => {
-        //NOTE: manejador de erroes
-        let mensaje = error.message;
-        if (mensaje.includes("interner")) {
-          //NOTE: mensaje sin internet
-          setIconSource(WIFI_OFF[1]);
-          setMessageIcon(WIFI_OFF[0]);
-        } else {
-          setIconSource(DESCONOCIDO[1]);
-          setMessageIcon(DESCONOCIDO[0]);
-        }
-        setErrorMsg(mensaje);
-        setSHowMessage(true);
-      })
-      .finally(() => {
-        setLoading(false);
-      });*/
+  }
+  const GuardarReporte = async (Reporte: { Referencia: string, Descripcion: string }) => {
+    //NOTE: aqui procesamos las imagenes
+    let coordenadasActuales = null;
+    let formatoDireccion = "";
+    if ((coordenadas == "" || coordenadas == null) && direccion == "" || direccion == null) {
+      //INDEV: obtenemos las coordenadas y la direccion
+      coordenadasActuales = await CordenadasActualesNumerico();
+      let direccionActia = JSON.parse(await ObtenerDireccionActual(coordenadasActuales));
+      formatoDireccion = `
+        Estado: ${direccionActia.region}
+        Ciudad: ${direccionActia.city}
+        Colonia: ${direccionActia.district}
+        Calle: ${direccionActia.street}
+        Código Postal: ${direccionActia.postalCode}
+        `;
+    }
+    if (seleccionSolicitud != "") {
+      let data = {
+        Tema: seleccionSolicitud,
+        Descripcion: Reporte.Descripcion,
+        gps: (coordenadas == "" || coordenadas == null) ? JSON.stringify(coordenadasActuales) : JSON.stringify(coordenadas),
+        direccion: (direccion == "" || direccion == null ? formatoDireccion : direccion),
+        Referencia: Reporte.Referencia,
+        Evidencia: listaImagenesCodificadas,
+      };
+      console.log(data);
+      await EnviarReportes(data)
+        .then((result) => {
+          lanzarMensaje("¡Reporte Enviado!", OK[0], OK[1] );
+        })
+        .catch((error) => {
+          //NOTE: manejador de erroes
+          let mensaje = error.message;
+          if (mensaje.includes("interner")) {
+            //NOTE: mensaje sin internet
+            lanzarMensaje(mensaje, WIFI_OFF[0], WIFI_OFF[1]);
+          } else {
+            lanzarMensaje(mensaje, DESCONOCIDO[0], DESCONOCIDO[1]);
+          }
+        })
+        .finally(() => {
+          setCargando(false);
+        });
+    } else {
+      setErrorPicker(true);
+    }
   };
   const solicitarPermisosCamara = async () => {
     //NOTE: pedir Persmisos antes de lanzar la camara
     try {
       let { status } = await Camera.requestCameraPermissionsAsync();
       if (status === "granted") {
-        //NOTE: verifiamos el tamanio de las fotos
-        await __takePicture();
+        setCameraPermision(true);
+        //NOTE: Activamos la camara
+        setCamaraActiva(true);
       } else {
         //NOTE: lanzamos un un mensaje de permisos 
-        setMessageIcon(CAMERA[0]);
+        setIcono(CAMERA[0]);
         setFuenteIcono(CAMERA[1]);
-        //setErrorMsg("La aplicación necesita permisos para acceder a la cámara");
-        setHeaderMessage("Mensaje");
+        setMensaje("La aplicación necesita permisos para acceder a la cámara");
         setSHowMessage(true);
-        //setOnCamera(false);
+        setCamaraActiva(false);
+        setCameraPermision(false);
       }
     } catch (error) {
-      //setOnCamera(false);
+      console.log(error);
     }
   };
-  const GenerarCamara = () => {
-    /*
-    return <View style={{ flex: 1 }}>
-      <Camera
-        ref={(r) => {
-          camera = r;
-        }}
-        style={{ flex: 1 }}
-        autoFocus={true}
-        flashMode={
-          flashOn
-            ? Camera.Constants.FlashMode.torch
-            : Camera.Constants.FlashMode.off
-        }
-      >
-        <View
-          style={{
-            flex: 20,
-            marginTop: 10,
-            flexDirection: "row-reverse",
-            marginLeft: 20,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              justifyContent: "center",
-              backgroundColor: SuinpacRed,
-              opacity: 0.5,
-              height: 40,
-              width: 40,
-              borderRadius: 50,
-            }}
-            onPress={() => {
-              setOnCamera(false);
-            }}
-          >
-            <Icon
-              tvParallaxProperties
-              name="cancel"
-              color={iconColorBlue}
-            ></Icon>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            flex: 2,
-            marginTop: 10,
-            flexDirection: "row",
-            marginLeft: 20,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              justifyContent: "center",
-              backgroundColor: torchButton,
-              opacity: 0.5,
-              height: 40,
-              width: 40,
-              borderRadius: 50,
-            }}
-            onPress={() => {
-              setFlashOn(!flashOn);
-            }}
-          >
-            <Icon
-              type="feather"
-              tvParallaxProperties
-              name={flashOn ? "zap" : "zap-off"}
-              color={iconColorBlue}
-            ></Icon>
-          </TouchableOpacity>
-        </View>
-        <View style={{ alignItems: "center", marginBottom: 10 }}>
-          <TouchableOpacity
-            style={{
-              justifyContent: "center",
-              backgroundColor: "white",
-              opacity: 0.5,
-              height: 60,
-              width: 60,
-              borderRadius: 50,
-            }}
-            onPress={solicitarPermisosCamara}
-          >
-            <Icon
-              tvParallaxProperties
-              name="camera"
-              color={SuinpacRed}
-            ></Icon>
-          </TouchableOpacity>
-        </View>
-      </Camera>
-    </View>
-    */
+  const existeEvidencia = async ()=>{
+    if(listaImagenes.length > 0 ) {
+        setMostrarGaleria(true);
+    }else{
+        setMensaje("No se encontraron evidencias");
+        setIcono(CAMERA[0]);
+        setFuenteIcono(CAMERA[1]);
+        setSHowMessage(true);
+    }
   }
-  const renderItem = ({ item, index }, parallaxProps) => {
-    /*
-    let evidencia = `${(index + 1)}/${arrayImageEncode.length}`;
-    return (
-      <View style={{ alignItems: "center" }}>
-        <Card>
-          <Card.Title> {evidencia} </Card.Title>
-          <Card.Image
-            source={{ uri: item.uri }}
-            containerStyle={{
-              flex: 1,
-              marginBottom: Platform.select({ ios: 0, android: 1 }), // Prevent a random Android rendering issue
-              backgroundColor: 'white',
-              borderRadius: 8,
-              paddingBottom: 5
-            }}
-            style={{ height: 200, width: 200 }}
-            parallaxFactor={0.4}
-            onPress={() => { setModalImagenVisible(true) }}
-            {...parallaxProps}
-          ></Card.Image>
-          <Card.Divider />
-          <Button onPress={eliminarFoto} title={"Eliminar"} />
-        </Card>
-      </View>
-    );*/
+  const obtenerDatosCamara = async () => {
+    let datos = await storage.obtenerDatosCamara();
+    //NOTE: Obtenemos la imagen convertida
+    if (datos.Imagen != null) {
+      let imageObject = JSON.parse(datos.Imagen);
+      setListaImagenes((listaImagenes) => [...listaImagenes, imageObject]);
+      let base64 = await obtenerBase64(imageObject.uri);
+      setListaImagenesCodificadas((listaImagenesCodificadas) => [...listaImagenesCodificadas, String(base64)]);
+    }
+    setDireccion(datos.Direccion);
+    setCoordenadas(datos.Coordenadas);
+    //NOTE: borramos los datos del storage
+    setCargando( false );
+    await storage.limpiarDatosCamara();
+  }
+  const lanzarMensaje = (mensaje: string, icono: string, fuenteIcono: string) => {
+    setMensaje(mensaje);
+    setIcono(icono);
+    setFuenteIcono(fuenteIcono);
+    setSHowMessage(true);
   }
   return (
     <SafeAreaView style={{ flex: 1, flexDirection: "row" }} >
+      <StatusBar animated={true} barStyle = {"dark-content"}/>
       <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
-        <ScrollView>
-          <DropDownPicker
-            language="ES"
-            containerStyle={{ borderRadius: 10, padding: 20 }}
-            items={catalogoSolicitud}
-            setOpen={setPikcerAbierto}
-            open={pickerAbierto}
-            setValue={setSeleccionSolicitud}
-            value={seleccionSolicitud}
-            min={10}
-            max={15}
-            listMode={"MODAL"}
-            listItemContainerStyle={{ padding: 10 }}
-            itemSeparator={true}
-            selectedItemContainerStyle={{ backgroundColor: BlueColor + 45 }}
-            selectedItemLabelStyle={{ fontWeight: "bold" }}
-            placeholder={"Seleccione Tema"}
-          />
-          <Formik
-            initialValues={{}}
-            onSubmit={(values) => { }}
-          >
-            {() => {
-              return <View>
-                <Text style={Style.TemaLabalCampo} > Referencea </Text>
-                <TextInput style={Style.TemaCampo} placeholder="Entre calles..." ></TextInput>
-                <Text style={Style.TemaLabalCampo} > Descripción </Text>
-                <TextInput style={[Style.TemaCampo, { textAlignVertical: "top", color: "black" }]} multiline={true} numberOfLines={5}></TextInput>
-              </View>
-            }}
-          </Formik>
-          <View>
-            {/* INDEV: mostramos un boton para las evidencias */}
-            <Text style={{ marginBottom: 10, marginTop: 10, marginLeft: -5, marginRight: 15, color: "black", fontWeight: "bold", justifyContent: "center", alignItems: "center" }}>Foto Evidencia (Opcional)</Text>
-            <View style={{ flex: 1, flexDirection: "row" }} >
-              <TouchableOpacity style = {{ flex:4, marginLeft:20,marginRight:5 }}>
-                <Text style={{ color: "white", textAlign: "center",backgroundColor:BlueColor,padding:15, borderRadius:5   }}> Seleccionar Imagenes </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{ flex: 1, borderRadius: 5, padding: 10, marginBottom: 10, marginRight: 20, borderWidth: 1, borderColor: BlueColor }}>
-                <Icon name={PREVIEW[0]} tvParallaxProperties color={BlueColor} type={PREVIEW[1]}></Icon>
+        {
+          !camaraActiva ?
+            <View style={{ flex: 1 }} >
+              <ScrollView style={{ flexGrow: 1 }} >
+                <View style={{ justifyContent: "center", alignItems: "center" }}  >
+                  <Avatar
+                    avatarStyle={{}}
+                    rounded
+                    imageProps={{ resizeMode: "contain" }}
+                    size="xlarge"
+                    containerStyle={{ height: 120, width: 220 }}
+                    source={require("../../assets/banner.png")}
+                  />
+                </View>
+                <DropDownPicker
+                  language="ES"
+                  containerStyle={{ borderRadius: 10, padding: 20 }}
+                  style={{ borderColor: errorPicker ? "red" : "black" }}
+                  items={catalogoSolicitud}
+                  setOpen={setPikcerAbierto}
+                  open={pickerAbierto}
+                  setValue={setSeleccionSolicitud}
+                  value={seleccionSolicitud}
+                  min={10}
+                  max={15}
+                  listMode={"MODAL"}
+                  listItemContainerStyle={{ padding: 10 }}
+                  itemSeparator={true}
+                  selectedItemContainerStyle={{ backgroundColor: BlueColor + 45 }}
+                  selectedItemLabelStyle={{ fontWeight: "bold" }}
+                  placeholder={"Seleccione Tema"}
+                />
+                <View>
+                  <Text style={Style.TemaLabalCampo} > Referencea {formik.isValid} </Text>
+                  <TextInput
+                    style={(formik.errors.Referencia && formik.touched.Referencia) ? Style.TemaCampoError : Style.TemaCampo}
+                    placeholder="Entre calles..."
+                    value={formik.values.Referencia}
+                    onChangeText={formik.handleChange('Referencia')}
+                  ></TextInput>
+                  <Text style={Style.TemaLabalCampo} > Descripción </Text>
+                  <TextInput
+                    style={[(formik.errors.Descripcion && formik.touched.Descripcion) ? Style.TemaCampoError : Style.TemaCampo, { textAlignVertical: "top", color: "black" }]}
+                    multiline={true}
+                    numberOfLines={5}
+                    placeholder="Descripcion de la solictud"
+                    onChangeText={formik.handleChange('Descripcion')}
+                    value={formik.values.Descripcion}
+                  ></TextInput>
+                  <View>
+                    {/* INDEV: mostramos un boton para las evidencias */}
+                    <Text style={Style.TemaLabalCampo}>Foto Evidencia (Opcional)</Text>
+                    <View style={{ flex: 1, flexDirection: "row" }} >
+                      <TouchableOpacity style={{ flex: 4, marginLeft: 20, marginRight: 5 }} onPress={solicitarPermisosCamara} >
+                        <Text style={{ color: "white", textAlign: "center", padding: 13, borderRadius: 10, backgroundColor: azulColor }}> Seleccionar Imagenes </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        style={{ flex: 1, borderRadius: 5, padding: 10, marginBottom: 10, marginRight: 20, borderWidth: 1, borderColor: azulColor }}
+                        onPress = {existeEvidencia}
+                        >
+                        <Icon name={PREVIEW[0]} tvParallaxProperties color={azulColor} type={PREVIEW[1]}   ></Icon>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </ScrollView>
+              <TouchableOpacity style={{ marginLeft: 20, marginRight: 20, backgroundColor: azulColor, borderRadius: 10, marginBottom: 10 }} onPress={formik.handleSubmit} >
+                <Text style={{ color: "white", textAlign: "center", padding: 15 }}> Reportar </Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </ScrollView>
+            :
+            <View style={{ flex: 1 }} >
+              <Camara
+                Activa={camaraActiva}
+                onActiveCamera={() => { setCamaraActiva(false) }}
+                flashOn={flashActivo}
+                onChangeFlash={() => { setFlashActivo(!flashActivo) }}
 
+              />
+            </View>
+        }
+        <Message
+          color={azulColor}
+          buttonText={"Aceptar"}
+          icon={icono}
+          iconsource={FuenteIcono}
+          loadinColor={azulColor} 
+          loading={showMessage}
+          transparent={true}
+          message={mensaje}
+          onCancelLoad={() => { }}
+          onConfirmarLoad=
+          {
+            () => {
+              setSHowMessage(false);
+              if (!cameraPermissions) {
+                console.log("Abriendo setting");
+                Linking.openSettings();
+              }
+            }
+          }
+          tittle={"Mensaje"}
+        />
+        <Loading
+          transparent = { true }
+          loading = { cargando }
+          loadinColor = { azulColor }
+          onCancelLoad = { ()=>{ } }
+          tittle = "Mensaje"
+          message = "Cargando..."
+        />
+        <ImageView
+          images={listaImagenes}
+          imageIndex={ indiceGaleria }
+          visible={mostrarGalera}
+          onRequestClose={() => {
+          setMostrarGaleria(false);
+          setIndiceGaleria(0);
+          }}
+          swipeToCloseEnabled={false}
+          FooterComponent={({ imageIndex }) => (
+              <View style = {{flex:1, alignItems:"center", marginBottom:"5%"}} >
+                  <View >
+                      <Text style = {{color:"white", fontWeight:"bold", fontSize:16}} >{`${ imageIndex + 1 }/${listaImagenes.length}`}</Text>
+                  </View>
+              </View>
+          )}
+          animationType = "fade"
+          />
       </ImageBackground>
     </SafeAreaView >
   );

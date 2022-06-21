@@ -15,6 +15,8 @@ import Perfil from '../pages/Registro/Ciudadano-perfil';
 import EditarPersonales from '../pages/Editar/DatosPersonales';
 import EditarDomicilio from '../pages/Editar/DatosDomicilio';
 import EditarContacto from '../pages/Editar/DatosContacto';
+import AtencionReporte from '../pages/Baches/CiudadanoReporte';
+import HistorialReportes from '../pages/Reportes/Historial-Reportes';
 
 
 const Stack = createStackNavigator();
@@ -49,16 +51,13 @@ function Nav() {
                     <Stack.Screen name='EditarContacto'>
                         { props=> < EditarContacto {...props } ></ EditarContacto> }
                     </Stack.Screen>
-                    { /*NOTE: Final de seccion */ }
-                    <Stack.Screen name='Reportes'
-                    options={({navigation, route}) => ({
-                            title: "Atención Ciudadana",
-                             headerLeft: (props) => null, //(<HeaderBackButton {...props} onPress={() => navigation.navigate("Reportes") } />),
-                            headerTitleAlign:"center",
-                            headerTintColor:"#000000",
-                    })} >
-                        {props => <BachesHome  {...props} ></BachesHome>}
+                    <Stack.Screen name = 'AtencionReporte'>
+                        { props => <AtencionReporte></AtencionReporte> }
                     </Stack.Screen>
+                    <Stack.Screen name = "HistorialReportes" >
+                        { props => <HistorialReportes></HistorialReportes> }    
+                    </Stack.Screen>
+                    { /*NOTE: Final de seccion */ }
                     <Stack.Screen name='Menu'
                     options={({navigation, route}) => ({
                             headerTitle:"Menu",

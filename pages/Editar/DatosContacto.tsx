@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar } from 'react-native';
 import { Formik, useFormik } from 'formik';
 import { Avatar, Divider } from 'react-native-elements';
 import * as Yup from 'yup';
@@ -108,6 +108,7 @@ export default function EditarContacto(props: any) {
     }
     return (
         <SafeAreaView style={{ flex: 1 }} >
+            <StatusBar animated={true} barStyle = {"dark-content"}/>
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
                     <View style={{ justifyContent: "center", alignItems: "center" }}  >

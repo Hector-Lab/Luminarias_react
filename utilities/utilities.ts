@@ -97,3 +97,26 @@ export function verificarcurp (curp: string){
         return 2;
     }
 }
+
+
+export function obtenerBase64(path: string) {
+    let imgEncode = leerArchivo(path);
+    return imgEncode;
+  }
+async function leerArchivo(path: string) {
+    let file = await fetch(path);
+    let blobFile = await file.blob();
+    let imgEncode = await convertBase64(blobFile);
+    return imgEncode;
+  }
+async function convertBase64(blobFile: Blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader;
+      reader.onerror = reject;
+      reader.onloadend = () => {
+        let baseSplit  = reader.result;/* ?.toString().split(',')[1] */
+        resolve(baseSplit);
+      }
+      reader.readAsDataURL(blobFile);
+    })
+  }

@@ -73,8 +73,21 @@ export async function ObtenerMunicipios(){
 }
 export async function EnviarReportes( reporte:any ){
     try{
-        let rawData = await service.insertarReporte(reporte);
+    let data = {
+            Tema: reporte.Tema,
+            Descripcion: reporte.Descripcion,
+            gps: reporte.gps,
+            direccion: reporte.direccion,
+            Referencia: reporte.Referencia,
+            Ciudadano: await storageBaches.obtenerIdCiudadano(),
+            Cliente: CLIENTE,
+            Evidencia: reporte.Evidencia,
+        }; 
+        //console.log(data);
+        //return;
+        let rawData = await service.insertarReporte(data);
         let jsonData = await rawData.json();
+        console.log(jsonData);
         if(jsonData.code == 200){
             return true;
         }else if(jsonData.code == 404 ){
@@ -92,15 +105,15 @@ export async function EnviarReportes( reporte:any ){
 }
 export async function ObtenerMisReportes (){
     try{
-        let cliente = await storageBaches.obtenerCliente();
         let ciudadano = await storageBaches.obtenerIdCiudadano();
-        if(cliente != "" && ciudadano != "" ){
+        if(CLIENTE != null && ciudadano != "" ){
             let datos = {
-                "Cliente": cliente,
+                "Cliente": String(CLIENTE),
                 "Ciudadano": ciudadano
             };
             let rawData = await service.obtenerreportesCiudadano(datos);
             let jsonData = await rawData.json();
+            console.log(jsonData);
             if(jsonData.Code == 200){
                 return jsonData.Mensaje;
             }else if(jsonData.Code == 404){

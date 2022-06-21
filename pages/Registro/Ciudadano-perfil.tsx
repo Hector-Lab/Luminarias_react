@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, Pressable } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, Pressable, StatusBar } from 'react-native';
 import { Avatar, Divider, Icon } from 'react-native-elements';
 import { useFocusEffect } from '@react-navigation/native';
 import Styles from '../../Styles/styles';
@@ -17,11 +17,7 @@ export default function Contactos(props: any) {
     useFocusEffect(() => {
         if (!cerrando)
             obtenerDatosCiudadano();
-    })
-    /*useEffect(()=>{
-        obtenerDatosCiudadano();
-    },[]);*/
-
+    });
     const CerrarSession = async () => {
         setCargando(true)
         setCerrando(true);
@@ -44,19 +40,22 @@ export default function Contactos(props: any) {
         setNombre(datos[0]);
         setEmail(datos[1]);
     }
-    const EditarDatosPersonales = async () => {
+    const EditarDatosPersonales = () => {
         props.navigation.navigate("EditarPersonales");
     }
-    const EditatDatosDomicilio = async () => {
+    const EditatDatosDomicilio = () => {
         props.navigation.navigate("EditarDomicilio");
     }
-    const EditarDatosContacto = async () => {
+    const EditarDatosContacto = () => {
         props.navigation.navigate("EditarContacto");
     }
-
+    const HistorialReportes =  () =>{
+        props.navigation.navigate("HistorialReportes");
+    }
 
     return (
         <SafeAreaView style={{ flex: 1 }} >
+            <StatusBar animated={true} barStyle = {"dark-content"}/>
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
@@ -75,22 +74,28 @@ export default function Contactos(props: any) {
                         </View>
                         <Text style={{ marginTop: 20, marginBottom: 5, fontWeight: "bold", fontSize: 18 }} > {nombre} </Text>
                         <Text> {email} </Text>
-                        <View style={[Styles.itemPerfil, { marginTop: 100 }]}>
+                        <View style={[Styles.itemPerfil, { marginTop: 100 }] } >
+                            <TouchableOpacity style={{ flex: 1, flexDirection: "row" }} onPress={HistorialReportes} >
+                                <Text style={{ textAlign: "left", flex: 10, fontWeight: "bold" }} > Historial Reportes </Text>
+                                <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={[Styles.itemPerfil] }>
                             <TouchableOpacity style={{ flex: 1, flexDirection: "row" }} onPress={EditarDatosPersonales} >
                                 <Text style={{ textAlign: "left", flex: 10, fontWeight: "bold" }} > Editar Datos Personales </Text>
-                                <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} > Domicilio </Icon>
+                                <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} />
                             </TouchableOpacity>
                         </View>
                         <View style={Styles.itemPerfil} >
                             <TouchableOpacity style={{ flex: 1, flexDirection: "row" }} onPress={EditatDatosDomicilio} >
                                 <Text style={{ textAlign: "left", flex: 10, fontWeight: "bold" }} > Editar Domicilio </Text>
-                                <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} > Domicilio </Icon>
+                                <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} />
                             </TouchableOpacity>
                         </View>
                         <View style={Styles.itemPerfil} >
                             <TouchableOpacity style={{ flex: 1, flexDirection: "row" }} onPress={EditarDatosContacto} >
                                 <Text style={{ textAlign: "left", flex: 10, fontWeight: "bold" }} > Editar Contactos </Text>
-                                <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} > Domicilio </Icon>
+                                <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} />
                             </TouchableOpacity>
                         </View>
                         <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 50 }]} onPress={CerrarSession} >

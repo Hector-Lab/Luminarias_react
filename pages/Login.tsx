@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, TextInput, Linking, ImageBackground } from 'react-native';
+import { View, TouchableOpacity, Text, TextInput, Linking, ImageBackground, StatusBar } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import { azulColor, SuinpacRed } from "../Styles/Color";
 import Styles from '../Styles/styles';
@@ -83,6 +83,7 @@ export default function Log(props: any) {
     }
     return (
         <View style={{ flex: 1 }} >
+            <StatusBar animated={true} barStyle = {"dark-content"}/>
             <ImageBackground source={require('../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <Formik
                     initialValues={valores}

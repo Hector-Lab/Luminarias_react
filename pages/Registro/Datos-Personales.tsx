@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView,ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity} from 'react-native';
+import { SafeAreaView,ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar} from 'react-native';
 import { Avatar } from 'react-native-elements';
 import Styles  from '../../Styles/styles';
 import { Formik } from 'formik';
@@ -59,6 +59,7 @@ export default function Personales(props: any) {
     }
     return(
         <SafeAreaView style = {{flex:1}} >
+            <StatusBar animated={true} barStyle = {"dark-content"}/>
             <ImageBackground source = { require('../../assets/Fondo.jpeg') } style = {{ flex:1 }} >
                 <ScrollView style = {{flexGrow:1}} >
                     <View style = {{ justifyContent:"center" , alignItems:"center"}}  >

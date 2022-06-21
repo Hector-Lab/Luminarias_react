@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View,Text, TextInput, SafeAreaView, ScrollView, Modal } from "react-native";
+import { View,Text, TextInput, SafeAreaView, ScrollView, Modal, StatusBar } from "react-native";
 import { Divider } from 'react-native-elements';
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { BlueColor, DarkPrimaryColor } from "../Styles/BachesColor";
@@ -8,6 +8,7 @@ export default function Registro(props: any) {
     const [ activarModal , setActivarModal ] = useState( true );
     const generarModal = () =>{
         return (
+            
             <Modal>
                 <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Nombre</Text>
                 <TextInput
@@ -47,9 +48,11 @@ export default function Registro(props: any) {
 
     return(
         <SafeAreaView>
+            <StatusBar animated={true} barStyle = {"dark-content"}/>
                {
                    activarModal ? generarModal() :                 
                    <ScrollView style = {{flexGrow:1}} >
+                       
                    <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Nombre</Text>
                    <TextInput
                        placeholder="Nombre: Juan"
