@@ -40,10 +40,10 @@ export async function IniciarTarea(){
             if(arregloCoordenadas.length > 0){
                 //INDEV: inveiamos los datos a la api
                 let coords = { latitude : arregloCoordenadas[arregloCoordenadas.length-1].coords.latitude ,longitude : arregloCoordenadas[arregloCoordenadas.length-1].coords.longitude };
-                console.log(JSON.stringify(arregloCoordenadas[arregloCoordenadas.length-1].coords));
+                console.log(coords);
                 //let direccion = await ObtenerDireccionActual(coords);
                 let datos = {
-                    Ubicacion_GPS:JSON.stringify(arregloCoordenadas[arregloCoordenadas.length-1].coords),
+                    Ubicacion_GPS:JSON.stringify(coords),
                     idCiudadano: storage.obtenerIdReporteRosa(),
                     Direccion:/*direccion*/'',
                 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, TextInput, Linking, ImageBackground, StatusBar } from 'react-native';
+import { View, TouchableOpacity, Text, TextInput, Linking, ImageBackground, StatusBar, Platform } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import { azulColor, SuinpacRed } from "../Styles/Color";
 import Styles from '../Styles/styles';
@@ -12,6 +12,7 @@ import Loading from './components/modal-loading';
 import Message from './components/modal-message';
 import { USER_COG, WIFI_OFF, DESCONOCIDO, APPSETTINGS } from '../Styles/Iconos';
 
+const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Log(props: any) {
     const [cargando, setCargando] = useState(false);
     const [mensaje, setMensaje] = useState("");
@@ -83,7 +84,7 @@ export default function Log(props: any) {
     }
     return (
         <View style={{ flex: 1 }} >
-            <StatusBar animated={true} barStyle = {"dark-content"}/>
+            <StatusBar animated={true} barStyle = {colorEstado[Platform.OS]}/>
             <ImageBackground source={require('../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <Formik
                     initialValues={valores}
