@@ -20,7 +20,7 @@ export default class ItemReporte extends React.Component
         let estados = {1:"Pendiente",2:"Proceso",3:"Atendida",4:"Rechazada"};
         let colorEstado = {1:"#6c757d",2:"#17a2b8",3:"#28a745",4:"#dc3545"};
         return(
-            <View style = {{marginRight:18,marginLeft:18,flex:1,flexDirection:"column"}} >
+            <View style = {{marginBottom:15,marginRight:18,marginLeft:18,flex:1,flexDirection:"column"}} >
                 <TouchableOpacity style = {{ borderWidth:1,backgroundColor:"white", borderRadius:5}} onPress = { this.props.OnPressItem } >
                     <Text style = {{ flex:1, textAlign:"center",marginBottom:5,fontWeight:"bold", color: colorEstado[parseInt(this.props.Estado)]  }}>{estados[parseInt(this.props.Estado)]}</Text>
                     <Text style = {{ flex:1, justifyContent:"center", fontSize:13, textAlign:"left", marginLeft:5 }}>{this.props.Area} - { this.props.FechaAlta } </Text>

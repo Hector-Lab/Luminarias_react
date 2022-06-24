@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ImageBackground, Settings, SafeAreaView, StatusBar } from "react-native";
-import { Appbar } from 'react-native-paper';
-import { Avatar } from 'react-native-elements';
+import { View, Text, ImageBackground, Settings, SafeAreaView, StatusBar, Platform, TouchableOpacity, ScrollView } from "react-native";
+import { Avatar, Icon } from 'react-native-elements';
 import Styles from '../../Styles/styles';
 import MenuItem from '../components/ItemMenuReporte';
 import * as Location from 'expo-location';
 import { IniciarTarea, detenerServicionUbicacion } from '../../utilities/BotonRosa';
 import Loading from '../../pages/components/modal-loading';
 import Message from '../../pages/components/modal-message';
-import { azulColor, SuinpacRed } from '../../Styles/Color';
+import { azulClaro, azulColor, SuinpacRed } from '../../Styles/Color';
 import { BlueColor } from '../../Styles/BachesColor';
-import { PERSONPIN, DESCONOCIDO } from '../../Styles/Iconos';
+import { PERSONPIN, DESCONOCIDO, RETURN, USER_COG } from '../../Styles/Iconos';
 
 export default function MenuReportes(props: any) {
     //Solicitamos los permisos del telefono
@@ -23,6 +22,7 @@ export default function MenuReportes(props: any) {
     const [mensajeIcon, setMensajeIcon] = useState(String);
     const [mensajeIconFuente, setMensajeIconFuente] = useState(String);
 
+    const colorEstado = { "ios": "dark-content", "android": "light-content" };
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestBackgroundPermissionsAsync();
@@ -52,7 +52,8 @@ export default function MenuReportes(props: any) {
         setMostrarMensaje(true);
     }
     const PerfilCiudadano = () => {
-        props.navigation.navigate("Perfil");
+        console.log("Ir a perfil");
+        //props.navigation.navigate("Perfil");
     }
     const AtencionCiudadana = () => {
         props.navigation.navigate("AtencionReporte");
@@ -60,11 +61,7 @@ export default function MenuReportes(props: any) {
 
     return (
         <SafeAreaView style={{ flex: 1 }} >
-            <StatusBar animated={true} barStyle = {"dark-content"}/>
-            <Appbar style={{ backgroundColor: "white" }} >
-                <Appbar.Content title="Menu" />
-                <Appbar.Action icon={'account-details'} onPress={PerfilCiudadano} />
-            </Appbar>
+            <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <View style={{ flex: 2, borderRadius: 1, borderColor: "black", justifyContent: "center" }} >
                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
@@ -104,8 +101,8 @@ export default function MenuReportes(props: any) {
                 </View>
                 <View style={[Styles.ContenedorElemento, { borderColor: "black" }]} >
                     <MenuItem
-                        TextoArriba='Reporte a'
-                        TextoAbajo='Terceros'
+                        TextoArriba='Reporte'
+                        TextoAbajo='Anonimo'
                         colorBoton='#39b54a'
                         marginBotton={12}
                         marginLeft={5}
@@ -114,9 +111,7 @@ export default function MenuReportes(props: any) {
                         fondo={require('../../assets/Botones/btnTeerceros.png')}
                     />
                 </View>
-                <View style={{ flex: 2, borderRadius: 1, borderColor: "black" }} >
-
-                </View>
+                <View style={{ flex: 2, borderRadius: 1, borderColor: "black" }} ></View>
             </ImageBackground>
             <Message
                 tittle={tituloMensaje}
@@ -138,7 +133,7 @@ export default function MenuReportes(props: any) {
                 message={"Cargando"}
                 onCancelLoad={() => { setCargando(false) }}
                 tittle={"Mensaje"}
-                transparent={false}
+                transparent={true}
             />
         </SafeAreaView>
     );

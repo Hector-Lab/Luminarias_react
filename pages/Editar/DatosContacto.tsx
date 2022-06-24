@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Platform } from 'react-native';
 import { Formik, useFormik } from 'formik';
 import { Avatar, Divider } from 'react-native-elements';
 import * as Yup from 'yup';
@@ -7,10 +7,10 @@ import { StorageBaches } from '../controller/storage-controllerBaches';
 import { ObtenerDatosContacto, ActualizarDatosContactos } from '../controller/api-controller';
 import Styles from '../../Styles/styles';
 import Loading from '../components/modal-loading';
-import { azulColor } from "../../Styles/Color";
+import { azulColor, successColor } from "../../Styles/Color";
 import Message from '../components/modal-message';
-import { DESCONOCIDO,ERROR,OK } from '../../Styles/Iconos';
-
+import { DESCONOCIDO, ERROR, OK } from '../../Styles/Iconos';
+const colorEstado = { "ios": "dark-content", "android": "light-content" };
 let storage = new StorageBaches();
 let valores = {
     UnoNombre: '',
@@ -40,27 +40,27 @@ export default function EditarContacto(props: any) {
     let [fuenteIcono, setFuenteIcono] = useState("material");
     let [tituloMensaje, setTituloMensaje] = useState("Mensaje");
     let [mensaje, setMensaje] = useState("");
-    let [ids,setIds] = useState(null);
+    let [ids, setIds] = useState(null);
     //NOTE: Obtenemos los datos de contacto del ciudadno
-    useEffect(()=>{
+    useEffect(() => {
         obtnerDatosContaco();
-    },[])
+    }, [])
     let formik = useFormik({
         initialValues: {
-            UnoId:'',
+            UnoId: '',
             UnoNombre: '',
             UnoTelefono: '',
             UnoDireccion: '',
             UnoEmail: '',
-            DosId:'',
+            DosId: '',
             DosNombre: '',
             DosTelefono: '',
             DosDireccion: '',
             DosEmail: ''
         },
-        onSubmit: ( values ) => {
-            setCargando(true); 
-            actualizarDatosContacto( values ) 
+        onSubmit: (values) => {
+            setCargando(true);
+            actualizarDatosContacto(values)
         },
         validationSchema: validacion
     });
@@ -71,44 +71,47 @@ export default function EditarContacto(props: any) {
         setFuenteIcono(fuenteIcono);
         setMostrarMensaje(true);
     }
-    const obtnerDatosContaco = async() => {
+    const obtnerDatosContaco = async () => {
         await ObtenerDatosContacto()
-        .then((contactos)=>{
-            let indice = ['Uno','Dos'];
-            let ids = [];
-            contactos.map(( item,index )=>{
-                console.log(item.id);
-                ids.push(indice[index]+"Id:"+item.id);
-                formik.setFieldValue(indice[index]+'Id',item.Id);
-                formik.setFieldValue(indice[index]+'Nombre',item.Nombre);
-                formik.setFieldValue(indice[index]+'Telefono',item.Telefono);
-                formik.setFieldValue(indice[index]+'Direccion',item.Direccion);
-                formik.setFieldValue(indice[index]+'Email',item.CorreoElectronico);
-            });
-            setIds(ids);
-        }).catch((error)=>{
-            let mensaje = String(error.message);
-            lanzarMensaje(mensaje,'Mensaje',mensaje.includes("¡Error al obtener los contatos!") ? ERROR[0] : DESCONOCIDO[0], mensaje.includes("¡Error al obtener los contatos!") ? ERROR[1] : DESCONOCIDO[1]);
-        }).finally(()=>{
-            setCargando(false);
-        })
+            .then((contactos) => {
+                let indice = ['Uno', 'Dos'];
+                let ids = [];
+                contactos.map((item, index) => {
+                    console.log(item.id);
+                    ids.push(indice[index] + "Id:" + item.id);
+                    formik.setFieldValue(indice[index] + 'Id', item.Id);
+                    formik.setFieldValue(indice[index] + 'Nombre', item.Nombre);
+                    formik.setFieldValue(indice[index] + 'Telefono', item.Telefono);
+                    formik.setFieldValue(indice[index] + 'Direccion', item.Direccion);
+                    formik.setFieldValue(indice[index] + 'Email', item.CorreoElectronico);
+                });
+                setIds(ids);
+            }).catch((error) => {
+                let mensaje = String(error.message);
+                lanzarMensaje(mensaje, 'Mensaje', mensaje.includes("¡Error al obtener los contatos!") ? ERROR[0] : DESCONOCIDO[0], mensaje.includes("¡Error al obtener los contatos!") ? ERROR[1] : DESCONOCIDO[1]);
+            }).finally(() => {
+                setCargando(false);
+            })
     }
-    const actualizarDatosContacto = async( contactos ) =>{
-        await ActualizarDatosContactos(contactos,ids)
-        .then(( datos )=>{
-            lanzarMensaje("Datos Actualizados","Mensaje",OK[0],OK[1]);
-        })
-        .catch((error)=>{
-            let mensaje = String(error.message);
-            lanzarMensaje(mensaje,"Mensaje", mensaje.includes("¡Error al actualizar contactos!") ? ERROR[0] : DESCONOCIDO[0] ,mensaje.includes("¡Error al actualizar contactos!") ? ERROR[1] : DESCONOCIDO[1]);
-        })
-        .finally(()=>{
-            setCargando(false);
-        })
+    const actualizarDatosContacto = async (contactos) => {
+        await ActualizarDatosContactos(contactos, ids)
+            .then((datos) => {
+                lanzarMensaje("Datos Actualizados", "Mensaje", OK[0], OK[1]);
+            })
+            .catch((error) => {
+                let mensaje = String(error.message);
+                lanzarMensaje(mensaje, "Mensaje", mensaje.includes("¡Error al actualizar contactos!") ? ERROR[0] : DESCONOCIDO[0], mensaje.includes("¡Error al actualizar contactos!") ? ERROR[1] : DESCONOCIDO[1]);
+            })
+            .finally(() => {
+                setCargando(false);
+            })
+    }
+    const regresar = () => {
+        props.navigation.navigate("Perfil");
     }
     return (
         <SafeAreaView style={{ flex: 1 }} >
-            <StatusBar animated={true} barStyle = {"dark-content"}/>
+            <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
@@ -120,9 +123,6 @@ export default function EditarContacto(props: any) {
                             containerStyle={{ height: 120, width: 220 }}
                             source={require("../../assets/banner.png")}
                         />
-                    </View>
-                    <View style={{ flexDirection: "row", marginBottom: 10 }} >
-                        <Text style={{ textAlign: "center", flex: 2, fontWeight: "bold" }} > Contactos de Emergencia </Text>
                     </View>
                     <Formik
                         initialValues={valores}
@@ -139,7 +139,7 @@ export default function EditarContacto(props: any) {
                                     <View style={{ borderWidth: 1, borderRadius: 5, borderColor: "black", marginLeft: 20, marginRight: 20, borderStyle: "dashed" }} >
                                         <Text style={Styles.TemaLabalCampo} >Nombre</Text>
                                         <TextInput
-                                            
+
                                             style={(formik.errors.UnoNombre && formik.touched.UnoNombre) ? Styles.TemaCampoError : Styles.TemaCampo}
                                             placeholder="Ejemplo: Juan Perez"
                                             onChangeText={formik.handleChange('UnoNombre')}
@@ -196,7 +196,7 @@ export default function EditarContacto(props: any) {
                                             onChangeText={formik.handleChange('DosEmail')}
                                             value={formik.values.DosEmail} />
                                     </View>
-                                    <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 20, marginBottom: 20 }]} onPress={formik.handleSubmit}  >
+                                    <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 25, marginBottom: 25, flex: 1, marginLeft: 25, marginRight: 25, backgroundColor: azulColor }]} onPress={formik.handleSubmit}  >
                                         <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Guardar </Text>
                                     </TouchableOpacity>
                                 </View>)
@@ -223,7 +223,7 @@ export default function EditarContacto(props: any) {
                     tittle={tituloMensaje}
                     buttonText={"Aceptar"}
                     buttonCancel={true}
-                    onConfirmarLoad={() => { setMostrarMensaje( false ) }}
+                    onConfirmarLoad={() => { setMostrarMensaje(false) }}
                 />
             </ImageBackground>
         </SafeAreaView>

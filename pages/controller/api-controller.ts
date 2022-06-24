@@ -10,7 +10,7 @@ const networkError = new Error("!Sin acceso a internet¡");
 const userNotFound = new Error("Usuario o Contraseña Incorrectos");
 const usuarioNoValido = new Error("");
 const usuarioNoEncontrado = new Error("Ciudadano no encontrado\nFavor de registrarse para continuar");
-const ErrorDesconocido = new Error("¡Error desconocido!");
+const ErrorDesconocido = new Error("¡Servicio no disponible!\nFavor de intentar más tarde");
 const SinCambios = new Error("OK"); 
 const ErrorInsertar = new Error("¡Error al registrar el reporte!\nFavor de intentar más tarde");
 const NoRowSelect = new Error("¡Aún no tiene registros!");
@@ -113,7 +113,7 @@ export async function ObtenerMisReportes (){
             };
             let rawData = await service.obtenerreportesCiudadano(datos);
             let jsonData = await rawData.json();
-            console.log(jsonData);
+            
             if(jsonData.Code == 200){
                 return jsonData.Mensaje;
             }else if(jsonData.Code == 404){
@@ -211,11 +211,13 @@ export async function GuardarReporteRosaC4(Ciudadano:any){
 }
 export async function ActualizarCoordenadas( datos:any  ){
     try{
+        //INDEV: Obtenemos el id del ciudadano
+        let idCiudadano = await storageBaches.obtenerIdCiudadano();
         let idReporte = await storageBaches.obtenerIdReporteRosa();
         let Reporte = {
             Ubicacion:datos.Ubicacion_GPS,
-            Cliente:56,
-            Ciudadano:7,
+            Cliente:CLIENTE,
+            Ciudadano: idCiudadano,
             Direccion:datos.Direccion,
             Reporte:idReporte
         }

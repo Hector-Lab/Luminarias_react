@@ -16,16 +16,14 @@ const _takePicture = async () => {
     base64: false,
     quality: 0.4,
   });
+  photo.base64
+  photo.exif,
+  photo.height,
+  photo
   //NOTE: verificamos los datos de localizacion
   let coordenadas = await CordenadasActualesNumerico();
   let DireccionActual = JSON.parse(await ObtenerDireccionActual(coordenadas));
-  let formatoDireccion = `
-        Estado: ${DireccionActual.region}
-        Ciudad: ${DireccionActual.city}
-        Colonia: ${DireccionActual.district}
-        Calle: ${DireccionActual.street}
-        Código Postal: ${DireccionActual.postalCode}
-        `;
+  let formatoDireccion = ` Estado: ${DireccionActual.region}\nCiudad: ${DireccionActual.city}\nColonia: ${DireccionActual.district}\nCalle: ${DireccionActual.street}\nCódigo Postal: ${DireccionActual.postalCode}`;
   storage.guardarDatosCamara(JSON.stringify(photo), JSON.stringify(coordenadas), formatoDireccion);
 
 }

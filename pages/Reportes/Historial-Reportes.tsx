@@ -6,42 +6,47 @@ import { azulColor } from "../../Styles/Color";
 import { ObtenerMisReportes } from '../controller/api-controller';
 import ItemReporte  from '../components/item-reportes';
 import ReporteDetalle from '../components/modal-detalles-reporte';
-import Reportar from "../Baches/CiudadanoReporte";
-
+import Message from  '../components/modal-message';
+import { DESCONOCIDO,ALERTMENU } from '../../Styles/Iconos';
+ 
 const colorEstado = {"ios":"dark-content","android":"light-content"};
-const item = () =>{
-
-}
-
 export default function HistorialReportes(props: any) {
     //NOTE: estados del mensaje
     const [ mensaje, setMensaje ] = useState(String);
     const [ icono, setIcono ] = useState(String);
     const [ iconoFuente, setIconoFuente ] = useState(String);
-    const [ mostrarMnesje, setMostrarMensaje ] = useState( false );
+    const [ mostrarMensaje, setMostrarMensaje ] = useState( false );
     //NOTE: estados del modal cargado
     const [ cargando, setCargando ] = useState( false );
     const [ listaReporte, setListaReporte ] = useState([]);
     const [ indiceReporte, setIndiceReporte ] = useState(0);
     const [ mostrarDetalle, setMostrarDetalle ] = useState( false );
-    const [ reporte, setReporte ] = useState( "" );
-    
+    const [ reporte, setReporte ] = useState( Object );
+    const [ mostrarEvidencias, setMostrarEvidencias ] = useState( false ); 
     
     useEffect(()=>{
+        setCargando(true);
         obtenerListaReportes();
     },[]);
     const obtenerListaReportes = async () =>{
 
         await ObtenerMisReportes()
         .then(( data )=>{
-            console.log(data);
             setListaReporte(data);
         })
         .catch(( error )=>{
-            console.log( error );
+            let mensajeError = String(error.message);
+            lanzarMensaje( mensajeError ,(error.message == "¡Servicio no disponible!" ) ? DESCONOCIDO[0] : ALERTMENU[0] , (error.message == "¡Servicio no disponible!" ) ? DESCONOCIDO[1] : ALERTMENU[1] );
+        })
+        .finally(()=>{
+            setCargando(false);
         });
     }
-    const lanzarMensaje = () => {
+    const lanzarMensaje = ( mensaje:string, icono:string, fuente:string ) => {
+        setMensaje( mensaje );
+        setIcono( icono );
+        setIconoFuente( fuente );
+        setMostrarMensaje( true );
     }
     const renderItem = ({ item }) =>{
         return (
@@ -53,6 +58,9 @@ export default function HistorialReportes(props: any) {
                 OnPressItem = { ()=>{ setReporte(item == "" ? null : item ); setMostrarDetalle(true); console.log(item); } }
             />
         );
+    }
+    const regresar = () =>{
+        props.navigation.pop(); //navigate("Perfil");
     }
     return (
         <SafeAreaView style={{ flex: 1 }} >
@@ -80,6 +88,11 @@ export default function HistorialReportes(props: any) {
                         />
                     </View>
                 </View>
+                <TouchableOpacity 
+                    style = {{ backgroundColor: azulColor, marginLeft:25, marginRight:25, marginBottom:10, marginTop:10, borderRadius:10 }}
+                    onPress = {regresar}>
+                    <Text style = {{ padding:10, textAlign:"center",color:"white", fontWeight:"bold",  }} > Regresar </Text>
+                </TouchableOpacity>
             </ImageBackground>
             <Loading 
                 transparent = { true }
@@ -93,6 +106,22 @@ export default function HistorialReportes(props: any) {
                 Reporte  = { reporte }
                 Visible = { mostrarDetalle }
                 Plataform = {  Platform.OS }
+                onClose = {() => { setMostrarDetalle( !mostrarDetalle ) }}
+                onMostrarEvidencia = {()=>{ setMostrarEvidencias( !mostrarEvidencias ) }}
+                mostrarEvidencia = { mostrarEvidencias }
+            />
+            <Message
+                buttonText = { "Aceptar" }
+                color = { azulColor }
+                icon = { icono }
+                iconsource = { iconoFuente }
+                loadinColor = { azulColor }
+                loading = { mostrarMensaje }
+                message = { mensaje }
+                tittle = { "Mensaje" }
+                transparent = { true }
+                onConfirmarLoad = {()=>{ } }
+                onCancelLoad = {()=>{ }}
             />
         </SafeAreaView>
     );

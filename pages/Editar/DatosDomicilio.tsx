@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, ViewBase, StatusBar } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, ViewBase, StatusBar, Platform } from 'react-native';
 import { Avatar, Icon } from 'react-native-elements';
 import Styles from '../../Styles/styles';
 import { Formik, useFormik } from 'formik';
@@ -8,10 +8,10 @@ import { StorageBaches } from '../controller/storage-controllerBaches';
 import { obtenerDatosDomicilio, ActualizarDatosDomiclio } from '../controller/api-controller';
 import Message from '../components/modal-message';
 import Loading from '../components/modal-loading';
-import { azulColor } from "../../Styles/Color";
-import { OK,DESCONOCIDO,ERROR } from '../../Styles/Iconos';
+import { azulColor, successColor } from "../../Styles/Color";
+import { OK, DESCONOCIDO, ERROR } from '../../Styles/Iconos';
 
-
+const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function EditarDomicilio(props: any) {
     const [cargando, setCargando] = useState(false);
     const [icono, setIcono] = useState('info');
@@ -76,11 +76,11 @@ export default function EditarDomicilio(props: any) {
         let jsonData = JSON.stringify(domicilio);
         await ActualizarDatosDomiclio(jsonData)
             .then((respuesta) => {
-                lanzarMensaje( "Datos Actualizados","Mensaje",OK[0],OK[1]);
+                lanzarMensaje("Datos Actualizados", "Mensaje", OK[0], OK[1]);
             })
             .catch((error) => {
-                let mensaje =  String(error.message);
-                lanzarMensaje(mensaje,"Mensaje", mensaje.includes("¡Error al acutlizar el domicilio!") ? ERROR[0] : DESCONOCIDO[0],  mensaje.includes("¡Error al acutlizar el domicilio!") ? ERROR[1] : DESCONOCIDO[1]);
+                let mensaje = String(error.message);
+                lanzarMensaje(mensaje, "Mensaje", mensaje.includes("¡Error al acutlizar el domicilio!") ? ERROR[0] : DESCONOCIDO[0], mensaje.includes("¡Error al acutlizar el domicilio!") ? ERROR[1] : DESCONOCIDO[1]);
             })
     }
     const lanzarMensaje = async (mensaje: string, titulo: string, icono: string, iconoFuente: string) => {
@@ -88,11 +88,14 @@ export default function EditarDomicilio(props: any) {
         setTittulo(titulo);
         setIcono(icono);
         setFuenteIcono(iconoFuente);
-        setMostrarMensaje( true );
+        setMostrarMensaje(true);
+    }
+    const regresarMensaje = async () => {
+        props.navigation.navigate("Perfil");
     }
     return (
         <SafeAreaView style={{ flex: 1 }} >
-            <StatusBar animated={true} barStyle = {"dark-content"}/>
+            <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
@@ -105,7 +108,6 @@ export default function EditarDomicilio(props: any) {
                             source={require("../../assets/banner.png")}
                         />
                     </View>
-                    <Text style={{ textAlign: "center", fontWeight: "bold" }} > Domicilio </Text>
                     <Formik
                         initialValues={valores}
                         onSubmit={datos => GuardarDatosLocal(datos)}
@@ -143,12 +145,12 @@ export default function EditarDomicilio(props: any) {
                                     placeholder="Ejemplo: 54716"
                                     onChangeText={formik.handleChange('CodigoPostal')}
                                     value={formik.values.CodigoPostal} />
-                                <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 20, borderWidth: 1 }]} onPress={formik.handleSubmit}  >
-                                    <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Guardar </Text>
-                                </TouchableOpacity>
                             </View>
                         }}
                     </Formik>
+                    <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 10, flex: 1, marginRight: 25 , marginLeft:25 , backgroundColor: azulColor }]} onPress={formik.handleSubmit}  >
+                        <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Guardar </Text>
+                    </TouchableOpacity>
                 </ScrollView>
                 <Loading
                     loadinColor={azulColor}

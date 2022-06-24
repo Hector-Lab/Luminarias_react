@@ -123,3 +123,4 @@ export class StorageBaches {
         await AsyncStorage.removeItem(root+"Direccion");
     }
 }
+

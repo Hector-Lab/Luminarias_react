@@ -21,3 +21,6 @@ export const ICONLIST = ['receipt-long','material'];
 export const APPSETTINGS = ['settings-applications','material'];
 export const PREVIEW = ['collections','material'];
 export const PERSONPIN =['person-pin','material'];
+export const CLOSE = ['cancel','material']
+export const RETURN = ['arrow-back','material'];
+export const PROFILE = ['account-circle','material'];

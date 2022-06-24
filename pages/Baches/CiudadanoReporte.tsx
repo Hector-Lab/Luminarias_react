@@ -7,7 +7,8 @@ import {
   Text,
   TextInput,
   Linking,
-  StatusBar
+  StatusBar,
+  Platform
 } from "react-native";
 import { Form, Formik, useFormik } from 'formik';
 import Style from '../../Styles/styles';
@@ -28,7 +29,7 @@ import { azulColor } from "../../Styles/Color";
 import Camara from '../components/Camara';
 import { obtenerBase64 } from '../../utilities/utilities';
 import ImageView from "react-native-image-viewing";
-
+const colorEstado = { "ios": "dark-content", "android": "light-content" };
 let validacion = Yup.object().shape({
   Referencia: Yup.string().required(),
   Descripcion: Yup.string().required()
@@ -126,19 +127,13 @@ export default function Reportar(props: any) {
       //INDEV: obtenemos las coordenadas y la direccion
       coordenadasActuales = await CordenadasActualesNumerico();
       let direccionActia = JSON.parse(await ObtenerDireccionActual(coordenadasActuales));
-      formatoDireccion = `
-        Estado: ${direccionActia.region}
-        Ciudad: ${direccionActia.city}
-        Colonia: ${direccionActia.district}
-        Calle: ${direccionActia.street}
-        Código Postal: ${direccionActia.postalCode}
-        `;
+      formatoDireccion = ` Estado: ${direccionActia.region}\nCiudad: ${direccionActia.city}\nColonia: ${direccionActia.district}\nCalle: ${direccionActia.street}\nCódigo Postal: ${direccionActia.postalCode}`;
     }
     if (seleccionSolicitud != "") {
       let data = {
         Tema: seleccionSolicitud,
         Descripcion: Reporte.Descripcion,
-        gps: (coordenadas == "" || coordenadas == null) ? JSON.stringify(coordenadasActuales) : JSON.stringify(coordenadas),
+        gps: (coordenadas == "" || coordenadas == null) ? JSON.stringify(coordenadasActuales) : coordenadas,
         direccion: (direccion == "" || direccion == null ? formatoDireccion : direccion),
         Referencia: Reporte.Referencia,
         Evidencia: listaImagenesCodificadas,
@@ -219,7 +214,7 @@ export default function Reportar(props: any) {
   }
   return (
     <SafeAreaView style={{ flex: 1, flexDirection: "row" }} >
-      <StatusBar animated={true} barStyle = {"dark-content"}/>
+      <StatusBar animated={true} barStyle = { colorEstado[Platform.OS] }/>
       <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
         {
           !camaraActiva ?

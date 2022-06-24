@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, Pressable, StatusBar } from 'react-native';
 import { Avatar, Divider, Icon } from 'react-native-elements';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, Pressable, StatusBar, Platform } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Styles from '../../Styles/styles';
 import { StorageBaches } from '../controller/storage-controllerBaches';
 import { CommonActions } from '@react-navigation/native';
 import Loading from "../components/modal-loading";
-import { azulColor } from "../../Styles/Color";
-
+import { azulColor, azulColorDisabled } from "../../Styles/Color";
+import { RETURN } from '../../Styles/Iconos';
+const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Contactos(props: any) {
     let [nombre, setNombre] = useState();
     let [email, setEmail] = useState();
@@ -49,13 +50,16 @@ export default function Contactos(props: any) {
     const EditarDatosContacto = () => {
         props.navigation.navigate("EditarContacto");
     }
-    const HistorialReportes =  () =>{
+    const HistorialReportes = () => {
         props.navigation.navigate("HistorialReportes");
+    }
+    const Menu = () => {
+        props.navigation.navigate("Menu");
     }
 
     return (
         <SafeAreaView style={{ flex: 1 }} >
-            <StatusBar animated={true} barStyle = {"dark-content"}/>
+            <StatusBar animated={true} barStyle={ colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
@@ -68,19 +72,19 @@ export default function Contactos(props: any) {
                             source={require("../../assets/user.png")}
                         />
                         <View>
-                            <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 10 }]} >
-                                <Text style={[Styles.btnTexto, { marginLeft: 10, marginRight: 10 }]} > Editar </Text>
+                            <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 10, backgroundColor: azulColorDisabled }]} disabled={true} >
+                                <Text style={[Styles.btnTexto, { marginLeft: 10, marginRight: 10, color: "lightgray" }]} > Editar </Text>
                             </TouchableOpacity>
                         </View>
                         <Text style={{ marginTop: 20, marginBottom: 5, fontWeight: "bold", fontSize: 18 }} > {nombre} </Text>
                         <Text> {email} </Text>
-                        <View style={[Styles.itemPerfil, { marginTop: 100 }] } >
+                        <View style={[Styles.itemPerfil, { marginTop: 100 }]} >
                             <TouchableOpacity style={{ flex: 1, flexDirection: "row" }} onPress={HistorialReportes} >
                                 <Text style={{ textAlign: "left", flex: 10, fontWeight: "bold" }} > Historial Reportes </Text>
                                 <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} />
                             </TouchableOpacity>
                         </View>
-                        <View style={[Styles.itemPerfil] }>
+                        <View style={[Styles.itemPerfil]}>
                             <TouchableOpacity style={{ flex: 1, flexDirection: "row" }} onPress={EditarDatosPersonales} >
                                 <Text style={{ textAlign: "left", flex: 10, fontWeight: "bold" }} > Editar Datos Personales </Text>
                                 <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} />

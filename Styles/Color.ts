@@ -6,3 +6,5 @@ export const textoAtencion = "#003356";
 //NOTE: Colores Cuatitla
 export const azulColor = "#003356";
 export const azulClaro = "#1db0d6";
+export const successColor = "#28a745";
+export const azulColorDisabled = "#00335645"
