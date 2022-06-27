@@ -9,6 +9,7 @@ import Message from '../components/modal-message';
 import { azulColor, SuinpacRed } from "../../Styles/Color";
 import { StorageBaches } from '../controller/storage-controllerBaches';
 
+
 export default function Personales(props: any) {
     let [curpValida, sertCurpValida] = useState(false);
     let [passValida, setPassValido] = useState(false);
@@ -44,9 +45,10 @@ export default function Personales(props: any) {
     const ValidarDatosEspeciales = async (datos) => {
         //NOTE: validamos la curp
         let mensajeError = errorMensajeCurp[verificarcurp(datos.CURP)];
+        console.log(mensajeError);
         if (mensajeError.length != 0) {
             setMensaje(mensajeError);
-            setMostrarMensaje(mensajeError.length != 0);
+            setMostrarMensaje(true);
             setIcono('info');
             setFuenteIcono('material');
         } else {
@@ -78,7 +80,7 @@ export default function Personales(props: any) {
                     </View>
                     <Formik
                         initialValues={valores}
-                        onSubmit={datos => ValidarDatosEspeciales(datos)}
+                        onSubmit={datos => { ValidarDatosEspeciales(datos)}}
                         validationSchema={validacion}
                     >
                         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => {
@@ -154,7 +156,7 @@ export default function Personales(props: any) {
                 </ScrollView>
                 <Message
                     transparent={true}
-                    loading={false}
+                    loading={mostrarMensaje}
                     loadinColor={azulColor}
                     icon={icono}
                     iconsource={fuenteIcono}
@@ -163,6 +165,8 @@ export default function Personales(props: any) {
                     buttonText={'Aceptar'}
                     color={azulColor}
                     onCancelLoad={() => { setMostrarMensaje(false) }}
+                    onConfirmarLoad={() => { setMostrarMensaje(false) }}
+
                 />
             </ImageBackground>
         </SafeAreaView>

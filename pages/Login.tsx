@@ -11,7 +11,8 @@ import { IniciarSession } from './controller/api-controller';
 import Loading from './components/modal-loading';
 import Message from './components/modal-message';
 import { USER_COG, WIFI_OFF, DESCONOCIDO, APPSETTINGS } from '../Styles/Iconos';
-
+import * as Location from 'expo-location';
+import { Camera } from 'expo-camera';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Log(props: any) {
     const [cargando, setCargando] = useState(false);
@@ -22,10 +23,35 @@ export default function Log(props: any) {
     const [mostrarMensaje, setMostrarMensaje] = useState(false);
     let storage = new StorageBaches();
     useEffect(
-        () => {
-            verificandoSession();
-        },
-        [])
+        ()=>{
+            ( async () =>{
+                //NOTE:  Preguntamos por los permisos de la app
+                let { granted } = await Location.requestForegroundPermissionsAsync();
+                //NOTE: Pedimos permisos de uso en el fondo
+                if( granted ){
+                    let { status } = await Location.requestBackgroundPermissionsAsync();
+                    if(status == "granted"){
+                        //NOTE: intentamos encender la localizacion del dispositivo
+                    }
+                }
+                await Location.hasServicesEnabledAsync().then( async (status)=>{
+                    console.log(status, " -> Permiso");
+                    if(!status){
+                        await Location.enableNetworkProviderAsync();
+                    }
+                    
+                }).catch((error)=>{
+                    console.log(error);
+                });
+                //NOTE: pedimos permisos de la camara
+                let { status } = await Camera.requestCameraPermissionsAsync();
+                if(status){
+                    console.log("Permiso de la camara", status);
+                }
+
+                verificandoSession();
+            })();
+        },[])
     const verificandoSession = async () => {
         if (await storage.verificarDatosCiudadano()) {
             setCargando(false);
@@ -120,10 +146,10 @@ export default function Log(props: any) {
                                 <Text style={Styles.TemaLabalCampo} >Contraseña</Text>
                                 <TextInput
                                     textContentType="password"
-                                    keyboardAppearance="dark"m
+                                    keyboardAppearance="dark"
                                     style={(errors.Password && touched.Password) ? Styles.TemaCampoError : Styles.TemaCampo}
                                     secureTextEntry = { true }
-                                    placeholder="Ejemplo: Juan Perez"
+                                    placeholder="*********"
                                     onChangeText={handleChange('Password')}
                                     value={values.Password}
                                 ></TextInput>

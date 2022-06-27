@@ -20,7 +20,7 @@ import { StorageBaches } from "../controller/storage-controllerBaches";
 import Loading from "../components/modal-loading";
 import Message from "../components/modal-message";
 import { BlueColor } from '../../Styles/BachesColor';
-import { CAMERA, DESCONOCIDO, PREVIEW, WIFI_OFF, OK } from "../../Styles/Iconos";
+import { CAMERA, DESCONOCIDO, PREVIEW, WIFI_OFF, OK,ERROR } from "../../Styles/Iconos";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView } from "react-native-gesture-handler";
@@ -67,7 +67,15 @@ export default function Reportar(props: any) {
       Referencia: '',
       Descripcion: ''
     },
-    onSubmit: (values) => { setCargando(true); GuardarReporte(values); },
+    onSubmit: (values) => { 
+      if(validarEspeciales()){
+        setCargando(true); GuardarReporte(values);
+      }else{
+        setMensaje("Caracteres no validos\n^+=-[]\\\'/{}|\"<>");
+        setIcono(ERROR[0]);
+        setFuenteIcono(ERROR[1]);
+        setSHowMessage(true);
+      }},
     validationSchema: validacion
   });
   useEffect(() => {
@@ -142,6 +150,7 @@ export default function Reportar(props: any) {
       await EnviarReportes(data)
         .then((result) => {
           lanzarMensaje("¡Reporte Enviado!", OK[0], OK[1] );
+          limpiarPantalla();
         })
         .catch((error) => {
           //NOTE: manejador de erroes
@@ -212,6 +221,37 @@ export default function Reportar(props: any) {
     setFuenteIcono(fuenteIcono);
     setSHowMessage(true);
   }
+  const limpiarPantalla = () =>{
+    formik.setFieldValue("Referencia","");
+    formik.setFieldValue("Descripcion","");
+    setSeleccionSolicitud("");
+  }
+  const validarEspeciales = () =>{
+    var iChars = "^+=-[]\\\'/{}|\"<>";
+    let referencia = formik.values.Referencia;
+    let descripcion = formik.values.Descripcion;
+    let valido = true;
+    //Validamos los datos de la referencia
+    for(let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++ ){
+      for(let indexTexto = 0; indexTexto < referencia.length; indexTexto++){
+        if(iChars[indexEspeciales] == referencia[indexTexto] ){
+          formik.setFieldError("Referencia","No valido");
+          valido = false;
+          break;
+        }
+      }
+    }
+    for(let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++ ){
+      for(let indexTexto = 0; indexTexto < descripcion.length; indexTexto++){
+        if(iChars[indexEspeciales] == descripcion[indexTexto] ){
+          formik.setFieldError("Descripcion","No valido");
+          valido = false;
+          break;
+        }
+      }
+    }
+    return valido;
+  }
   return (
     <SafeAreaView style={{ flex: 1, flexDirection: "row" }} >
       <StatusBar animated={true} barStyle = { colorEstado[Platform.OS] }/>
@@ -255,6 +295,7 @@ export default function Reportar(props: any) {
                     placeholder="Entre calles..."
                     value={formik.values.Referencia}
                     onChangeText={formik.handleChange('Referencia')}
+                    keyboardType = {"ascii-capable"}
                   ></TextInput>
                   <Text style={Style.TemaLabalCampo} > Descripción </Text>
                   <TextInput

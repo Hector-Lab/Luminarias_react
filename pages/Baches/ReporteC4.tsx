@@ -27,7 +27,6 @@ export default function ReporteC4(props: any) {
   const [direccion, setDireccion] = useState(Object);
   //INDEV: parte para el arreglo de fotos
   const [arregloFotos, setArregloFotos] = useState([]);
-  const [arregloFotosVista, setArregloFotosVista] = useState<String[]>([]);
   //NOTE:  mmanejador de la camara
   const [camaraActiva, setCamaraActiva] = useState(false);
   const [cameraPermissions, setCameraPermision] = useState(false);
@@ -67,10 +66,7 @@ export default function ReporteC4(props: any) {
   }, []);
   useEffect(() => {
     (async () => {
-
-
       SetMapaCargado(true);
-
     });
 
   }, [Locacion]);
@@ -235,9 +231,18 @@ export default function ReporteC4(props: any) {
   }
   const verificarDatosReporte = () => {
     setCargando(true);
-    let errores = "";
-    Locacion != null ? "" : errores += "L,";
-    arregloFotos.length >= 0 ? GuardarReporte() : lanzarMensaje("¡Favor de verificar los campos requeridos!", "Mensaje de Error", PREVIEW[0], PREVIEW[1]);
+    if (validarEspeciales()) {
+      let errores = "";
+      Locacion != null ? "" : errores += "L,";
+      arregloFotos.length >= 0 ? GuardarReporte() : lanzarMensaje("¡Favor de verificar los campos requeridos!", "Mensaje de Error", PREVIEW[0], PREVIEW[1]);
+    }else{
+      setMensaje("Caracteres no validos\n^+=-[]\\\'/{}|\"<>");
+      setIconoFuente(ERROR[1]);
+      setIconoMensaje(ERROR[0]);
+      setTipoMensaje("Mensaje");
+      setMonstrarMensaje(true);
+      setCargando(false)
+    }
   }
   const GuardarReporte = async () => {
     //INDEV: reunimos los datos del reporte
@@ -257,7 +262,8 @@ export default function ReporteC4(props: any) {
     }
     await GuardarReporteC4(datosReposte).
       then((MensajeGuardado) => {
-        lanzarMensaje(MensajeGuardado, "Mensaje Exitoso", OK[0], OK[1])
+        lanzarMensaje(MensajeGuardado, "Mensaje Exitoso", OK[0], OK[1]);
+        limpiarPantalla();
       }).
       catch((MensajeError) => {
         lanzarMensaje(MensajeError, "Mensaje de Error", ERROR[0], ERROR[1])
@@ -272,6 +278,42 @@ export default function ReporteC4(props: any) {
     setIconoFuente(mFuenteIcono);
     setMonstrarMensaje(true);
   }
+  const limpiarPantalla = () => {
+    setNombre("");
+    setTelefono("");
+    setProblema("");
+    setArregloFotos([]);
+  }
+  const validarEspeciales = () => {
+    var iChars = "^+=-[]\\\'/{}|\"<>";
+    let valido = true;
+    //Validamos los datos de la referencia
+    for (let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++) {
+      for (let indexTexto = 0; indexTexto < Nombre.length; indexTexto++) {
+        if (iChars[indexEspeciales] == Nombre[indexTexto]) {
+          valido = false;
+          break;
+        }
+      }
+    }
+    for (let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++) {
+      for (let indexTexto = 0; indexTexto < Telefono.length; indexTexto++) {
+        if (iChars[indexEspeciales] == Telefono[indexTexto]) {
+          valido = false;
+          break;
+        }
+      }
+    }
+    for (let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++) {
+      for (let indexTexto = 0; indexTexto < Problema.length; indexTexto++) {
+        if (iChars[indexEspeciales] == Problema[indexTexto]) {
+          valido = false;
+          break;
+        }
+      }
+    }
+    return valido;
+  }
   return (
     <SafeAreaView style={{ flex: 1 }} >
       <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
@@ -279,16 +321,16 @@ export default function ReporteC4(props: any) {
         {
           camaraActiva ? GenerarCamara() :
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} >
-                <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                  <Avatar
-                    avatarStyle={{}}
-                    rounded
-                    imageProps={{ resizeMode: "contain" }}
-                    size="xlarge"
-                    containerStyle={{ height: 120, width: 220 }}
-                    source={require("../../assets/banner.png")}
-                  />
-                </View>
+              <View style={{ justifyContent: "center", alignItems: "center" }}  >
+                <Avatar
+                  avatarStyle={{}}
+                  rounded
+                  imageProps={{ resizeMode: "contain" }}
+                  size="xlarge"
+                  containerStyle={{ height: 120, width: 220 }}
+                  source={require("../../assets/banner.png")}
+                />
+              </View>
               <View style={{ flex: 6 }}>
                 <View>
                   <Text style={{ marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color: "black", fontWeight: "bold", justifyContent: "center", alignItems: "center" }}>Nombre</Text>
@@ -297,7 +339,7 @@ export default function ReporteC4(props: any) {
                     keyboardType="default"
                     value={Nombre}
                     onChangeText={text => { setNombre(text); }}
-                    style={[Style.TemaCampo,InterfazError.includes('N,') ? { borderColor: "red" } : { borderColor: "black" }]}
+                    style={[Style.TemaCampo, InterfazError.includes('N,') ? { borderColor: "red" } : { borderColor: "black" }]}
                   />
                 </View>
                 <View>
@@ -308,7 +350,7 @@ export default function ReporteC4(props: any) {
                     keyboardType="number-pad"
                     value={Telefono}
                     onChangeText={text => { setTelefono(text); }}
-                    style={[Style.TemaCampo,InterfazError.includes('T,') ? { borderColor: "red" } : { borderColor: "black" }]}
+                    style={[Style.TemaCampo, InterfazError.includes('T,') ? { borderColor: "red" } : { borderColor: "black" }]}
                   />
                 </View>
                 <View>
@@ -321,7 +363,7 @@ export default function ReporteC4(props: any) {
                     value={Problema}
                     onChangeText={text => { setProblema(text); }}
 
-                    style={[Style.TemaCampo,InterfazError.includes('P,') ? { borderColor: "red" } : { borderColor: "black" }]}
+                    style={[Style.TemaCampo, InterfazError.includes('P,') ? { borderColor: "red" } : { borderColor: "black" }]}
                   />
                 </View>
                 <View style={{ paddingLeft: 20, paddingRight: 20 }} >
@@ -338,8 +380,8 @@ export default function ReporteC4(props: any) {
                 </View>
                 <View>
                   <Text style={{ color: "black", fontWeight: "bold", marginLeft: 15 }}>Ubicación</Text>
-                  <View style={[InterfazError.includes("L,") ? { borderColor: "red" } : { borderColor: "black" }, { margin: 15, borderWidth: 1, elevation: 7, marginTop: 5,marginRight:25,marginLeft:25 }]} >
-                    <View style={{ backgroundColor: "lightgray", height: 200}} >
+                  <View style={[InterfazError.includes("L,") ? { borderColor: "red" } : { borderColor: "black" }, { margin: 15, borderWidth: 1, elevation: 7, marginTop: 5, marginRight: 25, marginLeft: 25 }]} >
+                    <View style={{ backgroundColor: "lightgray", height: 200 }} >
                       {
                         (Locacion.coords != undefined) ?
                           <MapView style={{ height: 200 }}
@@ -366,11 +408,11 @@ export default function ReporteC4(props: any) {
                   </View>
                 </View>
               </View>
-              <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom:20 }} >
-                  <TouchableOpacity style={{ backgroundColor: "#104971", borderRadius: 5, padding: 10, marginBottom: 10 }} onPress={verificarDatosReporte} >
-                    <Text style={{ color: "white", textAlign: "center" }}> Enviar </Text>
-                  </TouchableOpacity>
-                </View>
+              <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom: 20 }} >
+                <TouchableOpacity style={{ backgroundColor: "#104971", borderRadius: 5, padding: 10, marginBottom: 10 }} onPress={verificarDatosReporte} >
+                  <Text style={{ color: "white", textAlign: "center" }}> Enviar </Text>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
         }
       </ImageBackground>
