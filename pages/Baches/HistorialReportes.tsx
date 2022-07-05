@@ -226,7 +226,8 @@ export default function HistorialReporte(props: any) {
               icon = {icono}
               loadinColor = {DarkPrimaryColor}
               onCancelLoad={()=>{ setShowMessage(false) }}
-              tittle = {tituloMensaje}
+              onConfirmarLoad = {()=>{ setShowMessage(false) }}
+              tittle = {tituloMensaje + "test"}
             />
             <Loading
               transparent = { true }

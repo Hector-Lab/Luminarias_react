@@ -120,8 +120,8 @@ export default function HistorialReportes(props: any) {
                 message = { mensaje }
                 tittle = { "Mensaje" }
                 transparent = { true }
-                onConfirmarLoad = {()=>{ } }
-                onCancelLoad = {()=>{ }}
+                onConfirmarLoad = {()=>{ setMostrarMensaje(false)  } }
+                onCancelLoad = {()=>{ setMostrarMensaje(false) }}
             />
         </SafeAreaView>
     );

@@ -11,7 +11,8 @@ import { StorageBaches } from '../controller/storage-controllerBaches';
 export default class Privacidad extends React.Component<
 {   
     visible: boolean,
-    onAccept: Function
+    onAccept: Function,
+    plataforma: String
 }>{
     render(){
         const storage = new StorageBaches();
@@ -45,9 +46,14 @@ export default class Privacidad extends React.Component<
                             <TouchableOpacity style = { [Styles.btnButtonSuccessSinPading,{ padding:15}] } onPress = { AceptarCondiciones } >
                                 <Text style = {{textAlign:"center", color:"white", fontWeight:"bold"}} > Aceptar </Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style = {[Styles.btnButtonSuccessSinPading, { padding:15,  backgroundColor:SuinpacRed }]} onPress = {()=>{BackHandler.exitApp();}} >
-                                <Text style = {{textAlign:"center", color:"white", fontWeight:"bold"}}  > Cancelar </Text>
-                            </TouchableOpacity>
+                           {
+                               this.props.plataforma == "android" ? (
+                                <TouchableOpacity style = {[Styles.btnButtonSuccessSinPading, { padding:15,  backgroundColor:SuinpacRed }]} onPress = {()=>{BackHandler.exitApp();  }} >
+                                    <Text style = {{textAlign:"center", color:"white", fontWeight:"bold"}}  > Cancelar </Text>
+                                </TouchableOpacity>
+                               ) : <></>
+                           } 
+                            
                         </View>
                         </View>
                     </Card>

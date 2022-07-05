@@ -59,7 +59,7 @@ export class StorageBaches {
     async setCondicionesPrivacidad(aceptar: string) {
         await AsyncStorage.setItem(root + "Privacidad", aceptar);
     }
-    async getCondicionesProvacidad() {
+    async getCondicionesPrivacidad() {
         return await AsyncStorage.getItem(root + "Privacidad");
     }
     async guardarIdReporteRosa(idReporte: string) {
@@ -121,6 +121,9 @@ export class StorageBaches {
         await AsyncStorage.removeItem(root+"Imagen");
         await AsyncStorage.removeItem(root+"Coordenadas");
         await AsyncStorage.removeItem(root+"Direccion");
+    }
+    async eliminarElemento( index:string ) {
+        await AsyncStorage.removeItem( root+index );
     }
 }
 

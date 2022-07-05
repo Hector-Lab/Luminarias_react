@@ -8,7 +8,8 @@ import {
   TextInput,
   Linking,
   StatusBar,
-  Platform
+  Platform,
+  ActivityIndicator
 } from "react-native";
 import { Form, Formik, useFormik } from 'formik';
 import Style from '../../Styles/styles';
@@ -20,12 +21,12 @@ import { StorageBaches } from "../controller/storage-controllerBaches";
 import Loading from "../components/modal-loading";
 import Message from "../components/modal-message";
 import { BlueColor } from '../../Styles/BachesColor';
-import { CAMERA, DESCONOCIDO, PREVIEW, WIFI_OFF, OK,ERROR } from "../../Styles/Iconos";
+import { CAMERA, DESCONOCIDO, PREVIEW, WIFI_OFF, OK, ERROR } from "../../Styles/Iconos";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView } from "react-native-gesture-handler";
-import { Avatar, Icon } from "react-native-elements";
-import { azulColor } from "../../Styles/Color";
+import { Avatar, Icon, Image, Card } from "react-native-elements";
+import { azulColor, iconColorBlue, SuinpacRed } from "../../Styles/Color";
 import Camara from '../components/Camara';
 import { obtenerBase64 } from '../../utilities/utilities';
 import ImageView from "react-native-image-viewing";
@@ -35,14 +36,13 @@ let validacion = Yup.object().shape({
   Descripcion: Yup.string().required()
 });
 
-
 export default function Reportar(props: any) {
   const storage = new StorageBaches();
   const [cameraPermissions, setCameraPermision] = useState(false);
   //NOTE: message title
   const [showMessage, setSHowMessage] = useState(false);
   const [mensaje, setMensaje] = useState(String);
-  const [ icono , setIcono ] = useState( String );
+  const [icono, setIcono] = useState(String);
   //NOTE: modal loading
   const [cargando, setCargando] = useState(false);
   //NOTE: manejadores del picker
@@ -59,27 +59,47 @@ export default function Reportar(props: any) {
   const [direccion, setDireccion] = useState(String);
   const [coordenadas, setCoordenadas] = useState(String);
   //NOTE: controlador de la galerai
-  const [ indiceGaleria, setIndiceGaleria ] = useState( 0 );
-  const [ mostrarGalera, setMostrarGaleria ] = useState( false );
+  const [indiceGaleria, setIndiceGaleria] = useState(0);
+  const [mostrarGalera, setMostrarGaleria] = useState(false);
+  //NOTE: separamos por imagen las evidencias
+  const [EvidenciaUno, setEvidenciaUno] = useState(String);
+  const [evidenciaUnoCodificada, setEvidenciaUnoCodificada] = useState(String);
+  const [EvidenciaDos, setEvidenciaDos] = useState(String);
+  const [evidenciaDosCodificada, setEvidenciaDosCodificada] = useState(String);
+  const [EvidenciaTres, setEvidenciaTres] = useState(String);
+  const [evidenciaTresCodificada, setEvidenciaTresCodificada] = useState(String);
+  //Manejadir de imagenes
+  const [indiceCapturaImagen, setIndiceCapturaImagen] = useState(0);
 
   let formik = useFormik({
     initialValues: {
       Referencia: '',
       Descripcion: ''
     },
-    onSubmit: (values) => { 
-      if(validarEspeciales()){
-        setCargando(true); GuardarReporte(values);
-      }else{
+    onSubmit: (values) => {
+      if (validarEspeciales()) {
+        if(seleccionSolicitud == ""){
+          setMensaje("Favor de seleccionar el tema relacionado con el problema descrito");
+          setIcono(ERROR[0]);
+          setFuenteIcono(ERROR[1]);
+          setSHowMessage(true);          
+        }else{
+          setCargando(true);
+          GuardarReporte(values);
+        }
+        
+      } else {
         setMensaje("Caracteres no validos\n^+=-[]\\\'/{}|\"<>");
         setIcono(ERROR[0]);
         setFuenteIcono(ERROR[1]);
         setSHowMessage(true);
-      }},
+      }
+    },
     validationSchema: validacion
   });
   useEffect(() => {
     obtenerTemas();
+    limpiarPantalla();
   }, []);
   useEffect(() => {
     //NOTE: obtenemos los datos que genero el componente camara
@@ -137,6 +157,19 @@ export default function Reportar(props: any) {
       let direccionActia = JSON.parse(await ObtenerDireccionActual(coordenadasActuales));
       formatoDireccion = ` Estado: ${direccionActia.region}\nCiudad: ${direccionActia.city}\nColonia: ${direccionActia.district}\nCalle: ${direccionActia.street}\nCódigo Postal: ${direccionActia.postalCode}`;
     }
+    //NOTE: convertimos los datos de la lista en
+    let listaCodificada = new Array();;
+    if( listaImagenes.length > 0 ){
+      if( EvidenciaUno != "" ){
+        listaCodificada.push(evidenciaUnoCodificada);
+      }
+      if( EvidenciaDos != "" ){
+        listaCodificada.push(setEvidenciaDosCodificada);
+      }
+      if( EvidenciaTres != "" ){
+        listaCodificada.push(evidenciaTresCodificada);
+      }
+    }
     if (seleccionSolicitud != "") {
       let data = {
         Tema: seleccionSolicitud,
@@ -144,12 +177,12 @@ export default function Reportar(props: any) {
         gps: (coordenadas == "" || coordenadas == null) ? JSON.stringify(coordenadasActuales) : coordenadas,
         direccion: (direccion == "" || direccion == null ? formatoDireccion : direccion),
         Referencia: Reporte.Referencia,
-        Evidencia: listaImagenesCodificadas,
+        Evidencia: listaCodificada.length > 0 ? listaCodificada : null,
       };
       console.log(data);
       await EnviarReportes(data)
         .then((result) => {
-          lanzarMensaje("¡Reporte Enviado!", OK[0], OK[1] );
+          lanzarMensaje("¡Reporte Enviado!", OK[0], OK[1]);
           limpiarPantalla();
         })
         .catch((error) => {
@@ -190,14 +223,14 @@ export default function Reportar(props: any) {
       console.log(error);
     }
   };
-  const existeEvidencia = async ()=>{
-    if(listaImagenes.length > 0 ) {
-        setMostrarGaleria(true);
-    }else{
-        setMensaje("No se encontraron evidencias");
-        setIcono(CAMERA[0]);
-        setFuenteIcono(CAMERA[1]);
-        setSHowMessage(true);
+  const existeEvidencia = async () => {
+    if (listaImagenes.length > 0) {
+      setMostrarGaleria(true);
+    } else {
+      setMensaje("No se encontraron evidencias");
+      setIcono(CAMERA[0]);
+      setFuenteIcono(CAMERA[1]);
+      setSHowMessage(true);
     }
   }
   const obtenerDatosCamara = async () => {
@@ -205,14 +238,32 @@ export default function Reportar(props: any) {
     //NOTE: Obtenemos la imagen convertida
     if (datos.Imagen != null) {
       let imageObject = JSON.parse(datos.Imagen);
-      setListaImagenes((listaImagenes) => [...listaImagenes, imageObject]);
       let base64 = await obtenerBase64(imageObject.uri);
-      setListaImagenesCodificadas((listaImagenesCodificadas) => [...listaImagenesCodificadas, String(base64)]);
+      switch (indiceCapturaImagen) {
+        case 1:
+          setEvidenciaUno(imageObject.uri);
+          setEvidenciaUnoCodificada(String(base64) );
+          setListaImagenes((listaImagenes) => [...listaImagenes, imageObject]);
+          break;
+        case 2:
+          setEvidenciaDos(imageObject.uri);
+          setEvidenciaDosCodificada(String(base64));
+          setListaImagenes((listaImagenes) => [...listaImagenes, imageObject]);
+          break;
+        case 3:
+          setEvidenciaTres(imageObject.uri);
+          setEvidenciaTresCodificada(String(base64));
+          setListaImagenes((listaImagenes) => [...listaImagenes, imageObject]);
+          break
+      }
+      /*setListaImagenes((listaImagenes) => [...listaImagenes, imageObject]);
+      let base64 = await obtenerBase64(imageObject.uri);
+      setListaImagenesCodificadas((listaImagenesCodificadas) => [...listaImagenesCodificadas, String(base64)]);*/
     }
     setDireccion(datos.Direccion);
     setCoordenadas(datos.Coordenadas);
     //NOTE: borramos los datos del storage
-    setCargando( false );
+    setCargando(false);
     await storage.limpiarDatosCamara();
   }
   const lanzarMensaje = (mensaje: string, icono: string, fuenteIcono: string) => {
@@ -221,30 +272,39 @@ export default function Reportar(props: any) {
     setFuenteIcono(fuenteIcono);
     setSHowMessage(true);
   }
-  const limpiarPantalla = () =>{
-    formik.setFieldValue("Referencia","");
-    formik.setFieldValue("Descripcion","");
+  const limpiarPantalla = () => {
+    formik.setFieldValue("Referencia", "");
+    formik.setFieldValue("Descripcion", "");
+    formik.setFieldTouched("Referencia",false);
+    formik.setFieldTouched("Descripcion",false);
     setSeleccionSolicitud("");
+    //NOTE:  limpiamos los imagenes de la interfaz
+    setEvidenciaUno("");
+    setEvidenciaDos("");
+    setEvidenciaTres("");
+    setEvidenciaUnoCodificada("");
+    setEvidenciaDosCodificada("");
+    setEvidenciaTresCodificada("");
   }
-  const validarEspeciales = () =>{
+  const validarEspeciales = () => {
     var iChars = "^+=-[]\\\'/{}|\"<>";
     let referencia = formik.values.Referencia;
     let descripcion = formik.values.Descripcion;
     let valido = true;
     //Validamos los datos de la referencia
-    for(let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++ ){
-      for(let indexTexto = 0; indexTexto < referencia.length; indexTexto++){
-        if(iChars[indexEspeciales] == referencia[indexTexto] ){
-          formik.setFieldError("Referencia","No valido");
+    for (let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++) {
+      for (let indexTexto = 0; indexTexto < referencia.length; indexTexto++) {
+        if (iChars[indexEspeciales] == referencia[indexTexto]) {
+          formik.setFieldError("Referencia", "No valido");
           valido = false;
           break;
         }
       }
     }
-    for(let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++ ){
-      for(let indexTexto = 0; indexTexto < descripcion.length; indexTexto++){
-        if(iChars[indexEspeciales] == descripcion[indexTexto] ){
-          formik.setFieldError("Descripcion","No valido");
+    for (let indexEspeciales = 0; indexEspeciales < iChars.length; indexEspeciales++) {
+      for (let indexTexto = 0; indexTexto < descripcion.length; indexTexto++) {
+        if (iChars[indexEspeciales] == descripcion[indexTexto]) {
+          formik.setFieldError("Descripcion", "No valido");
           valido = false;
           break;
         }
@@ -252,9 +312,34 @@ export default function Reportar(props: any) {
     }
     return valido;
   }
+  const eliminarImagen = (index: number) => {
+    switch (index) {
+      case 1:
+        setEvidenciaUno("");
+        setEvidenciaUnoCodificada("");
+        break;
+      case 2:
+        setEvidenciaDos("");
+        setEvidenciaDosCodificada("");
+        break;
+      case 3:
+        setEvidenciaTres("");
+        setEvidenciaTresCodificada("");
+        break;
+    }
+  }
+  const mostrarGaleria = (index: number, stadoHook: any) => {
+    if (stadoHook != "") {
+      setMostrarGaleria( true );
+      setIndiceGaleria(listaImagenes.findIndex(((element) =>  element.uri == stadoHook )));
+    } else {
+      setIndiceCapturaImagen(index);
+      solicitarPermisosCamara();
+    }
+  }
   return (
     <SafeAreaView style={{ flex: 1, flexDirection: "row" }} >
-      <StatusBar animated={true} barStyle = { colorEstado[Platform.OS] }/>
+      <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
       <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
         {
           !camaraActiva ?
@@ -295,7 +380,7 @@ export default function Reportar(props: any) {
                     placeholder="Entre calles..."
                     value={formik.values.Referencia}
                     onChangeText={formik.handleChange('Referencia')}
-                    keyboardType = {"ascii-capable"}
+                    keyboardType={"ascii-capable"}
                   ></TextInput>
                   <Text style={Style.TemaLabalCampo} > Descripción </Text>
                   <TextInput
@@ -308,16 +393,33 @@ export default function Reportar(props: any) {
                   ></TextInput>
                   <View>
                     {/* INDEV: mostramos un boton para las evidencias */}
-                    <Text style={Style.TemaLabalCampo}>Foto Evidencia (Opcional)</Text>
-                    <View style={{ flex: 1, flexDirection: "row" }} >
-                      <TouchableOpacity style={{ flex: 4, marginLeft: 20, marginRight: 5 }} onPress={solicitarPermisosCamara} >
-                        <Text style={{ color: "white", textAlign: "center", padding: 13, borderRadius: 10, backgroundColor: azulColor }}> Seleccionar Imagenes </Text>
+                    <View style={{ flexDirection: "row", alignSelf: "center", marginTop:10 }}>
+                      <TouchableOpacity onPress={() => { eliminarImagen(1) }} style={{ height: 27, width: 27 }} disabled={!(EvidenciaUno != "")} ><Icon name="close" tvParallaxProperties style={{ borderWidth: 1, position: "relative", borderRadius: 15, backgroundColor: "white" }} color={SuinpacRed}></Icon></TouchableOpacity>
+                      <TouchableOpacity style={{ marginLeft: -27, zIndex: -1, marginRight: 20, borderColor: "white" }} onPress={() => { mostrarGaleria(1, EvidenciaUno) }}>
+                        <Image
+                          source={(EvidenciaUno != "") ? { uri: EvidenciaUno } : require("../../assets/preview.jpeg")}
+                          PlaceholderContent={<ActivityIndicator />}
+                          style={{ height: 180, width: 90, borderRadius: 5, borderWidth: 1 }}
+                          resizeMode={(EvidenciaUno != "") ? "cover" : "contain"}
+                        />
                       </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={{ flex: 1, borderRadius: 5, padding: 10, marginBottom: 10, marginRight: 20, borderWidth: 1, borderColor: azulColor }}
-                        onPress = {existeEvidencia}
-                        >
-                        <Icon name={PREVIEW[0]} tvParallaxProperties color={azulColor} type={PREVIEW[1]}   ></Icon>
+                      <TouchableOpacity onPress={() => { eliminarImagen(2) }} style={{ height: 27, width: 27 }} disabled={!(EvidenciaDos != "")} ><Icon name="close" tvParallaxProperties style={{ borderWidth: 1, position: "relative", borderRadius: 15, backgroundColor: "white" }} color={SuinpacRed}></Icon></TouchableOpacity>
+                      <TouchableOpacity style={{ marginLeft: -27, zIndex: -1, marginRight: 20 }} onPress={() => { mostrarGaleria(2, EvidenciaDos) }} >
+                        <Image
+                          source={(EvidenciaDos != "") ? { uri: EvidenciaDos } : require("../../assets/preview.jpeg")}
+                          PlaceholderContent={<ActivityIndicator />}
+                          style={{ height: 180, width: 90, borderRadius: 5, borderWidth: 1 }}
+                          resizeMode={(EvidenciaDos != "") ? "cover" : "contain"}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => { eliminarImagen(3) }} style={{ height: 27, width: 27 }} disabled={!(EvidenciaTres != "")} ><Icon name="close" tvParallaxProperties style={{ borderWidth: 1, position: "relative", borderRadius: 15, backgroundColor: "white" }} color={SuinpacRed}></Icon></TouchableOpacity>
+                      <TouchableOpacity style={{ marginLeft: -27, zIndex: -1 }} onPress={() => { mostrarGaleria(3, EvidenciaTres) }} >
+                        <Image
+                          source={(EvidenciaTres != "") ? { uri: EvidenciaTres } : require("../../assets/preview.jpeg")}
+                          PlaceholderContent={<ActivityIndicator />}
+                          style={{ height: 180, width: 90, borderRadius: 5, borderWidth: 1 }}
+                          resizeMode={(EvidenciaTres != "") ? "cover" : "contain"}
+                        />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -343,7 +445,7 @@ export default function Reportar(props: any) {
           buttonText={"Aceptar"}
           icon={icono}
           iconsource={FuenteIcono}
-          loadinColor={azulColor} 
+          loadinColor={azulColor}
           loading={showMessage}
           transparent={true}
           message={mensaje}
@@ -361,31 +463,32 @@ export default function Reportar(props: any) {
           tittle={"Mensaje"}
         />
         <Loading
-          transparent = { true }
-          loading = { cargando }
-          loadinColor = { azulColor }
-          onCancelLoad = { ()=>{ } }
-          tittle = "Mensaje"
-          message = "Cargando..."
+          transparent={true}
+          loading={cargando}
+          loadinColor={azulColor}
+          onCancelLoad={() => { }}
+          tittle="Mensaje"
+          message="Cargando..."
         />
         <ImageView
           images={listaImagenes}
-          imageIndex={ indiceGaleria }
+          imageIndex={indiceGaleria}
           visible={mostrarGalera}
           onRequestClose={() => {
-          setMostrarGaleria(false);
-          setIndiceGaleria(0);
+            setMostrarGaleria(false);
+            setIndiceGaleria(0);
           }}
           swipeToCloseEnabled={false}
+          doubleTapToZoomEnabled = {false}
           FooterComponent={({ imageIndex }) => (
-              <View style = {{flex:1, alignItems:"center", marginBottom:"5%"}} >
-                  <View >
-                      <Text style = {{color:"white", fontWeight:"bold", fontSize:16}} >{`${ imageIndex + 1 }/${listaImagenes.length}`}</Text>
-                  </View>
+            <View style={{ flex: 1, alignItems: "center", marginBottom: "5%" }} >
+              <View >
+                <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }} >{`${imageIndex + 1}/${listaImagenes.length}`}</Text>
               </View>
+            </View>
           )}
-          animationType = "fade"
-          />
+          animationType="fade"
+        />
       </ImageBackground>
     </SafeAreaView >
   );

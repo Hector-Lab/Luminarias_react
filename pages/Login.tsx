@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, TextInput, Linking, ImageBackground, StatusBar, Platform } from 'react-native';
+import { View, TouchableOpacity, Text, TextInput, Linking, ImageBackground, StatusBar, Platform, Pressable } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import { azulColor, SuinpacRed } from "../Styles/Color";
 import Styles from '../Styles/styles';
@@ -12,6 +12,7 @@ import Loading from './components/modal-loading';
 import Message from './components/modal-message';
 import { USER_COG, WIFI_OFF, DESCONOCIDO, APPSETTINGS } from '../Styles/Iconos';
 import * as Location from 'expo-location';
+import Privacidad from './components/modal-privacidad';
 import { Camera } from 'expo-camera';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Log(props: any) {
@@ -21,48 +22,49 @@ export default function Log(props: any) {
     const [fuenteIcono, setFuenteIcono] = useState(USER_COG[1]);
     const [titulo, setTitilo] = useState('Mensaje');
     const [mostrarMensaje, setMostrarMensaje] = useState(false);
+    const [mostrarPrivacidad, setMostrarPrivacidad] = useState(false);
     let storage = new StorageBaches();
     useEffect(
-        ()=>{
-            ( async () =>{
+        () => {
+            (async () => {
                 //NOTE:  Preguntamos por los permisos de la app
                 let { granted } = await Location.requestForegroundPermissionsAsync();
                 //NOTE: Pedimos permisos de uso en el fondo
-                if( granted ){
+                if (granted) {
                     let { status } = await Location.requestBackgroundPermissionsAsync();
-                    if(status == "granted"){
+                    if (status == "granted") {
                         //NOTE: intentamos encender la localizacion del dispositivo
                     }
                 }
-                await Location.hasServicesEnabledAsync().then( async (status)=>{
-                    console.log(status, " -> Permiso");
-                    if(!status){
+                await Location.hasServicesEnabledAsync().then(async (status) => {
+                    if (!status) {
                         await Location.enableNetworkProviderAsync();
                     }
-                    
-                }).catch((error)=>{
+                }).catch((error) => {
                     console.log(error);
                 });
                 //NOTE: pedimos permisos de la camara
                 let { status } = await Camera.requestCameraPermissionsAsync();
-                if(status){
-                    console.log("Permiso de la camara", status);
-                }
-
                 verificandoSession();
             })();
-        },[])
+        }, [])
     const verificandoSession = async () => {
-        if (await storage.verificarDatosCiudadano()) {
-            setCargando(false);
-            props.navigation.dispatch(
-                CommonActions.reset({
-                    index: 1,
-                    routes: [{ name: 'Menu' }]
-                })
-            );
+        //Antes de todo esto se revisa si acepto los terminos y condiciones
+        let acepto = await storage.getCondicionesPrivacidad();
+        if ((acepto == null) || (!acepto)) {            
+            setMostrarPrivacidad(true);
         } else {
-            setCargando(false);
+            if (await storage.verificarDatosCiudadano()) {
+                setCargando(false);
+                props.navigation.dispatch(
+                    CommonActions.reset({
+                        index: 1,
+                        routes: [{ name: 'Menu' }]
+                    })
+                );
+            } else {
+                setCargando(false);
+            }
         }
     }
     const RegistrarUsuario = () => {
@@ -108,9 +110,13 @@ export default function Log(props: any) {
         setFuenteIcono(fuenteIcono);
         setMostrarMensaje(true);
     }
+    const guardarProvacidad = () => {
+        storage.setCondicionesPrivacidad("1");
+        setMostrarPrivacidad(false);
+    }
     return (
         <View style={{ flex: 1 }} >
-            <StatusBar animated={true} barStyle = {colorEstado[Platform.OS]}/>
+            <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <Formik
                     initialValues={valores}
@@ -136,7 +142,7 @@ export default function Log(props: any) {
                             <View style={{ flex: 5, flexDirection: "column", justifyContent: "center" }}>
                                 <Text style={Styles.TemaLabalCampo} >CURP</Text>
                                 <TextInput
-                                    autoCapitalize="characters"                                
+                                    autoCapitalize="characters"
                                     style={(errors.Curp && touched.Curp) ? Styles.TemaCampoError : Styles.TemaCampo}
                                     placeholder="Ejemplo: Juan Perez"
                                     onChangeText={handleChange('Curp')}
@@ -148,7 +154,7 @@ export default function Log(props: any) {
                                     textContentType="password"
                                     keyboardAppearance="dark"
                                     style={(errors.Password && touched.Password) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                    secureTextEntry = { true }
+                                    secureTextEntry={true}
                                     placeholder="*********"
                                     onChangeText={handleChange('Password')}
                                     value={values.Password}
@@ -184,8 +190,13 @@ export default function Log(props: any) {
                     loadinColor={azulColor}
                     message={mensaje}
                     onCancelLoad={() => { setMostrarMensaje(false) }}
-                    onConfirmarLoad = { ()=>{ setMostrarMensaje(false) } }
+                    onConfirmarLoad={() => { setMostrarMensaje(false) }}
                     transparent={true}
+                />
+                <Privacidad
+                    visible={mostrarPrivacidad}
+                    onAccept={guardarProvacidad}
+                    plataforma={Platform.OS}
                 />
             </ImageBackground>
         </View>);
