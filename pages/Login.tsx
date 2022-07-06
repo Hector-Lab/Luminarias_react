@@ -24,6 +24,14 @@ export default function Log(props: any) {
     const [mostrarMensaje, setMostrarMensaje] = useState(false);
     const [mostrarPrivacidad, setMostrarPrivacidad] = useState(false);
     let storage = new StorageBaches();
+    let valores = {
+        Curp: '',
+        Password: ''
+    }
+    let validacion = Yup.object().shape({
+        Curp: Yup.string().min(18).required('Requerido'),
+        Password: Yup.string().min(8).required('Requerido')
+    });
     useEffect(
         () => {
             (async () => {
@@ -75,7 +83,9 @@ export default function Log(props: any) {
         setCargando(true);
         await IniciarSession(datos)
             .then(() => {
-                setCargando(false);
+                setTimeout(()=>{
+                    setCargando(false);
+                },400);
                 props.navigation.dispatch(
                     CommonActions.reset({
                         index: 1,
@@ -83,26 +93,19 @@ export default function Log(props: any) {
                     })
                 );
             }).catch((error) => {
-                lanzarMensaje("Mensaje", error.message, APPSETTINGS[0], APPSETTINGS[1]);
-                /*if(String(error).includes("!Sin acceso a internet¡")){
+                //lanzarMensaje("Mensaje", error.message, APPSETTINGS[0], APPSETTINGS[1]);
+                if(String(error).includes("!Sin acceso a internet¡")){
                     lanzarMensaje("Mensaje",error.message,WIFI_OFF[0],WIFI_OFF[1]);
                 }else if (String(error).includes("¡Error desconocido!")){
                     lanzarMensaje("Mensaje",error.message,DESCONOCIDO[0],DESCONOCIDO[1]);
                 }else if(String(error).includes("Servicio en Mantenimiento")){
                     lanzarMensaje("Mensaje",error.message,APPSETTINGS[0],APPSETTINGS[1]);
-                }*/
-
+                }else{
+                    lanzarMensaje("Mensaje","CURP y/o contraseña incorrecta\nFavor de revisar sus credenciales",USER_COG[0],USER_COG[1]);
+                }
                 setCargando(false);
             })
     }
-    let valores = {
-        Curp: '',
-        Password: ''
-    }
-    let validacion = Yup.object().shape({
-        Curp: Yup.string().min(18).required('Requerido'),
-        Password: Yup.string().min(8).required('Requerido')
-    });
     const lanzarMensaje = (titulo, mensaje, icono, fuenteIcono) => {
         setTitilo(titulo);
         setMensaje(mensaje);
