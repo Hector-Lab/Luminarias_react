@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Avatar, Divider, Icon } from 'react-native-elements';
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, Pressable, StatusBar, Platform } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, Pressable, StatusBar, Platform, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Styles from '../../Styles/styles';
 import { StorageBaches } from '../controller/storage-controllerBaches';
@@ -8,6 +8,8 @@ import { CommonActions } from '@react-navigation/native';
 import Loading from "../components/modal-loading";
 import { azulColor, azulColorDisabled } from "../../Styles/Color";
 import { RETURN } from '../../Styles/Iconos';
+import { BlueColor } from "../../Styles/BachesColor";
+import * as ImagePicker from 'expo-image-picker';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Contactos(props: any) {
     let [nombre, setNombre] = useState();
@@ -56,6 +58,10 @@ export default function Contactos(props: any) {
     const Menu = () => {
         props.navigation.navigate("Menu");
     }
+    const EditarFotoCiudadano = async () => {
+
+
+    }
 
     return (
         <SafeAreaView style={{ flex: 1 }} >
@@ -70,9 +76,11 @@ export default function Contactos(props: any) {
                             size="xlarge"
                             containerStyle={{ borderColor: "black", borderWidth: 1, marginTop: 50 }}
                             source={require("../../assets/user.png")}
+                            //source={{ uri: "https://img.freepik.com/vector-gratis/fondo-pantalla-paisaje-paisaje-minimalista-puesta-sol-montana-full-hd-4k-8k-imagenes-fondo_538866-33.jpg?w=2000"}}
+                            renderPlaceholderContent = {<ActivityIndicator size="large" color={BlueColor} style={{ flex: 1 }} />}
                         />
                         <View>
-                            <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 10, backgroundColor: azulColorDisabled }]} disabled={true} >
+                            <TouchableOpacity onPress = { EditarFotoCiudadano } style={[Styles.btnGeneral, { marginTop: 10, backgroundColor: azulColorDisabled }]} disabled={false} >
                                 <Text style={[Styles.btnTexto, { marginLeft: 10, marginRight: 10, color: "lightgray" }]} > Editar </Text>
                             </TouchableOpacity>
                         </View>

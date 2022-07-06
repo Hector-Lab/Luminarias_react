@@ -24,3 +24,4 @@ export const PERSONPIN =['person-pin','material'];
 export const CLOSE = ['cancel','material']
 export const RETURN = ['arrow-back','material'];
 export const PROFILE = ['account-circle','material'];
+export const MEDIA = ["perm_media","material"];
