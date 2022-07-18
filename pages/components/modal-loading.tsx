@@ -2,7 +2,6 @@ import { CardStyleInterpolators } from '@react-navigation/stack';
 import React,{Component} from 'react';
 import { ActivityIndicator, View, StyleSheet,Text, Modal, TouchableOpacity} from 'react-native';
 import { Card} from 'react-native-elements'
-import { Button } from 'react-native-elements/dist/buttons/Button';
 
 export default class Loading extends React.Component<
 {   

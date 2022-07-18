@@ -1,8 +1,9 @@
-import { CardStyleInterpolators } from '@react-navigation/stack';
 import React,{Component} from 'react';
 import { View, StyleSheet,Text, Modal, TouchableOpacity} from 'react-native';
 import { Icon } from 'react-native-elements'
-import { Card} from 'react-native-elements'
+import { Card } from 'react-native-elements'
+import { azulColor } from '../../Styles/Color';
+
 
 export default class Message extends React.Component<
 {   
@@ -34,10 +35,9 @@ export default class Message extends React.Component<
                             </Card.Title>
                             <Card.Divider/>
                                 <Icon
-                                tvParallaxProperties
                                     type = {this.props.iconsource}
                                     name = {this.props.icon}
-                                    color = {"#d9764c"}
+                                    color = { '#B20115' }
                                     size = {50}
                                 />
                             <View style = {styles.mensajeConteiner}>
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         alignItems: 'center',
         padding: 10,
-        backgroundColor: '#B20115',
+        backgroundColor: azulColor,
         //backgroundColor: 'red'
       },
       btnContainer: {

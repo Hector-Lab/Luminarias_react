@@ -1,10 +1,10 @@
-import { readAsStringAsync } from "expo-file-system";
+import { APIROUTE } from  './Variables';
 
 export class APIServices {
-    
+    //NOTE: Modificar al nuevo formato
     ObtenerCatalogoAreas(data:any){
         let jsonData = JSON.stringify(data);
-        return fetch("https://api.servicioenlinea.mx/api-movil/ObtenerCatalogo",{
+        return fetch(APIROUTE+"ClienteAreas",{
             method:'POST',
             headers: {
                 Accept: 'application/json',
@@ -13,80 +13,37 @@ export class APIServices {
             body:jsonData
         });
     }
-    ObtenerMunicipios(){
-        return fetch("https://api.servicioenlinea.mx/api-movil/Municipios",{
-            method:'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        });
-    }
-    insertarCiudadano( data:any ){
-        let jsonData = JSON.stringify(data);
-        return fetch("https://api.servicioenlinea.mx/api-movil/RegistrarCiudadano",{
-            method:"POST",
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body:jsonData
-        });
-    }
-    insertarReporte( data:any ){
-        let jsonData = JSON.stringify(data);
-        return fetch(`https://api.servicioenlinea.mx/api-movil/GuardarReporte`,{
-            method:"POST",
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body:jsonData
-        })
-    }
-    obtenerreportesCiudadano ( data:any ){
-        let jsonData = JSON.stringify(data);
-        return fetch(`https://api.servicioenlinea.mx/api-movil/ListaReportes`,{
-            method:"POST",
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body:jsonData
-        });
-    }
-    recuperarDatosCiudadano( data:any ){
-        let jsonData = JSON.stringify(data);
-        return fetch(`https://api.servicioenlinea.mx/api-movil/DatosCiudadano`,{
+    RegistrarCiudadano( data:any ){
+        let jsondata = JSON.stringify(data);
+        return fetch(APIROUTE+"Registrar",{
             method:"POST",
             headers:{
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body:jsonData
+            body:jsondata
         });
     }
-    editarDatosCiudadano( data:any ){
-        let jsonData = JSON.stringify(data);
-        return fetch('https://api.servicioenlinea.mx/api-movil/EditarContactoCiudadano',{
+    Reportar( date:any ){
+        let jsondata = JSON.stringify(date);
+        return fetch(APIROUTE+"Reportar",{
             method:"POST",
             headers:{
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body:jsonData
+            body:jsondata
         });
     }
-    ObtenerReporte (data: any){
-        let jsonData = JSON.stringify(data);
-        return fetch(`https://api.servicioenlinea.mx/api-movil/RefrescarReporte`,{
+    Historial( date:any ){
+        let jsondata = JSON.stringify( date );
+        return fetch(APIROUTE+"Historial",{
             method:"POST",
             headers:{
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body:jsonData
+            body:jsondata
         });
     }
-    
 }

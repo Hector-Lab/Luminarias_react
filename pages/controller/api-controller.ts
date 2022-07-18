@@ -1,6 +1,8 @@
 import { RefreshControlComponent } from 'react-native';
+import BatchedBridge from 'react-native/Libraries/BatchedBridge/BatchedBridge';
 import { APIServices } from '../controller/api-routes';
 import { StorageBaches } from '../controller/storage-controllerBaches';
+import { CLIENTE } from '../controller/Variables';
 const service = new APIServices();
 const storageBaches = new StorageBaches();
 const networkError = new Error("!Sin acceso a internet¡");
@@ -22,9 +24,8 @@ const noAutizado = new Error("¡El servicio aún no está disponible en tu munic
 //INDEV: Nuevas funciones para la aplicacion de los baches
 export async function CatalogoSolicitud(){
     try{
-        let cliente = await storageBaches.obtenerCliente();
         let data = {
-            Cliente: cliente 
+            Cliente: CLIENTE
         };
         let rawData = await service.ObtenerCatalogoAreas(data);
         let result = await rawData.json();
@@ -41,146 +42,67 @@ export async function CatalogoSolicitud(){
         throw verificarErrores(error);
     }
 }
-export async function ObtenerMunicipios(){
+export async function RegistrarCiudadano( domicilio:string ) {
     try{
-        let rawData = await service.ObtenerMunicipios();
-        let municipios = await rawData.json();        
-        if( municipios.Code == 200 ){
-            return municipios.Catalogo;
-        }else if( municipios.Code == 404 ){
-            return MunicipiosVacios;
-        }else{
-            return ErrorListaMunicipios;
+        let personales = await storageBaches.obtenerDatosPersonales();
+        let data = {
+            Personales: personales,
+            Domicilio: domicilio,
+            Cliente:CLIENTE
+        };
+        let rawData = await service.RegistrarCiudadano(data);
+        let result = await rawData.json();
+        console.log(result);
+    }catch( error ){
+        throw verificarErrores(error);
+    }
+}
+export async function EnviarReporte( datos ) {
+    try {
+        let ciudadano = await storageBaches.obtenerCiudadano();
+        let formato = { 
+            Tema: datos.Tema ,
+            Descripcion: datos.Descripcion,
+            gps: datos.gps,
+            direccion: datos.direccion,
+            Referencia: datos.Referencia,
+            Ciudadano: /*ciudadano*/ 8,
+            Cliente: CLIENTE,
+            Evidencia: datos.Evidencia,
         }
-    }catch( error ){
-        throw verificarErrores(error);
-    }
-}
-export async function RegistrarCiudadano( ciudadadano:any ){
-    //NOTE: esta validano en la interfaz
-    try{
-        let idCiudadano = await service.insertarCiudadano(ciudadadano);
-        let jsonRespuesta = await idCiudadano.json();
-        return jsonRespuesta;
-    }catch( error ){
-        throw verificarErrores(error);
-    }
-}
-export async function EnviarReportes( reporte:any ){
-    try{
-        let rawData = await service.insertarReporte(reporte);
-        let jsonData = await rawData.json();
-        if(jsonData.code == 200){
+        let raw = await service.Reportar(formato);
+        let result = await raw.json();
+        console.log(result);
+        if( result.code == 200 ){
             return true;
-        }else if(jsonData.code == 404 ){
+        }else if ( result.code == 403 ) {
             throw ErrorInsertar;
-        }else if(jsonData.code == 500 ){
-            throw ErrorDesconocido;
-        }else if(jsonData.code == 403){
-            throw ErrorDatos;
-        }else if(String(jsonData.Error).includes("42S02")){
-            throw noAutizado;
         }
-    }catch(error){
-         throw verificarErrores(error);
-    }
-}
-export async function ObtenerMisReportes (){
-    try{
-        let cliente = await storageBaches.obtenerCliente();
-        let ciudadano = await storageBaches.obtenerIdCiudadano();
-        if(cliente != "" && ciudadano != "" ){
-            let datos = {
-                "Cliente": cliente,
-                "Ciudadano": ciudadano
-            };
-            let rawData = await service.obtenerreportesCiudadano(datos);
-            let jsonData = await rawData.json();
-            if(jsonData.Code == 200){
-                return jsonData.Mensaje;
-            }else if(jsonData.Code == 404){
-                throw NoRowSelect;
-            }else if (jsonData.Code == 403){
-                throw ErrorLista;
-            }else if (jsonData.Code == 500){
-                throw ErrorDesconocido;
-            }
-        }
-    }catch(error){
+    }catch( error ){
         throw verificarErrores(error);
     }
 }
-export async function RecuperarDatos(inputCliente: string, inputCurp: string ){
+export async function HistorialReportes( ){
     try{
+        let ciudadano = await storageBaches.obtenerCiudadano();
         let datos = {
-            "Cliente": inputCliente,
-            "Curp": inputCurp
-        };
-        let rawData = await service.recuperarDatosCiudadano(datos);
-        let ciudadano = await rawData.json();
-        if(ciudadano.Code == 200){
-            return JSON.stringify(ciudadano.Mensaje[0]);
-        }else if (ciudadano.Code == 404){
-            throw usuarioNoEncontrado;
-        } else if (ciudadano.Code == 403){
-            throw ErrorDesconocido;
+            Ciudadano: (ciudadano == null ) ? "8" : ciudadano,
+            Cliente: CLIENTE
         }
-        
-    }catch(error){
-        throw verificarErrores(error);
-    }
-}
-export async function editarDatosCiudadano( curp:string, telefono:string, email:string ){
-    try{
-        let cliente = await storageBaches.obtenerCliente();
-        let datos = {
-            "Cliente":cliente,
-            "Curp":curp,
-            "Telefono":telefono,
-            "Email":email
-        };
-        let rawData = await service.editarDatosCiudadano(datos);
-        let ciudadanoDatos = await rawData.json();
-        if(ciudadanoDatos.Code == 200){
-            return JSON.stringify(ciudadanoDatos.Mensaje);
-        }else if( ciudadanoDatos.Code == 403 ){
-            throw usuarioNoValido;
-        }else if( ciudadanoDatos.Code == 404 ){
-            throw SinCambios;
-        }
-    }catch(error){
-        throw verificarErrores(error);
-    }
-}
-export async function RefrescarReporte (reporte: string){
-    try{
-        let cliente =  await storageBaches.obtenerCliente();
-        let ciudadano = await storageBaches.obtenerIdCiudadano();
-        if( cliente != null && ciudadano != null ){
-            let data = {
-                Cliente: cliente,
-                Ciudadano: ciudadano,
-                Reporte: reporte
-            };
-            let rawData = await service.ObtenerReporte(data);
-            let reportData = await rawData.json();
-            if(reportData.code == 200){
-                return JSON.stringify(reportData.Mensaje[0]);
-            }else if ( reportData.Code == 404 ){
-                throw NoRowSelect;
-            }
+        let result = await service.Historial(datos);
+        let reportes = await result.json();
+        if(reportes.Code == 200){
+            return reportes.Mensaje
         }else{
-            //NOTE: regresamos un error
-            throw usuarioNoEncontrado;
+            throw ErrorLista;
         }
-    }catch(error){
-        throw verificarErrores(error);
+    }catch( error ){
+        throw verificarErrores;
     }
 }
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
-    console.log(message);
     if(message.includes("Usuario")){
         return userNotFound;
     }else{

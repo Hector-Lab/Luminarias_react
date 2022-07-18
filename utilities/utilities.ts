@@ -35,7 +35,16 @@ export async function checkConnection (){
 }
 export async function ObtenerDireccionActual(location:any){
     let data = await Location.reverseGeocodeAsync(location);
-    return JSON.stringify(data[0]);
+    let direccion = {
+        Localidad: data[0].city,
+        Calle: data[0].street,
+        Numero: data[0].streetNumber,
+        Colonia: data[0].district,
+        Codigo: data[0].postalCode
+
+    };
+    return direccion
+    //return JSON.stringify(data[0]);
 }
 export function rfcValido(rfc, aceptarGenerico = true) {
     const re       = /^([A-ZÑ&]{3,4}) ?(?:- ?)?(\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])) ?(?:- ?)?([A-Z\d]{2})([A\d])$/;
