@@ -31,6 +31,7 @@ const Styles = StyleSheet.create({
     padding:7,
     marginTop:10,
     borderRadius:3,
+    backgroundColor:"#F2F2F2"
   },
   errorCampo:{
     borderColor:"red",

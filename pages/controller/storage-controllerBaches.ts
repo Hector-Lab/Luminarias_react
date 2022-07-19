@@ -21,4 +21,10 @@ export class StorageBaches {
     async obtenerCiudadano () {
         await AsyncStorage.getItem(ROOT+"Ciudadano");
     }
+    async guardarCatalogoAreas( catalogo:string ){
+        await AsyncStorage.setItem(ROOT+"Areas",catalogo);
+    }
+    async obtenerCatalogoAreas( ){  
+        return await AsyncStorage.getItem(ROOT+"Areas");
+    }
 }

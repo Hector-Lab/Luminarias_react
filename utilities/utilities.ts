@@ -29,6 +29,7 @@ export async function checkConnection (){
             resolve(estado.isInternetReachable);
         })
         .catch((error)=>{
+            console.log(error);
             reject(error);
         })
     });

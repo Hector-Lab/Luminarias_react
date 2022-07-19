@@ -1,3 +1,4 @@
+import { date } from 'yup/lib/locale';
 import { APIROUTE } from  './Variables';
 
 export class APIServices {
@@ -44,6 +45,25 @@ export class APIServices {
                 'Content-Type': 'application/json',
             },
             body:jsondata
+        });
+    }
+    ObtenerCiudadano( datos:any ){
+        let jsondata = JSON.stringify(datos);
+        return fetch(APIROUTE+"ObtenerCiudadano",{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },body:jsondata});
+    }
+    ActualizarCiudadano( datos:any ){
+        let jsondata = JSON.stringify(datos);
+        return fetch( APIROUTE+"ActualizarCiudadano",{
+            method:"POST",
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },body:jsondata
         });
     }
 }

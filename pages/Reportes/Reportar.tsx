@@ -10,11 +10,11 @@ import Styles from '../../Styles/styles';
 import { Icon, Image } from 'react-native-elements';
 import File from '../components/item-camara';
 import { requestForegroundPermissionsAsync, getForegroundPermissionsAsync,PermissionStatus } from 'expo-location';
-import { ObtenerDireccionActual,CordenadasActualesNumerico } from '../../utilities/utilities';
+import { ObtenerDireccionActual,CordenadasActualesNumerico,checkConnection } from '../../utilities/utilities';
 import Loading from '../components/modal-loading';
 import Message from '../components/modal-message';
-import { INFO, OK } from '../../Styles/Iconos'
-import { forModalPresentationIOS } from '@react-navigation/stack/lib/typescript/src/TransitionConfigs/CardStyleInterpolators';
+import { DESCONOCIDO, INFO, OK, WIFI_OFF } from '../../Styles/Iconos'
+import { StorageBaches } from '../controller/storage-controllerBaches';
 
 const ErrorPermisos = new Error("Permisos negados por el usuario\n"); 
 let validacion = Yup.object().shape({
@@ -23,6 +23,7 @@ let validacion = Yup.object().shape({
 });
 
 export default function Reportar(props) {
+    const storage = new StorageBaches();
     //NOTE: manejadores del comobo
     const [ mostrarCombo, setMostrarCombo ] = React.useState(false);
     const [ seleccionArea, setSeleccionArea ] = React.useState(0);
@@ -37,9 +38,6 @@ export default function Reportar(props) {
     const [ icono, setIcono ] = React.useState(String);
     const [ iconoFuente, setIconoFuente ] = React.useState(String);
     const [ mostrarMensaje, setMostrarMensaje ] = React.useState( false );
-
-    
-
     const formik = useFormik({
         initialValues:{
             Descripcion:"",
@@ -55,13 +53,14 @@ export default function Reportar(props) {
         },
         validationSchema:validacion
     })
-    
     React.useEffect(() => {
         obtenerCatalogos();
     }, []);
     const obtenerCatalogos = async () => {
-        await CatalogoSolicitud()
-            .then((catalogo) => {
+        let catalogo = await storage.obtenerCatalogoAreas();
+        if(await checkConnection() ){
+            await CatalogoSolicitud()
+            .then( async (catalogo) => {
                 //NOTE: recorremos los datos y damos formato para el combo
                 let listaAreas = catalogo.map((item, index) => {
                     return {
@@ -71,11 +70,22 @@ export default function Reportar(props) {
                     }
                 });
                 setCatalogoAreas(listaAreas);
-
+                
+                await storage.guardarCatalogoAreas(JSON.stringify(listaAreas));
             })
-            .catch(() => {
+            .catch(( error ) => {
                 //FIXME: arreglamos los errores del catch
-            })
+                let msj = String(error.message);
+                lanzarMensaje(msj, (msj.includes("Servicio no disponible")) ?  WIFI_OFF[0] : DESCONOCIDO[0] , msj.includes("Servicio no disponible") ? WIFI_OFF[1] : DESCONOCIDO[0]);
+            });
+        }else{
+            //NOTE: Obtenemos los catalogos del storage
+            if( catalogo != null ) {
+                setCatalogoAreas( JSON.parse( catalogo ) );
+            }else{
+                lanzarMensaje("Sin acceso a internet",WIFI_OFF[0],WIFI_OFF[1]);
+            }
+        }
     }
     const verificarPermisosCamara = async () =>{
         let { status } = await ImagePicker.getCameraPermissionsAsync();
@@ -105,33 +115,39 @@ export default function Reportar(props) {
             imagenesCodificadas.push("data:image/jpeg;base64,"+item.base64);
         });
         try{
-            await validarPermisosLocation()
-            .then( async ( result )=>{
-                //INDEV: juntamos los datos oara el reporte
-                let reporte = {
-                    Tema: String(seleccionArea),
-                    Descripcion: datos.Descripcion,
-                    Referencia: datos.Referencia,
-                    gps: JSON.stringify(result.Coords),
-                    direccion: JSON.stringify(result.Direccion),
-                    Evidencia: ( imagenesCodificadas.length > 0 ) ? imagenesCodificadas : null
-                };
-                await EnviarReporte(reporte)
-                .then(( code )=>{
-                    lanzarMensaje("Reporte Enviado",OK[0],OK[1]);
-                    limpiarCampos();
+            //NOTE: verificamos la conexion a la base de datos
+            if( await checkConnection() ){
+                await validarPermisosLocation()
+                .then( async ( result )=>{
+                    //INDEV: juntamos los datos oara el reporte
+                    let reporte = {
+                        Tema: String(seleccionArea),
+                        Descripcion: datos.Descripcion,
+                        Referencia: datos.Referencia,
+                        gps: JSON.stringify(result.Coords),
+                        direccion: JSON.stringify(result.Direccion),
+                        Evidencia: ( imagenesCodificadas.length > 0 ) ? imagenesCodificadas : null
+                    };
+                    await EnviarReporte(reporte)
+                    .then(( code )=>{
+                        lanzarMensaje("Reporte Enviado",OK[0],OK[1]);
+                        limpiarCampos();
+                    })
+                    .catch((error)=>{
+                        lanzarMensaje("¡Error al registrar el reporte!\nFavor de intentar más tarde",OK[0],OK[1]);
+                    })
+                    .finally(()=>{
+                        setCargando( false );
+                    });
                 })
-                .catch((error)=>{
-                    lanzarMensaje("¡Error al registrar el reporte!\nFavor de intentar más tarde",OK[0],OK[1]);
-                })
-                .finally(()=>{
+                .catch(( error )=>{
                     setCargando( false );
-                })
-            })
-            .catch(( error )=>{
+                    lanzarMensaje( "Permisos negados por el usuario",INFO[0],INFO[1] );
+                });
+            }else{
                 setCargando( false );
-                lanzarMensaje( "Permisos negados por el usuario",INFO[0],INFO[1] );
-            })
+                lanzarMensaje( "Sin conexion acceso a internet",INFO[0],INFO[1] );
+            }
         }catch( error ){    
             console.log(error);
         }
@@ -169,7 +185,7 @@ export default function Reportar(props) {
         setImagenActiva("");
     }
     return (
-        <SafeAreaView style={{ flex: 1 }} >
+        <SafeAreaView style={{ flex: 1, backgroundColor:"white" }} >
             <ScrollView style={{ flexGrow: 1 }} >
                 <DropDownPicker
                     language="ES"
