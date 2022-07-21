@@ -66,4 +66,14 @@ export class APIServices {
             },body:jsondata
         });
     }
+    IniciarSesion( datos:any ){
+        let jsondata = JSON.stringify( datos );
+        return fetch( APIROUTE+"IniciarSesion",{
+            method:"POST",
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },body:jsondata
+        })
+    }
 }

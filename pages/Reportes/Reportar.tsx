@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, TextInput, Platform, ActivityIndicator, SafeAreaView, TouchableOpacity,ScrollView, findNodeHandle, Pressable } from 'react-native'
+import { View, Text, TextInput, Platform, SafeAreaView, TouchableOpacity,ScrollView, Pressable } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker';
 import * as ImagePicker from 'expo-image-picker';
 import * as Yup from 'yup';
@@ -7,13 +7,13 @@ import { useFormik } from 'formik';
 import { CatalogoSolicitud,EnviarReporte } from '../controller/api-controller';
 import { azulColor,SuinpacRed } from '../../Styles/Color';
 import Styles from '../../Styles/styles';
-import { Icon, Image } from 'react-native-elements';
+import { Icon, Image, Tooltip } from 'react-native-elements';
 import File from '../components/item-camara';
 import { requestForegroundPermissionsAsync, getForegroundPermissionsAsync,PermissionStatus } from 'expo-location';
 import { ObtenerDireccionActual,CordenadasActualesNumerico,checkConnection } from '../../utilities/utilities';
 import Loading from '../components/modal-loading';
 import Message from '../components/modal-message';
-import { DESCONOCIDO, INFO, OK, WIFI_OFF } from '../../Styles/Iconos'
+import { DESCONOCIDO, INFO, OK, WIFI, WIFI_OFF } from '../../Styles/Iconos'
 import { StorageBaches } from '../controller/storage-controllerBaches';
 
 const ErrorPermisos = new Error("Permisos negados por el usuario\n"); 
@@ -38,6 +38,7 @@ export default function Reportar(props) {
     const [ icono, setIcono ] = React.useState(String);
     const [ iconoFuente, setIconoFuente ] = React.useState(String);
     const [ mostrarMensaje, setMostrarMensaje ] = React.useState( false );
+    const [ toltip,setShowToltip ]  = React.useState( false );
     const formik = useFormik({
         initialValues:{
             Descripcion:"",
@@ -58,7 +59,8 @@ export default function Reportar(props) {
     }, []);
     const obtenerCatalogos = async () => {
         let catalogo = await storage.obtenerCatalogoAreas();
-        if(await checkConnection() ){
+        if( !await checkConnection() ){
+            console.log(" Desde el API ");
             await CatalogoSolicitud()
             .then( async (catalogo) => {
                 //NOTE: recorremos los datos y damos formato para el combo
@@ -70,7 +72,6 @@ export default function Reportar(props) {
                     }
                 });
                 setCatalogoAreas(listaAreas);
-                
                 await storage.guardarCatalogoAreas(JSON.stringify(listaAreas));
             })
             .catch(( error ) => {
@@ -184,42 +185,44 @@ export default function Reportar(props) {
         setArregloImagenes([]);
         setImagenActiva("");
     }
+    const showDatos = () =>{
+        setShowToltip(true)
+    }
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor:"white" }} >
             <ScrollView style={{ flexGrow: 1 }} >
-                <DropDownPicker
-                    language="ES"
-                    containerStyle={{ borderRadius: 20, padding: 20 }}
-                    items={catalogoAreas}
-                    open={mostrarCombo}
-                    setValue={ setSeleccionArea }
-                    value={ seleccionArea }
-                    min={10}
-                    max={15}
-                    listMode={"MODAL"}
-                    listItemContainerStyle={{ padding: 10 }}
-                    itemSeparator={true}
-                    selectedItemLabelStyle={{ fontWeight: "bold" }}
-                    selectedItemContainerStyle={{ backgroundColor: azulColor + 45 }}
-                    placeholder={"SELECCIONE UNA OPCIÓN"}
-                    setOpen={setMostrarCombo}
-                />
-                <TextInput
-                    style={[( formik.errors.Descripcion && formik.touched.Descripcion ) ?  Styles.errorCampo : Styles.campo , { textAlignVertical: "top", marginLeft: 20, marginRight: 20 }, (Platform.OS == "ios" ? { height: 33 * 4 } : {})]}
-                    placeholder={"Descripcion del reporte"}
-                    multiline
-                    numberOfLines={5}
-                    value = { formik.values.Descripcion }
-                    onChangeText = { formik.handleChange("Descripcion") }
-                />
-
+                    <DropDownPicker
+                        language="ES"
+                        containerStyle={{ borderRadius: 20, padding: 20 }}
+                        items={catalogoAreas}
+                        open={mostrarCombo}
+                        setValue={ setSeleccionArea }
+                        value={ seleccionArea }
+                        min={10}
+                        max={15}
+                        listMode={"MODAL"}
+                        listItemContainerStyle={{ padding: 10 }}
+                        itemSeparator={true}
+                        selectedItemLabelStyle={{ fontWeight: "bold" }}
+                        selectedItemContainerStyle={{ backgroundColor: azulColor + 45 }}
+                        placeholder={"SELECCIONE UNA OPCIÓN"}
+                        setOpen={setMostrarCombo}
+                    />
+                    <TextInput
+                        style={[( formik.errors.Descripcion && formik.touched.Descripcion ) ?  Styles.errorCampo : Styles.campo , { textAlignVertical: "top", marginLeft: 20, marginRight: 20 }, (Platform.OS == "ios" ? { height: 33 * 4 } : {})]}
+                        placeholder={"Descripcion del reporte"}
+                        multiline
+                        numberOfLines={5}
+                        value = { formik.values.Descripcion }
+                        onChangeText = { formik.handleChange("Descripcion") }
+                    />
                 <TextInput
                     style={[( formik.errors.Referencia && formik.touched.Referencia ) ?  Styles.errorCampo : Styles.campo, { marginLeft: 20, marginRight: 20 }]}
                     placeholder={"Referencia"}
                     value = { formik.values.Referencia }
                     onChangeText = {  formik.handleChange("Referencia") }
                 />
-                <Text style={{ marginLeft: 15, fontWeight: "bold", marginTop: 20 }} > Evidencia </Text>
+                <Pressable onPress = { showDatos } ><Text style={{ marginLeft: 15, fontWeight: "bold", marginTop: 20 }} > Evidencia </Text></Pressable>
                 <View style={{  marginLeft: 20, marginRight: 20, borderWidth:1, borderColor:"#6c757d", borderStyle:"dotted", borderRadius:5 }} >
                     <View style={{ flexDirection: "row" }} >
                         <ScrollView style={{  borderStyle:"dotted",borderRightWidth:4 ,width:"80%", borderWidth:1, flexDirection: "row", height:125, borderColor:"#6c757d", borderRadius:5 }} horizontal = { true } >

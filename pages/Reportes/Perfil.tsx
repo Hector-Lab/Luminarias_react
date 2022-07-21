@@ -7,6 +7,7 @@ import Styles from '../../Styles/styles';
 import Loading from '../components/modal-loading';
 import Message from  '../components/modal-message';
 import { ObtenerCiudadano, ActualizarDatosCiudadano } from '../controller/api-controller';
+import { StorageBaches } from '../controller/storage-controllerBaches';
 import { WIFI_OFF,DESCONOCIDO,OK } from '../../Styles/Iconos';
 import { checkConnection, verificarcurp } from '../../utilities/utilities';
 
@@ -26,6 +27,7 @@ const validacion = Yup.object().shape({
 });
 
 export default function Perfil( props ){ 
+    const storage = new StorageBaches(); 
     const [ cargando, setCargando ] = React.useState( false );
     //NOTE: manejadores de modal mensajes
     const [ mensaje, setMensaje ] = React.useState( String);
@@ -75,22 +77,30 @@ export default function Perfil( props ){
         }
     }
     const obtenerDatosCiudadano = async () =>{
-        await ObtenerCiudadano()
-        .then(( ciudadano )=>{
-            asignarDatos(ciudadano);
-        })
-        .catch(( error )=>{
-            let msj = String(error.message);
-            if( msj.includes("!Sin acceso a internet¡") ){
-                lanzarMensaje(msj,WIFI_OFF[0],WIFI_OFF[1]);
-            }else if (msj.includes("Servicio no disponible")){
-                lanzarMensaje( msj, DESCONOCIDO[0],DESCONOCIDO[1]);
-            }
-            
-        })
-        .finally(()=>{
-            setCargando(false);
-        })
+        if( await checkConnection() ){
+            await ObtenerCiudadano()
+            .then( async ( ciudadano )=>{
+                asignarDatos(ciudadano);
+                console.log("Desde el API");
+                await storage.guardarDatosPerfil(JSON.stringify(ciudadano));
+            })
+            .catch(( error )=>{
+                let msj = String(error.message);
+                if( msj.includes("!Sin acceso a internet¡") ){
+                    lanzarMensaje(msj,WIFI_OFF[0],WIFI_OFF[1]);
+                }else if (msj.includes("Servicio no disponible")){
+                    lanzarMensaje( msj, DESCONOCIDO[0],DESCONOCIDO[1]);
+                }
+            })
+            .finally(()=>{
+                setCargando(false);
+            })
+        }else{
+            setCargando( false );
+            console.log("Desde el storage");
+            let datos = await storage.obtenerDatosPerfil();
+            asignarDatos(JSON.parse(datos));
+        }
     }
     const lanzarMensaje = (mensaje:string,icono:string, iconoFuente:string) =>{
         setMensaje(mensaje);
@@ -157,7 +167,7 @@ export default function Perfil( props ){
                         />
                     <Text style = {Styles.txtLabel} > CURP </Text>
                     <TextInput 
-                        style = {[ ( formik.errors.Curp && formik.touched.Curp ) ? Styles.errorCampo :  Styles.campo,{marginTop:0,backgroundColor:"#6c757d48"}]}
+                        style = {[ ( formik.errors.Curp && formik.touched.Curp ) ? Styles.errorCampo :  Styles.campo,{marginTop:0,backgroundColor:"#6c757d70", color:"#6c757dff"}]}
                         placeholder = { "CURP" }
                         value = { formik.values.Curp }
                         onChangeText = { formik.handleChange("Curp") }

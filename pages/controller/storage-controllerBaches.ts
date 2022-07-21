@@ -1,4 +1,5 @@
 import  AsyncStorage from '@react-native-async-storage/async-storage';
+import { string } from 'yup/lib/locale';
 import { ROOT } from '../controller/Variables';
 
 
@@ -26,5 +27,17 @@ export class StorageBaches {
     }
     async obtenerCatalogoAreas( ){  
         return await AsyncStorage.getItem(ROOT+"Areas");
+    }
+    async guardarHistorialReportes( historial:string ){
+        await AsyncStorage.setItem(ROOT+"Historial",historial);
+    }
+    async obtenerHistorialReporte( ){
+        return await AsyncStorage.getItem( ROOT+"Historial" );
+    }
+    async guardarDatosPerfil( perfil:string ){
+        await AsyncStorage.setItem(ROOT+"Perfil", perfil );
+    }
+    async obtenerDatosPerfil(  ){
+        return await AsyncStorage.getItem(ROOT+"Perfil");
     }
 }

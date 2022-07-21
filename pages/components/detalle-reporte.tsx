@@ -8,6 +8,7 @@ import { azulColor } from '../../Styles/Color';
 import { CANCEL } from '../../Styles/Iconos';
 import ImageView from "react-native-image-viewing";
 import Styles from "../../Styles/styles";
+import { ThemeProvider } from "@react-navigation/native";
 
 export default class ReporteDetalle extends React.Component<{
     Reporte:
@@ -35,6 +36,7 @@ export default class ReporteDetalle extends React.Component<{
         let colorEstado = { 1: "#6c757d", 2: "#17a2b8", 3: "#28a745", 4: "#dc3545" };
         let Rutas = [];
         let coordenasas = null;
+        let direccion = "";
         //console.log(this.props.Reporte != null);
         if( this.props.Reporte != null && this.props.Reporte.Ubicaci_onGPS != undefined ){
             coordenasas = JSON.parse(this.props.Reporte.Ubicaci_onGPS);
@@ -48,6 +50,11 @@ export default class ReporteDetalle extends React.Component<{
                 };
                 Rutas.push(objetoImagen);
             })
+        }
+        //NOTE: damos formato a la direccion 
+        if( this.props.Reporte != null && this.props.Reporte.Ubicaci_onEscrita ){
+            let dirTemp = JSON.parse(this.props.Reporte.Ubicaci_onEscrita);
+            direccion = `Localidad: ${dirTemp.Localidad}\nColonia: ${dirTemp.Colonia}\nCalle: ${dirTemp.Calle}\nNumero: ${dirTemp.Numero}\nCodigo Posta:${dirTemp.Codigo}`;
         }
         const ReporteVacio = () => {
             return <View style={{ borderWidth: 1, marginTop: this.props.Plataform == "ios" ? 20 : 0 }} >
@@ -107,7 +114,7 @@ export default class ReporteDetalle extends React.Component<{
                                 <View style={{ flexDirection: "column", marginTop: 10 }}>
                                     <Text style={{ flex: 1, textAlign: "center", marginBottom: 5 }} > Dirección: </Text>
                                     <ScrollView style={[estilosElemento.scrollText, { height: 100 }]} >
-                                        <Text style={[estilosElemento.textArea, { height: 150 }]} > {String(this.props.Reporte.Ubicaci_onEscrita).replace("\t", "")} </Text>
+                                        <Text style={[estilosElemento.textArea, { height: 150 }]} > { direccion == "" ? this.props.Reporte.Ubicaci_onEscrita : direccion } </Text>
                                     </ScrollView>
                                 </View>
                                 <View style={{ marginTop: 20, marginLeft: 10, marginRight: 10, borderWidth: 1 }} >
@@ -125,8 +132,7 @@ export default class ReporteDetalle extends React.Component<{
                                                     longitude: coordenasas.longitude,
                                                     latitudeDelta: 0.0020,
                                                     longitudeDelta: 0.0071
-                                                }}
-                                            >
+                                                }}>
                                                 <Marker
                                                     title={estados[this.props.Reporte.Estatus]}
                                                     description={`Reporto: ${this.props.Reporte.Nombre}`}

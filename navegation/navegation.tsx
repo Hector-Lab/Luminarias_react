@@ -58,7 +58,7 @@ function Nav() {
                         {props => <Domicilio {...props} > </Domicilio>}
                     </Stack.Screen>
                     <Stack.Screen name = "Perfil" options = {({ navigation, route })=> ({
-                        title: "Menu",
+                        title: "Menú",
                         headerTitleAlign:"center",
                         headerTintColor: "#000000",
                         headerStyle: { shadowColor: azulColor, backgroundColor: azulColor },

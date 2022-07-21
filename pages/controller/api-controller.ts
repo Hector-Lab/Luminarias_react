@@ -12,7 +12,7 @@ const usuarioNoEncontrado = new Error("Ciudadano no encontrado\nFavor de registr
 const ErrorDesconocido = new Error("¡Error desconocido!");
 const ErrorInsertar = new Error("¡Error al registrar el reporte!\nFavor de intentar más tarde");
 const NoRowSelect = new Error("¡Aún no tiene registros!");
-const ErrorLista = new Error("¡Error al obtener el historial!\nFavor de intentar más tarde");
+const ErrorLista = new Error("¡Error al obtener al actualizar historial!\nFavor de intentar más tarde");
 const ErrorSinAreas = new Error("¡El municipio no cuenta con temas disponibles!");
 const ErrorAreas = new Error("¡Hubo un problema al obtener la lista de temas!");
 const ErrorDatos = new Error("¡Favor de ingresar los datos requeridos!");
@@ -161,6 +161,25 @@ export async function ActualizarDatosCiudadano(datos: {
         }
     } catch (error) {
         console.log(error);
+    }
+}
+export async function IniciarSesion( curp:string ) {
+    try{
+        let datos = {
+            Cliente: CLIENTE,
+            Curp: curp
+        };
+        let raw = await service.IniciarSesion(datos);
+        let result = await raw.json();
+        if( result.Code == 200 && result.Message.length > 0 ){
+            return true;
+        }else if ( result.Code == 200 && result.Message.length == 0 ){
+            throw userNotFound;
+        }else if( result.Code == 403 ){
+            throw Error500;
+        }
+    }catch(error){
+        throw verificarErrores(error);
     }
 }
 //NOTE: metodo interno

@@ -5,6 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import { LOGO } from '../controller/Variables';
 import Styles from '../../Styles/styles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { VERSION } from '../controller/Variables'; 
+import { SuinpacRed } from '../../Styles/Color';
 
 export default function MenuUsuario( props ){
     const reportar = () => {
@@ -55,6 +57,7 @@ export default function MenuUsuario( props ){
                     </TouchableOpacity>
                 </View>
             </ScrollView>
+            <Text style = {{ textAlign:"center", color:SuinpacRed }} > Atención Ciudadana - V{ VERSION } </Text>
         </SafeAreaView>
     ); 
 }
