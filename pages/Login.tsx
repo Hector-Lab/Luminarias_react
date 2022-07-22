@@ -20,7 +20,7 @@ const storage = new StorageBaches();
 const validation = Yup.object().shape(({ Curp: Yup.string().max(18).min(18).required("Requerido") }));
 
 export default function Log(props: any) {
-    const [ cargando, setCargando ] = React.useState( false );
+    const [ cargando, setCargando ] = React.useState( true );
     const [ mensaje, setMensaje ] = React.useState( String );
     const [ icono, setIcono ] = React.useState( String );
     const [ iconoFuente, setIconoFuente ] = React.useState(String);
@@ -58,7 +58,6 @@ export default function Log(props: any) {
             })
             .catch(( error ) => {
                 let msj = String(error.message);
-                console.log(msj);
                 if( msj.includes("Servicio no disponible")){
                     lanzarMensaje(msj,DESCONOCIDO[0],DESCONOCIDO[1]);
                 }else if( msj.includes("!Sin acceso a internet¡") ){
@@ -66,7 +65,6 @@ export default function Log(props: any) {
                 }else{
                     lanzarMensaje(msj,ERROR[0],ERROR[1]);
                 }
-                console.log(msj);
             })
         }else{
             lanzarMensaje( MSJCURP[code],INFO[0],INFO[1]);
@@ -82,6 +80,7 @@ export default function Log(props: any) {
     const restaurarSesion = async () => {
         if( await storage.sesionValida() ){
             setTimeout(()=>{
+                setCargando( false );
                 props.navigation.dispatch(
                     CommonActions.reset({
                         index:1,
@@ -89,7 +88,10 @@ export default function Log(props: any) {
                     })
                 )
             },200)
+        }else{
+            setCargando( false );
         }
+
     }
     return(
         <View style = {{flexGrow:1, backgroundColor:"white" }} >

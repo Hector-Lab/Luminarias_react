@@ -69,6 +69,9 @@ export default function Historial( props ) {
         setIconoFuente(icnf);
         setMostrarMensaje(true);
     }
+    const regresar = () =>{
+        props.navigation.pop();
+    }
     return(
         <SafeAreaView style ={{ flexGrow:1 }}>
             <View style = {{padding:20, flexGrow:1, backgroundColor:"white" }} >
@@ -88,7 +91,7 @@ export default function Historial( props ) {
                             )
                     }
                 </View>
-                <TouchableOpacity style = { Styles.btnOpacity } >
+                <TouchableOpacity style = { Styles.btnOpacity } onPress = { regresar } >
                     <Text style ={ Styles.btnTexto } > Regresar </Text>
                 </TouchableOpacity>
             </View>

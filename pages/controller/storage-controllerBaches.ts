@@ -40,9 +40,13 @@ export class StorageBaches {
         return await AsyncStorage.getItem(ROOT+"Perfil");
     }
     async sesionValida(){
-        let tk = await AsyncStorage.getItem("");
+        let tk = await AsyncStorage.getItem(ROOT+"Ciudadano");
+        console.log(tk);
         console.log(( tk != "" && tk != null ));
         return ( tk != "" && tk != null );
+    }
+    async cerrarSesion(){
+        await AsyncStorage.clear();
     }
 
 }

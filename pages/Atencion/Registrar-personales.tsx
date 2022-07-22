@@ -47,7 +47,7 @@ export default function Personales(props: any) {
             setCargando( true );
             let codigo = verificarcurp(formik.values.CURP);
             if(codigo != 0){
-                lanzarMensaje( curpMensajes[codigo],"Mensaje",USER_COG[0],USER_COG[1]);
+                lanzarMensaje( curpMensajes[codigo],"Mensaje",USER_COG[0],USER_COG[1] );
                 setCargando( false );
                 return;
             }

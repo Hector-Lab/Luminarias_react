@@ -59,7 +59,7 @@ export default function Reportar(props) {
     }, []);
     const obtenerCatalogos = async () => {
         let catalogo = await storage.obtenerCatalogoAreas();
-        if( !await checkConnection() ){
+        if( await checkConnection() ){
             console.log(" Desde el API ");
             await CatalogoSolicitud()
             .then( async (catalogo) => {

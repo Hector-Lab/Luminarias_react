@@ -39,7 +39,7 @@ function Nav() {
                         headerStyle: { shadowColor: azulColor, backgroundColor: azulColor },
                         headerTitleStyle: { color: "white" },
                         headerLeft: () => {
-                            return <TouchableOpacity onPress={() => { navigation.pop(); }} ><Icon style={{ marginLeft: 10 }} color={"white"} name={BACK[0]} type={BACK[1]} tvParallaxProperties  ></Icon></TouchableOpacity>
+                            return <TouchableOpacity onPress={() => { navigation.pop(); }} ><Icon style={{ marginLeft: 10 }} color={"white"} name={BACK[0]} type={BACK[1]}  ></Icon></TouchableOpacity>
                         }
                     })} >
                         {props => <Personales {...props} ></Personales>}

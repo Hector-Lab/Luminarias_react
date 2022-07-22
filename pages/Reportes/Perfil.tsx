@@ -138,6 +138,7 @@ export default function Perfil( props ){
         
         //formik.setFieldValue("Paterno",ciudadano.)
     }
+
     return(
         <SafeAreaView style = {{ flexGrow:1, backgroundColor:"white" }} >
             <ScrollView style = {{ flex:1 , padding:10,marginTop:20 }} >
