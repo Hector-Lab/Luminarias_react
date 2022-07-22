@@ -71,8 +71,6 @@ export default function Log(props: any) {
         }else{
             lanzarMensaje( MSJCURP[code],INFO[0],INFO[1]);
         }
-        //props.navigation.navigate("Perfil");
-        
     }
     const lanzarMensaje = ( message:string,icono:string,fuente:string ) => {
         setCargando( false );
