@@ -59,7 +59,6 @@ function Nav() {
                     <Stack.Screen name = "Perfil" options = {({ navigation, route })=> ({
                         title: "Atención Ciudadana",
                         headerTitleAlign:"center",
-                        headerTintColor: "#000000",
                         headerStyle: { shadowColor: azulColor, backgroundColor: azulColor },
                         headerTitleStyle: { color: "white" },
                     }) } > 

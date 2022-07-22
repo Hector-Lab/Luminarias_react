@@ -13,6 +13,8 @@ import * as Location from  'expo-location';
 import * as Yup from 'yup';
 import Message from '../components/modal-message';
 import Loading from  '../components/modal-loading';
+import { CommonActions } from "@react-navigation/native";
+import {INFO,USER_COG,ERROR,WIFI_OFF,DESCONOCIDO} from '../../Styles/Iconos';
 
 
 const validacion  = Yup.object().shape({
@@ -39,6 +41,7 @@ export default function Domicilio(props: any) {
             CodigoPostal: "",
         },
         onSubmit: (values)=>{
+            setCargando(true);
             enviarDatos( values );
         },
         validationSchema: validacion
@@ -88,10 +91,24 @@ export default function Domicilio(props: any) {
     const enviarDatos = async ( direccion ) =>{
         await RegistrarCiudadano(JSON.stringify(direccion))
         .then(( result )=>{
-            //console.log(result)
+            setCargando( false );
+            setTimeout(()=>{
+                props.navigation.dispatch( CommonActions.reset({ index:1, routes:[{name:"Perfil"}] }) );
+            },200);
         })
         .catch(( error )=>{
-            //console.log( error );
+            let msj = String(error.message);
+            if(msj.includes("¡La CURP ingresada ya fue registrada!")){
+                lanzarMensaje(msj,INFO[0],INFO[1]);
+            }else if( msj.includes("¡Favor de ingresar los datos requeridos!")){
+                lanzarMensaje(msj,ERROR[0],ERROR[1]);
+            }else if ( msj.includes("Error al registrar al ciudadano")){
+                lanzarMensaje(msj,DESCONOCIDO[0],DESCONOCIDO[1]);
+            }else if ( msj.includes("!Sin acceso a internet¡") ){
+                lanzarMensaje(msj,WIFI_OFF[0],WIFI_OFF[0]);
+            }else{
+                lanzarMensaje(msj,INFO[0],INFO[1]);
+            }
         })
     }
     return(

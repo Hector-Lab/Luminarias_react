@@ -35,12 +35,11 @@ export default function MenuUsuario( props ){
             )
         },500);
     }
-    
     return(
         <SafeAreaView style = {{ flexGrow:1, backgroundColor:"white"}} >
-            <StatusBar style = { Platform.OS == "ios" ? "dark" : "auto" }  />
-            <ScrollView style = {{flexGrow:1}} >
-                <View style = {{ alignItems:"center", marginTop:50 }} >
+            <StatusBar backgroundColor = { azulColor } style = {Platform.OS == "ios" ? "dark":"light"} animated = { true } />
+            <ScrollView style = {{flexGrow:1, backgroundColor:"white"}} >
+                <View style = {{ alignItems:"center", marginTop:50, }} >
                     <Avatar
                         avatarStyle={{ }}
                         rounded

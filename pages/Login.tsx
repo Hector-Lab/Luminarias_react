@@ -95,7 +95,7 @@ export default function Log(props: any) {
     }
     return(
         <View style = {{flexGrow:1, backgroundColor:"white" }} >
-            <StatusBar style = { Platform.OS == "ios" ? "dark" : "auto" }  />
+            <StatusBar backgroundColor = { azulColor } style = {Platform.OS == "ios" ? "dark":"light"} />
             <View style = {{  alignItems:"center" }} >
                 <Avatar
                     avatarStyle={{  }}

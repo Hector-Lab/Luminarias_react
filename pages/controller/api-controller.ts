@@ -19,6 +19,8 @@ const ErrorDatos = new Error("¡Favor de ingresar los datos requeridos!");
 const ErrorCiudadano = new Error("Error al obtener datos del ciudadano\nFavor de intentar más tarde!");
 const Error500 = new Error("Servicio no disponible\nFavor de intentar más tarde");
 const Error403 = new Error("Error al actualizar su informacion\nFavor de intentar más tarde");
+const UsuarioEncontrado = new Error("¡La CURP ingresada ya fue registrada!\nFavor de verificar sus datos");
+const ErrorRegistro = new Error("Error al registrar al ciudadano\nFavor de intentar más tarde");
 //INDEV: Nuevas funciones para la aplicacion de los baches
 export async function CatalogoSolicitud() {
     try {
@@ -51,7 +53,17 @@ export async function RegistrarCiudadano(domicilio: string) {
         };
         let rawData = await service.RegistrarCiudadano(data);
         let result = await rawData.json();
-        console.log(result);
+        if( result.Code == 200 ){
+            console.log(result.Ciudadano);
+            await storageBaches.guardarCiudadano( String(result.Ciudadano) );
+            return true;
+        }else if( result.Code == 409 ){
+            throw UsuarioEncontrado;
+        }else if( result.Code == 223 ){
+            throw ErrorDatos
+        }else if ( result.code == 403 ){
+            throw ErrorRegistro;
+        }
     } catch (error) {
         throw verificarErrores(error);
     }
@@ -65,7 +77,7 @@ export async function EnviarReporte(datos) {
             gps: datos.gps,
             direccion: datos.direccion,
             Referencia: datos.Referencia,
-            Ciudadano: /*ciudadano*/ 8,
+            Ciudadano: ciudadano,
             Cliente: CLIENTE,
             Evidencia: datos.Evidencia,
         }
@@ -85,12 +97,15 @@ export async function HistorialReportes() {
     try {
         let ciudadano = await storageBaches.obtenerCiudadano();
         let datos = {
-            Ciudadano: (ciudadano == null) ? "8" : ciudadano,
+            Ciudadano: ciudadano,
             Cliente: CLIENTE
         }
         let result = await service.Historial(datos);
         let reportes = await result.json();
-        if (reportes.Code == 200) {
+        console.log(reportes);
+        if( reportes.Code == 404 ){
+            return []
+        } if (reportes.Code == 200) {
             return reportes.Mensaje
         } else {
             throw ErrorLista;
@@ -104,7 +119,7 @@ export async function ObtenerCiudadano() {
         let ciudadano = await storageBaches.obtenerCiudadano();
         let datos = {
             Cliente: CLIENTE,
-            Ciudadano: ciudadano == null ? "8" : ciudadano
+            Ciudadano: ciudadano
         };
         let rawdata = await service.ObtenerCiudadano(datos);
         let result = await rawdata.json();
@@ -136,7 +151,7 @@ export async function ActualizarDatosCiudadano(datos: {
         let Ciudadano = await storageBaches.obtenerCiudadano();
         let request = {
             Cliente: CLIENTE,
-            Ciudadano: "8",
+            Ciudadano: Ciudadano,
             Nombre:datos.Nombre ,
             Paterno:datos.Paterno,
             Materno:datos.Materno,

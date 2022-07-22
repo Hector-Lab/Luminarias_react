@@ -19,7 +19,7 @@ export class StorageBaches {
         await AsyncStorage.setItem(ROOT+"Ciudadano",idCiudadano);
     }
     async obtenerCiudadano () {
-        await AsyncStorage.getItem(ROOT+"Ciudadano");
+        return await AsyncStorage.getItem(ROOT+"Ciudadano");
     }
     async guardarCatalogoAreas( catalogo:string ){
         await AsyncStorage.setItem(ROOT+"Areas",catalogo);
@@ -41,8 +41,6 @@ export class StorageBaches {
     }
     async sesionValida(){
         let tk = await AsyncStorage.getItem(ROOT+"Ciudadano");
-        console.log(tk);
-        console.log(( tk != "" && tk != null ));
         return ( tk != "" && tk != null );
     }
     async cerrarSesion(){

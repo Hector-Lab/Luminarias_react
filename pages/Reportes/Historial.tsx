@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View,Text, SafeAreaView, Platform,TouchableOpacity, FlatList } from  'react-native';
+import { View,Text, SafeAreaView, Platform,TouchableOpacity, FlatList, ActivityIndicator } from  'react-native';
 import { azulColor } from '../../Styles/Color';
 import { HistorialReportes } from '../controller/api-controller';
 import Styles from '../../Styles/styles';
@@ -8,8 +8,9 @@ import Loading from '../components/modal-loading';
 import ReporteDetalle from '../components/detalle-reporte';
 import { checkConnection } from '../../utilities/utilities';
 import Message from '../components/modal-message';
-import { WIFI_OFF, ERROR} from '../../Styles/Iconos';
+import { WIFI_OFF, ERROR, LIST } from '../../Styles/Iconos';
 import { StorageBaches } from '../controller/storage-controllerBaches';
+import { Icon } from '@rneui/base';
 
 export default function Historial( props ) {
     const storage = new StorageBaches();
@@ -37,6 +38,7 @@ export default function Historial( props ) {
             })
             .catch( (error) =>{
                 let msj = String(error.message);
+                console.log(msj);
                 lanzarMensaje( msj , ( msj.includes("!Sin acceso a internet¡") ? WIFI_OFF[0]:ERROR[0] ), ( msj.includes("!Sin acceso a internet¡") ? WIFI_OFF[1]:ERROR[1] ));
             })
             .finally(()=>{
@@ -87,7 +89,9 @@ export default function Historial( props ) {
                                 />
                             ) :
                             (
-                                <></>
+                                <View style = {{ flexDirection:"row" ,alignItems:"center", flex:1, alignSelf:"center" }}>
+                                    <Text>No hay reportes</Text>
+                                </View>
                             )
                     }
                 </View>
