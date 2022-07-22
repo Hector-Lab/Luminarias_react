@@ -1,5 +1,4 @@
 import  AsyncStorage from '@react-native-async-storage/async-storage';
-import { string } from 'yup/lib/locale';
 import { ROOT } from '../controller/Variables';
 
 
@@ -40,4 +39,10 @@ export class StorageBaches {
     async obtenerDatosPerfil(  ){
         return await AsyncStorage.getItem(ROOT+"Perfil");
     }
+    async sesionValida(){
+        let tk = await AsyncStorage.getItem("");
+        console.log(( tk != "" && tk != null ));
+        return ( tk != "" && tk != null );
+    }
+
 }

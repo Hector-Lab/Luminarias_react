@@ -14,15 +14,14 @@ import Reportar from '../pages/Reportes/Reportar';
 import MenuUsuario from '../pages/Reportes/menu-usuario';
 import { BACK,ACCOUNT } from '../Styles/Iconos';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { ScaleFromCenterAndroid } from '@react-navigation/stack/lib/typescript/src/TransitionConfigs/TransitionPresets';
 
 const Stack = createStackNavigator();
 function Nav() {
+    
     return (
         <SafeAreaView style={{ flexGrow: 1 }} >
             <NavigationContainer independent={true} >
-                <Stack.Navigator screenOptions={
-                    { headerTintColor: "white" }} >
+                <Stack.Navigator screenOptions={{ headerTintColor: "white" }} >
                     <Stack.Screen name='Bienvenido'
                         options={({ navigation, route }) => ({
                             title: "Atención Ciudadana",
@@ -58,14 +57,11 @@ function Nav() {
                         {props => <Domicilio {...props} > </Domicilio>}
                     </Stack.Screen>
                     <Stack.Screen name = "Perfil" options = {({ navigation, route })=> ({
-                        title: "Menú",
+                        title: "Atención Ciudadana",
                         headerTitleAlign:"center",
                         headerTintColor: "#000000",
                         headerStyle: { shadowColor: azulColor, backgroundColor: azulColor },
                         headerTitleStyle: { color: "white" },
-                        headerLeft: () => {
-                            return <TouchableOpacity onPress={() => { navigation.pop(); }} ><Icon style={{ marginLeft: 10 }} color={"white"} name={BACK[0]} type={BACK[1]} ></Icon></TouchableOpacity>
-                        }
                     }) } > 
                         {props => <MenuUsuario {...props} > </MenuUsuario>}
                     </Stack.Screen>

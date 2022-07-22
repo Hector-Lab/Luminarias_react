@@ -6,7 +6,7 @@ import { CLIENTE } from '../controller/Variables';
 const service = new APIServices();
 const storageBaches = new StorageBaches();
 const networkError = new Error("!Sin acceso a internet¡");
-const userNotFound = new Error("Usuario o Contraseña Incorrectos");
+const userNotFound = new Error("Usuario no encontrado");
 const usuarioNoValido = new Error("");
 const usuarioNoEncontrado = new Error("Ciudadano no encontrado\nFavor de registrarse para continuar");
 const ErrorDesconocido = new Error("¡Error desconocido!");
@@ -171,11 +171,12 @@ export async function IniciarSesion( curp:string ) {
         };
         let raw = await service.IniciarSesion(datos);
         let result = await raw.json();
-        if( result.Code == 200 && result.Message.length > 0 ){
+        if( result.code == 200 && result.Message.length > 0 ){
+            await storageBaches.guardarCiudadano(String(result.Message[0].id));
             return true;
-        }else if ( result.Code == 200 && result.Message.length == 0 ){
+        }else if ( result.code == 200 && result.Message.length == 0 ){
             throw userNotFound;
-        }else if( result.Code == 403 ){
+        }else if( result.code == 403 ){
             throw Error500;
         }
     }catch(error){
