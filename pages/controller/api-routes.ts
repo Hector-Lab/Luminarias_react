@@ -1,4 +1,3 @@
-import { date } from 'yup/lib/locale';
 import { APIROUTE } from  './Variables';
 
 export class APIServices {
