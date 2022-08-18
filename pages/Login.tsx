@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, Text, TextInput, Linking, ImageBackground, StatusBar, Platform, Pressable } from 'react-native';
+import { 
+        View, 
+        TouchableOpacity, 
+        Text, 
+        TextInput, 
+        ImageBackground, 
+        StatusBar, 
+        Platform,
+        Image
+    } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import { azulColor, SuinpacRed } from "../Styles/Color";
 import Styles from '../Styles/styles';
@@ -14,6 +23,7 @@ import { USER_COG, WIFI_OFF, DESCONOCIDO, APPSETTINGS } from '../Styles/Iconos';
 import * as Location from 'expo-location';
 import Privacidad from './components/modal-privacidad';
 import { Camera } from 'expo-camera';
+import { FONDO, AVATAR } from '../utilities/Variables';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Log(props: any) {
     const [cargando, setCargando] = useState(false);
@@ -120,7 +130,7 @@ export default function Log(props: any) {
     return (
         <View style={{ flex: 1 }} >
             <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
-            <ImageBackground source={require('../assets/Fondo.jpeg')} style={{ flex: 1 }} >
+            <ImageBackground source={ FONDO } style={{ flex: 1 }} >
                 <Formik
                     initialValues={valores}
                     validationSchema={validacion}
@@ -128,21 +138,18 @@ export default function Log(props: any) {
                 >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => {
                         return <View style={{ flex: 1 }} >
-                            <View style={{ flex: 2 }} >
+                            <View style={{ flex: 2, padding:20 }} >
                                 <View style={{ flex: 2, borderColor: "black", justifyContent: "center" }} >
                                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                                        <Avatar
-                                            avatarStyle={{}}
-                                            rounded
-                                            imageProps={{ resizeMode: "contain" }}
-                                            size="xlarge"
-                                            containerStyle={{ height: 120, width: 220 }}
-                                            source={require("../assets/banner.png")}
+                                        <Image 
+                                            source = {AVATAR} 
+                                            resizeMode = { "stretch" }  
+                                            style = {{ height:80,width:220 }}
                                         />
                                     </View>
                                 </View>
                             </View>
-                            <View style={{ flex: 5, flexDirection: "column", justifyContent: "center" }}>
+                            <View style={{ flex: 5, flexDirection: "column",justifyContent: "center" }}>
                                 <Text style={Styles.TemaLabalCampo} >CURP</Text>
                                 <TextInput
                                     autoCapitalize="characters"

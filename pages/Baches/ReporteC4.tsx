@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, Component } from "react";
-import { ScrollView, TextInput, TouchableOpacity, View, SafeAreaView, Linking, StyleSheet, ActivityIndicator, StatusBar, Platform, ImageBackground } from "react-native";
-import { Avatar, Button, Card, Icon, Text } from "react-native-elements";
+import React, { useState, useEffect } from "react";
+import { ScrollView, TextInput, TouchableOpacity, View, SafeAreaView, Linking, ActivityIndicator, StatusBar, Platform, ImageBackground,Image } from "react-native";
+import { Icon, Text } from "react-native-elements";
 import MapView from "react-native-maps";
 import * as Location from 'expo-location';
 import { Marker } from 'react-native-maps';
@@ -14,7 +14,7 @@ import { BlueColor, DarkPrimaryColor } from "../../Styles/BachesColor";
 import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
 import ImageView from "react-native-image-viewing";
 import { GuardarReporteC4 } from "../controller/api-controller";
-import { CLIENTE } from '../../utilities/utilities';
+import { CLIENTE,AVATAR,FONDO } from '../../utilities/Variables';
 import Style from '../../Styles/styles';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 
@@ -317,18 +317,15 @@ export default function ReporteC4(props: any) {
   return (
     <SafeAreaView style={{ flex: 1 }} >
       <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
-      <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
+      <ImageBackground source={ FONDO } style={{ flex: 1, padding:5 }} >
         {
           camaraActiva ? GenerarCamara() :
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} >
-              <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                <Avatar
-                  avatarStyle={{}}
-                  rounded
-                  imageProps={{ resizeMode: "contain" }}
-                  size="xlarge"
-                  containerStyle={{ height: 120, width: 220 }}
-                  source={require("../../assets/banner.png")}
+              <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
+                <Image 
+                  source = {AVATAR} 
+                  resizeMode = { "stretch" }  
+                  style = {{ height:80,width:220 }}
                 />
               </View>
               <View style={{ flex: 6 }}>

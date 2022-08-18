@@ -3,7 +3,7 @@ import * as TaskManager from 'expo-task-manager';
 import { Vibration } from 'react-native';
 import { StorageBaches } from '../pages/controller/storage-controllerBaches'; 
 import { GuardarReporteRosaC4, ActualizarCoordenadas } from '../pages/controller/api-controller';
-import { CLIENTE } from '../utilities/utilities';
+import { CLIENTE } from '../utilities/Variables';
 //NOTE: session de errores
 
 const TASK_LOCATION = "TRACK_LOCATION";
@@ -28,7 +28,8 @@ export async function IniciarTarea(){
     if(await TaskManager.isTaskRegisteredAsync(TASK_LOCATION)){
         return ;
     }
-    //FIXME: agregar la extraccion de datos del storage cuando esten hechas las interfaces de registro 
+    //FIXED: agregar la extraccion de datos del storage cuando esten hechas las interfaces de registro 
+    //FIXME: agregar validacion de segundo plano para el geocode
     TaskManager.defineTask(TASK_LOCATION, async ({ data,error,executionInfo })=>{
         if( error ){
             Vibration.vibrate(500);

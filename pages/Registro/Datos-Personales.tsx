@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import Styles from '../../Styles/styles';
 import { Formik } from 'formik';
@@ -8,7 +8,7 @@ import { verificarcurp } from '../../utilities/utilities';
 import Message from '../components/modal-message';
 import { azulColor, SuinpacRed } from "../../Styles/Color";
 import { StorageBaches } from '../controller/storage-controllerBaches';
-
+import { FONDO,AVATAR } from '../../utilities/Variables';
 
 export default function Personales(props: any) {
     let [curpValida, sertCurpValida] = useState(false);
@@ -62,16 +62,13 @@ export default function Personales(props: any) {
     return (
         <SafeAreaView style={{ flex: 1 }} >
             <StatusBar animated={true} barStyle={"dark-content"} />
-            <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
+            <ImageBackground source={ FONDO } style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
-                    <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                        <Avatar
-                            avatarStyle={{}}
-                            rounded
-                            imageProps={{ resizeMode: "contain" }}
-                            size="xlarge"
-                            containerStyle={{ height: 120, width: 220 }}
-                            source={require("../../assets/banner.png")}
+                    <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
+                        <Image 
+                            source = {AVATAR} 
+                            resizeMode = { "stretch" }  
+                            style = {{ height:80,width:220 }}
                         />
                     </View>
                     <View style={{ flexDirection: "row", marginBottom: 20 }} >
@@ -166,7 +163,6 @@ export default function Personales(props: any) {
                     color={azulColor}
                     onCancelLoad={() => { setMostrarMensaje(false) }}
                     onConfirmarLoad={() => { setMostrarMensaje(false) }}
-
                 />
             </ImageBackground>
         </SafeAreaView>

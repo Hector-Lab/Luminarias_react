@@ -2,7 +2,8 @@ import { ServerContainer, TabRouter } from '@react-navigation/native';
 import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageBaches } from '../controller/storage-controllerBaches';
-import { CLIENTE, verificarcurp } from  '../../utilities/utilities';
+import { verificarcurp } from  '../../utilities/utilities';
+import { CLIENTE } from '../../utilities/Variables';
 
 const service = new APIServices();
 const storageBaches = new StorageBaches();
@@ -282,6 +283,7 @@ export async function IniciarSession( Credenciales ) {
         }
         let data = await service.iniciarSessionCiudadano( datos );
         let Ciudadano = await data.json();
+        console.log(Ciudadano);
         if( Ciudadano.Status ){
             storageBaches.guardarIdCiudadano(String(Ciudadano.id));
             storageBaches.guardarDatosPersonalesCiudadano(JSON.stringify(Ciudadano.Ciudadano));

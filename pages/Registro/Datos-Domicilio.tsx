@@ -5,6 +5,7 @@ import Styles  from '../../Styles/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { StorageBaches } from '../controller/storage-controllerBaches';
+import { FONDO,AVATAR } from '../../utilities/Variables';
 
 export default function Domicilio(props: any) {
     
@@ -32,7 +33,7 @@ export default function Domicilio(props: any) {
     return(
         <SafeAreaView style = {{flex:1}} >
             <StatusBar animated={true} barStyle = {"dark-content"}/>
-            <ImageBackground source = { require('../../assets/Fondo.jpeg') } style = {{ flex:1 }} >
+            <ImageBackground source = { FONDO } style = {{ flex:1 }} >
                 <ScrollView style = {{flexGrow:1}} >
                     <View style = {{ justifyContent:"center" , alignItems:"center"}}  >
                         <Avatar
@@ -40,8 +41,8 @@ export default function Domicilio(props: any) {
                             rounded
                             imageProps={{resizeMode:"contain"}}
                             size = "xlarge"
-                            containerStyle = {{height:120,width:220}}
-                            source = {require("../../assets/banner.png")} 
+                            containerStyle = {{height:180,width:220}}
+                            source = { AVATAR } 
                         />
                     </View>
                     <View style = {{flexDirection:"row",marginBottom:20}} >

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar } from 'react-native';
-import { Avatar, Divider } from 'react-native-elements';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Image } from 'react-native';
 import Styles from '../../Styles/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -11,6 +10,7 @@ import Loading from '../components/modal-loading';
 import { azulColor } from "../../Styles/Color";
 import Message from '../components/modal-message';
 import { DESCONOCIDO,ERROR } from '../../Styles/Iconos';
+import { FONDO,AVATAR } from '../../utilities/Variables';
 
 let Storage = new StorageBaches();
 let valores = {
@@ -43,9 +43,6 @@ export default function Perfil(props: any) {
     let [ tituloMensaje, setTituloMensaje ] = useState("Mensaje");
     let [ mensaje, setMensaje ] =  useState("");
     let [ abrirMenu, setAbrirMenu ] = useState( false );
-    let [ contactos, setContactos ] = useState(null);
-    let [ botonCanelar, setBotonCancelar ] = useState( false );
-    let [actualizarCiudadano, setActualizarCiudadano] = useState(false);
     const finalizarRegistro = async (datosContactos) => {
         //NOTE: Verificamos los datos del storage y lo enviamos al api
         setCargando( true );
@@ -53,10 +50,7 @@ export default function Perfil(props: any) {
             .then(( respuesta ) => {
                 setCargando( false );
                 if (String(respuesta).includes("-1")){
-                    setBotonCancelar(true);
-                    setActualizarCiudadano(true);
-                    lanzarMensaje("¡La CURP ingresada esta registrada!|\nActualizar Información","Mensaje","info","material");
-                    setContactos(datosContactos);
+                    lanzarMensaje("¡La CURP ingresada esta registrada!","Mensaje","info","material");
                 }else{
                     lanzarMensaje(respuesta,"Mensaje","info","material");
                     setAbrirMenu(true);
@@ -74,62 +68,25 @@ export default function Perfil(props: any) {
         setFuenteIcono(fuenteIcono);
         setMostrarMensaje(true);
     }
-    const ManejadorBotonMensaje = ()=>{
-        if(abrirMenu){
-            //NOTE: guardamos los datos 
-            props.navigation.dispatch(
-                CommonActions.reset({
-                  index: 1,
-                  routes: [{ name:'Menu'}]
-                })
-              );
-        }else{
-            setMostrarMensaje(false);
-        }  
-    }
-    const irMenu = () =>{
+    const toMenu = ()=>{
         //NOTE: guardamos los datos 
         props.navigation.dispatch(
             CommonActions.reset({
-              index: 1,
-              routes: [{ name:'Menu'}]
+                index: 1,
+                routes: [{ name:'Menu'}]
             })
-          );
+        );
     }
-    const actualizarDatosCiudadano = async () =>{
-        setMostrarMensaje(false);
-        setCargando(true);
-        if(contactos != null){
-            await ActualiarRegistroCiudadano(contactos)
-            .then(( result )=>{
-                setActualizarCiudadano(false);
-                setBotonCancelar(false);
-                setCargando(false);
-                irMenu();
-            })
-            .catch((error)=>{
-                let mensaje = String(error.message);
-                lanzarMensaje(mensaje,'Mensaje',mensaje.includes("¡Error al actualizar ciudadano!") ? Error[0] : DESCONOCIDO[0], mensaje.includes("¡Error al actualizar ciudadano!") ? Error[1] : DESCONOCIDO[1] );
-                setCargando(false);
-            })
-        }else{
-            console.log("No hay contactos");
-        }
-    }
-
     return (
         <SafeAreaView style={{ flex: 1 }} >
             <StatusBar animated={true} barStyle = {"dark-content"}/>
-            <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
+            <ImageBackground source={ FONDO } style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
-                    <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                        <Avatar
-                            avatarStyle={{}}
-                            rounded
-                            imageProps={{ resizeMode: "contain" }}
-                            size="xlarge"
-                            containerStyle={{ height: 120, width: 220 }}
-                            source={require("../../assets/banner.png")}
+                    <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
+                        <Image 
+                            source = {AVATAR} 
+                            resizeMode = { "stretch" }  
+                            style = {{ height:80,width:220 }}
                         />
                     </View>
                     <View style={{ flexDirection: "row", marginBottom: 10 }} >
@@ -232,9 +189,9 @@ export default function Perfil(props: any) {
                 </ScrollView>
                 <Loading
                     transparent={ true }
-                    loading={ cargando }
+                    loading={ false}
                     loadinColor={ azulColor }
-                    onCancelLoad={ ManejadorBotonMensaje }
+                    onCancelLoad={ ()=>{} }
                     tittle={" Mensaje "}
                     message={" Cargando "}
                 />
@@ -242,17 +199,17 @@ export default function Perfil(props: any) {
                     transparent = { true }
                     loading = { mostrarMensaje }
                     loadinColor = { azulColor }
-                    onCancelLoad = { ManejadorBotonMensaje }
+                    onCancelLoad = { ()=>{ setMostrarMensaje( false ); } }
                     icon = { icono }
                     iconsource = { fuenteIcono }
                     color = { azulColor }
                     message = { mensaje }
                     tittle = { tituloMensaje }
                     buttonText = {"Aceptar"}
-                    buttonCancel = { botonCanelar }
-                    onConfirmarLoad = { actualizarCiudadano ? actualizarDatosCiudadano : ()=>{ setMostrarMensaje( false ) } }
+                    buttonCancel = { false }
+                    onConfirmarLoad = { ( abrirMenu ) ? toMenu : ()=>{ setMostrarMensaje(false) } }
                 />
             </ImageBackground>
         </SafeAreaView>
     )
-}
+}              

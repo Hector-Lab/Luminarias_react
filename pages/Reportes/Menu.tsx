@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ImageBackground, Settings, SafeAreaView, StatusBar, Platform, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, ImageBackground, Settings, SafeAreaView, StatusBar, Platform, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Avatar, Icon } from 'react-native-elements';
 import Styles from '../../Styles/styles';
 import MenuItem from '../components/ItemMenuReporte';
@@ -9,7 +9,8 @@ import Loading from '../../pages/components/modal-loading';
 import Message from '../../pages/components/modal-message';
 import { azulClaro, azulColor, SuinpacRed } from '../../Styles/Color';
 import { BlueColor } from '../../Styles/BachesColor';
-import { PERSONPIN, DESCONOCIDO, RETURN, USER_COG } from '../../Styles/Iconos';
+import { PERSONPIN, DESCONOCIDO } from '../../Styles/Iconos';
+import { AVATAR,FONDO } from '../../utilities/Variables';
 
 export default function MenuReportes(props: any) {
     //Solicitamos los permisos del telefono
@@ -37,7 +38,7 @@ export default function MenuReportes(props: any) {
         setCargando(true);
         //INDEV: verificamos el servicio de ubicacion
         await IniciarTarea().then((result) => {
-            lanzarMensaje("Mensaje", "Reporte Enviado\nIniciando Rastreo", PERSONPIN[0], PERSONPIN[1]);
+            lanzarMensaje("¡Alerta Enviada!", "Reporte Enviado\nIniciando Rastreo", PERSONPIN[0], PERSONPIN[1]);
         }).catch((error) => {
             lanzarMensaje("Mensaje", error.message, DESCONOCIDO[0], DESCONOCIDO[1]);
         }).finally(() => {
@@ -62,16 +63,14 @@ export default function MenuReportes(props: any) {
     return (
         <SafeAreaView style={{ flex: 1 }} >
             <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
-            <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
-                <View style={{ flex: 2, borderRadius: 1, borderColor: "black", justifyContent: "center" }} >
+            <ImageBackground source={ FONDO } style={{ flex: 1 }} resizeMode = "stretch" >
+                <View style={{ flex: 2, borderRadius: 1, borderColor: "black", justifyContent: "center", padding:20 }} >
                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                        <Avatar
-                            avatarStyle={{}}
-                            rounded
-                            imageProps={{ resizeMode: "contain" }}
-                            size="xlarge"
-                            containerStyle={{ height: 120, width: 220 }}
-                            source={require("../../assets/banner.png")} />
+                        <Image 
+                            source = {AVATAR} 
+                            resizeMode = { "stretch" }  
+                            style = {{ height:80,width:220 }}
+                        />
                     </View>
                 </View>
                 {/*INDEV: */}

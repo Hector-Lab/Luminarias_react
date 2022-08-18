@@ -30,6 +30,7 @@ import { azulColor, iconColorBlue, SuinpacRed } from "../../Styles/Color";
 import Camara from '../components/Camara';
 import { obtenerBase64 } from '../../utilities/utilities';
 import ImageView from "react-native-image-viewing";
+import { FONDO,AVATAR } from '../../utilities/Variables';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 let validacion = Yup.object().shape({
   Referencia: Yup.string().required(),
@@ -340,19 +341,16 @@ export default function Reportar(props: any) {
   return (
     <SafeAreaView style={{ flex: 1, flexDirection: "row" }} >
       <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
-      <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
+      <ImageBackground source={FONDO} style={{ flex: 1 }} >
         {
           !camaraActiva ?
             <View style={{ flex: 1 }} >
               <ScrollView style={{ flexGrow: 1 }} >
-                <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                  <Avatar
-                    avatarStyle={{}}
-                    rounded
-                    imageProps={{ resizeMode: "contain" }}
-                    size="xlarge"
-                    containerStyle={{ height: 120, width: 220 }}
-                    source={require("../../assets/banner.png")}
+                <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
+                  <Image 
+                    source = {AVATAR} 
+                    resizeMode = { "stretch" }  
+                    style = {{ height:80,width:220 }}
                   />
                 </View>
                 <DropDownPicker
