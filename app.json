@@ -21,10 +21,21 @@
       "config": {
         "googleMapsApiKey": "AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
       },
-      "bundleIdentifier": "com.ccuatroios.ccuatroios"
+      "bundleIdentifier": "com.ccuatroios.ccuatroios",
+      "infoPlist":{
+        "NSLocationUsageDescription":"La aplicación requiere accesos a su ubicación para su funcionamiento",
+        "NSLocationWhenInUseUsageDescription":"La aplicación requiere accesos a su ubicación para su funcionamiento",
+        "NSLocationAlwaysUsageDescription":"La aplicación requiere accesos a su ubicación para su funcionamiento",
+        "NSMicrophoneUsageDescription":"La aplicación requiere accesos a la camara del dispositivo para su funcionamiento",
+        "NSPhotoLibraryUsageDescription":"La aplicación requiere accesos a la camara del dispositivo para su funcionamiento",
+        "NSCameraUsageDescription":"La aplicación requiere accesos a la camara del dispositivo para su funcionamiento",
+        "UIBackgroundModes": [
+          "location"
+        ] 
+      }
     },
     "android": {
-      "versionCode": 5,
+      "versionCode": 1,
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

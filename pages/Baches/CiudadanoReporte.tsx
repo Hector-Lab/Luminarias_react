@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, Component } from "react";
 import {
   TouchableOpacity,
   View,
-  Dimensions,
   ImageBackground,
   Text,
   TextInput,
@@ -11,7 +10,7 @@ import {
   Platform,
   ActivityIndicator
 } from "react-native";
-import { Form, Formik, useFormik } from 'formik';
+import { useFormik } from 'formik';
 import Style from '../../Styles/styles';
 import * as Yup from 'yup';
 import { CordenadasActualesNumerico, ObtenerDireccionActual } from '../../utilities/utilities';
@@ -21,16 +20,17 @@ import { StorageBaches } from "../controller/storage-controllerBaches";
 import Loading from "../components/modal-loading";
 import Message from "../components/modal-message";
 import { BlueColor } from '../../Styles/BachesColor';
-import { CAMERA, DESCONOCIDO, PREVIEW, WIFI_OFF, OK, ERROR } from "../../Styles/Iconos";
+import { CAMERA, DESCONOCIDO, WIFI_OFF, OK, ERROR } from "../../Styles/Iconos";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView } from "react-native-gesture-handler";
-import { Avatar, Icon, Image, Card } from "react-native-elements";
-import { azulColor, iconColorBlue, SuinpacRed } from "../../Styles/Color";
+import { Icon, Image  } from "react-native-elements";
+import { azulColor, SuinpacRed } from "../../Styles/Color";
 import Camara from '../components/Camara';
 import { obtenerBase64 } from '../../utilities/utilities';
 import ImageView from "react-native-image-viewing";
 import { FONDO,AVATAR } from '../../utilities/Variables';
+import * as ImagePicker from 'expo-image-picker';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 let validacion = Yup.object().shape({
   Referencia: Yup.string().required(),
@@ -205,7 +205,11 @@ export default function Reportar(props: any) {
   };
   const solicitarPermisosCamara = async () => {
     //NOTE: pedir Persmisos antes de lanzar la camara
-    try {
+    let permisos = await ImagePicker.requestCameraPermissionsAsync();
+    let image = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing:false,allowsMultipleSelection:false,base64:true
+    });
+    /*try {
       let { status } = await Camera.requestCameraPermissionsAsync();
       if (status === "granted") {
         setCameraPermision(true);
@@ -222,7 +226,7 @@ export default function Reportar(props: any) {
       }
     } catch (error) {
       console.log(error);
-    }
+    }*/
   };
   const existeEvidencia = async () => {
     if (listaImagenes.length > 0) {
@@ -342,8 +346,6 @@ export default function Reportar(props: any) {
     <SafeAreaView style={{ flex: 1, flexDirection: "row" }} >
       <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
       <ImageBackground source={FONDO} style={{ flex: 1 }} >
-        {
-          !camaraActiva ?
             <View style={{ flex: 1 }} >
               <ScrollView style={{ flexGrow: 1 }} >
                 <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
@@ -390,7 +392,6 @@ export default function Reportar(props: any) {
                     value={formik.values.Descripcion}
                   ></TextInput>
                   <View>
-                    {/* INDEV: mostramos un boton para las evidencias */}
                     <View style={{ flexDirection: "row", alignSelf: "center", marginTop:10 }}>
                       <TouchableOpacity onPress={() => { eliminarImagen(1) }} style={{ height: 27, width: 27 }} disabled={!(EvidenciaUno != "")} ><Icon name="close" tvParallaxProperties style={{ borderWidth: 1, position: "relative", borderRadius: 15, backgroundColor: "white" }} color={SuinpacRed}></Icon></TouchableOpacity>
                       <TouchableOpacity style={{ marginLeft: -27, zIndex: -1, marginRight: 20, borderColor: "white" }} onPress={() => { mostrarGaleria(1, EvidenciaUno) }}>
@@ -427,17 +428,6 @@ export default function Reportar(props: any) {
                 <Text style={{ color: "white", textAlign: "center", padding: 15 }}> Reportar </Text>
               </TouchableOpacity>
             </View>
-            :
-            <View style={{ flex: 1 }} >
-              <Camara
-                Activa={camaraActiva}
-                onActiveCamera={() => { setCamaraActiva(false) }}
-                flashOn={flashActivo}
-                onChangeFlash={() => { setFlashActivo(!flashActivo) }}
-
-              />
-            </View>
-        }
         <Message
           color={azulColor}
           buttonText={"Aceptar"}

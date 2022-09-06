@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-import { Vibration } from 'react-native';
+import { Platform, Vibration } from 'react-native';
 import { StorageBaches } from '../pages/controller/storage-controllerBaches'; 
 import { GuardarReporteRosaC4, ActualizarCoordenadas } from '../pages/controller/api-controller';
 import { CLIENTE } from '../utilities/Variables';
@@ -32,6 +32,7 @@ export async function IniciarTarea(){
     //FIXME: agregar validacion de segundo plano para el geocode
     TaskManager.defineTask(TASK_LOCATION, async ({ data,error,executionInfo })=>{
         if( error ){
+            if(Platform.OS == "android")
             Vibration.vibrate(500);
             return;
         }
@@ -77,6 +78,7 @@ export function IniciarServicio(){
         deferredUpdatesInterval:5000,
         //deferredUpdatesDistance:2
     }).then(()=>{
+        if(Platform.OS == "android")
         Vibration.vibrate(TIME);
     }).catch((error)=>{
         console.log("Error de incio");

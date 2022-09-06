@@ -42,11 +42,12 @@ export default function Log(props: any) {
         Curp: Yup.string().min(18).required('Requerido'),
         Password: Yup.string().min(8).required('Requerido')
     });
+    //FIXME: verificar los permisos en app.json para ios
     useEffect(
         () => {
             (async () => {
                 //NOTE:  Preguntamos por los permisos de la app
-                let { granted } = await Location.requestForegroundPermissionsAsync();
+                /*let { granted } = await Location.requestForegroundPermissionsAsync();
                 //NOTE: Pedimos permisos de uso en el fondo
                 if (granted) {
                     let { status } = await Location.requestBackgroundPermissionsAsync();
@@ -62,29 +63,23 @@ export default function Log(props: any) {
                     console.log(error);
                 });
                 //NOTE: pedimos permisos de la camara
-                let { status } = await Camera.requestCameraPermissionsAsync();
-                verificandoSession();
+                let { status } = await Camera.requestCameraPermissionsAsync();*/
+                //Antes de todo esto se revisa si acepto los terminos y condiciones
+                console.log("Obteniendo session");
+                if (await storage.verificarDatosCiudadano()) {
+                    setCargando(false);
+                    props.navigation.dispatch(
+                        CommonActions.reset({
+                            index: 1,
+                            routes: [{ name: 'Menu' }]
+                        })
+                    );
+                } else {
+                    console.log("session no valida");
+                    setCargando(false);
+                }
             })();
-        }, [])
-    const verificandoSession = async () => {
-        //Antes de todo esto se revisa si acepto los terminos y condiciones
-        let acepto = await storage.getCondicionesPrivacidad();
-        if ((acepto == null) || (!acepto)) {            
-            setMostrarPrivacidad(true);
-        } else {
-            if (await storage.verificarDatosCiudadano()) {
-                setCargando(false);
-                props.navigation.dispatch(
-                    CommonActions.reset({
-                        index: 1,
-                        routes: [{ name: 'Menu' }]
-                    })
-                );
-            } else {
-                setCargando(false);
-            }
-        }
-    }
+        }, []);
     const RegistrarUsuario = () => {
         //NOTE: nos vamos al formaulario de registro
         props.navigation.navigate("Personales");
