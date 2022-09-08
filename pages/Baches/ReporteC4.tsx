@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, TextInput, TouchableOpacity, View, SafeAreaView, Linking, ActivityIndicator, StatusBar, Platform, ImageBackground,Image } from "react-native";
+import { 
+  ScrollView, 
+  TextInput, 
+  TouchableOpacity, 
+  View, 
+  SafeAreaView, 
+  Linking, 
+  ActivityIndicator, 
+  StatusBar, 
+  Platform, 
+  ImageBackground,
+  Image,
+  KeyboardAvoidingView
+} from "react-native";
 import { Icon, Text } from "react-native-elements";
 import MapView from "react-native-maps";
 import * as Location from 'expo-location';
@@ -11,10 +24,11 @@ import { CAMERA, ERROR, OK, PREVIEW } from '../../Styles/Iconos';
 import Loading from '../components/modal-loading';
 import Message from '../components/modal-message';
 import { BlueColor, DarkPrimaryColor } from "../../Styles/BachesColor";
-import { iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
+import { azulColor, iconColorBlue, SuinpacRed, torchButton } from "../../Styles/Color";
 import ImageView from "react-native-image-viewing";
 import { GuardarReporteC4 } from "../controller/api-controller";
 import { CLIENTE,AVATAR,FONDO } from '../../utilities/Variables';
+import * as ImagePicker from 'expo-image-picker';
 import Style from '../../Styles/styles';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 
@@ -28,7 +42,6 @@ export default function ReporteC4(props: any) {
   //INDEV: parte para el arreglo de fotos
   const [arregloFotos, setArregloFotos] = useState([]);
   //NOTE:  mmanejador de la camara
-  const [camaraActiva, setCamaraActiva] = useState(false);
   const [cameraPermissions, setCameraPermision] = useState(false);
   const [flashOn, setFlashOn] = useState(false);
   const [indiceGaleria, setIndiceGaleria] = useState(0);
@@ -41,27 +54,29 @@ export default function ReporteC4(props: any) {
   const [InterfazError, setInterfazError] = useState(String);
   //NOTE: modal de evidencias
   const [mostraModalEvidencia, setMostraModalEvidencia] = useState(Boolean);
-  const [cargando, setCargando] = useState(false);
+  const [cargando, setCargando] = useState(true);
+  //NOTE: verificacion de permisos
+  const [ permisoUbicacion, setPermisoUbicacion ] = useState(false);
+  const [ permisoCamara, setPermisoCarama ] = useState(true);
 
   let camera: Camera;
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setMensaje('Permission to access location was denied');
-        return;
+      //NOTE: veririficamos los permisos para obtener la localizacion de la app ( con soporte para ios )
+      let requestPerm = await Location.getForegroundPermissionsAsync();
+      setPermisoUbicacion(requestPerm.status == "granted");
+      if( requestPerm.status != "granted" ){
+        let { status } = await Location.requestForegroundPermissionsAsync(); //NOTE: en caso de que lleguen aqui son acceso
+        if( status == "denied"){  
+          lanzarMensaje("MAC - Z requiere el uso de su ubicación","Mensaje","info","material",azulColor);
+          setCargando(false);
+        }else{
+          setPermisoUbicacion(true);
+          obtenerCoordenadasActuales();
+        }
+      }else{
+        obtenerCoordenadasActuales();
       }
-      let location = await Location.getCurrentPositionAsync();
-      setLocacion(location);
-      let DireccionActual = JSON.parse(await ObtenerDireccionActual(location.coords));
-      let formatoDireccion = {
-        Estado: DireccionActual.region,
-        Ciudad: DireccionActual.city,
-        Colonia: DireccionActual.district,
-        Calle: DireccionActual.street,
-        CodigoPostal: DireccionActual.postalCode
-      };
-      setDireccion(formatoDireccion);
     })();
   }, []);
   useEffect(() => {
@@ -70,153 +85,52 @@ export default function ReporteC4(props: any) {
     });
 
   }, [Locacion]);
-  //INDEV: parte de la camara
-  const solicitarPermisosCamara = async () => {
-    //NOTE: pedir Persmisos antes de lanzar la camara
-    try {
-      let { status } = await Camera.requestCameraPermissionsAsync();
-      if (status === "granted") {
-        //NOTE: verifiamos el tamanio de las fotos
-        await __takePicture();
-      } else {
-        //NOTE: lanzamos un un mensaje de permisos 
-        setIconoMensaje(CAMERA[0]);
-        setIconoFuente(CAMERA[1]);
-        setMensaje("La aplicación necesita permisos para acceder a la cámara");
-        setTipoMensaje("Mensaje");
-        setMonstrarMensaje(true);
-        setCamaraActiva(false);
-      }
-    } catch (error) {
-      setCamaraActiva(false);
+  const obtenerCoordenadasActuales = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      setMensaje('Permission to access location was denied');
+      return;
     }
-  };
-  const __takePicture = async () => {
-    if (arregloFotos.length <= 2) {
-      if (cameraPermissions) {
-        if (!camera) {
-          return;
-        }
-        const photo = await camera.takePictureAsync({
-          base64: true,
-          quality: 0.4,
-        });
-        //setImagenSeleccionada(photo.uri);
-        setArregloFotos((arregloFotos) => [...arregloFotos, photo]);
-        setCamaraActiva(false);
-        let coordenadas = await CordenadasActualesNumerico();
-        Locacion(coordenadas);
-        //NOTE: verificamos los datos de localizacion
-        let DireccionActual = JSON.parse(
-          await ObtenerDireccionActual(coordenadas)
-        );
-        let formatoDireccion = {
-          Estado: DireccionActual.region,
-          Ciudad: DireccionActual.city,
-          Colonia: DireccionActual.district,
-          Calle: DireccionActual.street,
-          CodigoPostal: DireccionActual.postalCode
-        };
-        setDireccion(formatoDireccion);
-      } else {
-        let { status } = await Camera.requestCameraPermissionsAsync();
-        setCameraPermision(status === "granted");
+    let location = await Location.getCurrentPositionAsync();
+    setLocacion(location);
+    let DireccionActual = JSON.parse(await ObtenerDireccionActual(location.coords));
+    let formatoDireccion = {
+      Estado: DireccionActual.region,
+      Ciudad: DireccionActual.city,
+      Colonia: DireccionActual.district,
+      Calle: DireccionActual.street,
+      CodigoPostal: DireccionActual.postalCode
+    };
+    setDireccion(formatoDireccion);
+    setCargando(false);
+  }
+  //INDEV: metodos para la nuefa funcion de la camara
+  const obtenerPermisosCamara = async () => {
+    let cameraPermiso = await ImagePicker.getCameraPermissionsAsync();
+    setPermisoCarama(cameraPermiso.status == "granted");
+    if( cameraPermiso.status != "granted" ){
+      let { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if( status == "denied" ){
+        lanzarMensaje("MAC - Z requiere permisos para usar la cámara","Mensaje","info","material",azulColor);
+        setCargando(false);
+      }else{
+        setPermisoCarama(true);
+        capturarImagen();
       }
+    }else{
+      capturarImagen();
     }
-  };
-  const GenerarCamara = () => {
-    return <View style={{ flex: 1 }}>
-      <StatusBar animated={true} barStyle={"dark-content"} />
-      <Camera
-        ref={(r) => {
-          camera = r;
-        }}
-        style={{ flex: 1 }}
-        autoFocus={true}
-        flashMode={
-          flashOn
-            ? Camera.Constants.FlashMode.torch
-            : Camera.Constants.FlashMode.off
-        }
-      >
-        <View
-          style={{
-            flex: 20,
-            marginTop: 10,
-            flexDirection: "row-reverse",
-            marginLeft: 20,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              justifyContent: "center",
-              backgroundColor: SuinpacRed,
-              opacity: 0.5,
-              height: 40,
-              width: 40,
-              borderRadius: 50,
-            }}
-            onPress={() => {
-              setCamaraActiva(false);
-            }}
-          >
-            <Icon
-              tvParallaxProperties
-              name="cancel"
-              color={iconColorBlue}
-            ></Icon>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            flex: 2,
-            marginTop: 10,
-            flexDirection: "row",
-            marginLeft: 20,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              justifyContent: "center",
-              backgroundColor: torchButton,
-              opacity: 0.5,
-              height: 40,
-              width: 40,
-              borderRadius: 50,
-            }}
-            onPress={() => {
-              setFlashOn(!flashOn);
-            }}
-          >
-            <Icon
-              type="feather"
-              tvParallaxProperties
-              name={flashOn ? "zap" : "zap-off"}
-              color={iconColorBlue}
-            ></Icon>
-          </TouchableOpacity>
-        </View>
-        <View style={{ alignItems: "center", marginBottom: 10 }}>
-          <TouchableOpacity
-            style={{
-              justifyContent: "center",
-              backgroundColor: "white",
-              opacity: 0.5,
-              height: 60,
-              width: 60,
-              borderRadius: 50,
-            }}
-            onPress={solicitarPermisosCamara}
-          >
-            <Icon
-              tvParallaxProperties
-              name="camera"
-              color={SuinpacRed}
-            ></Icon>
-          </TouchableOpacity>
-        </View>
-      </Camera>
-    </View>
+  }
+  const capturarImagen = async () => {
+    let imageResult = await ImagePicker.launchCameraAsync({
+      presentationStyle:0,
+      base64:true,
+      quality:.5,
+      allowsEditing:false
+    });
+    if(!imageResult.cancelled){
+      setArregloFotos((arregloFotos) => [...arregloFotos, imageResult]);
+    }
   }
   const existeEvidencia = async () => {
     if (arregloFotos.length > 0) {
@@ -248,9 +162,7 @@ export default function ReporteC4(props: any) {
     //INDEV: reunimos los datos del reporte
     //NOTE: recorremos el reporte 
     let encodeFotos = new Array();
-    arregloFotos.map((imagen) => {
-      encodeFotos.push("data:image/jpeg;base64," + imagen.base64);
-    });
+    arregloFotos.map((imagen) => {encodeFotos.push("data:image/jpeg;base64," + imagen.base64);});
     let datosReposte = {
       'Cliente': CLIENTE,
       'Nombre': Nombre,
@@ -262,6 +174,12 @@ export default function ReporteC4(props: any) {
     }
     await GuardarReporteC4(datosReposte).
       then((MensajeGuardado) => {
+        
+        if (!permisoUbicacion)
+          console.log( "Permiso de ubicacion" );
+        if(!permisoCamara)
+          console.log( "Permiso de camara" );
+
         lanzarMensaje(MensajeGuardado, "Mensaje Exitoso", OK[0], OK[1]);
         limpiarPantalla();
       }).
@@ -318,9 +236,11 @@ export default function ReporteC4(props: any) {
     <SafeAreaView style={{ flex: 1 }} >
       <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
       <ImageBackground source={ FONDO } style={{ flex: 1, padding:5 }} >
-        {
-          camaraActiva ? GenerarCamara() :
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }} >
+        <KeyboardAvoidingView 
+          behavior = {Platform.OS == "ios" ? "height" : "height"}
+          style = {{ flex:1 }}
+          >
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }} >
               <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
                 <Image 
                   source = {AVATAR} 
@@ -367,8 +287,8 @@ export default function ReporteC4(props: any) {
                   {/* INDEV: mostramos un boton para las evidencias */}
                   <Text style={{ marginBottom: 10, marginTop: 10, marginLeft: -5, marginRight: 15, color: "black", fontWeight: "bold", justifyContent: "center", alignItems: "center" }}>Foto Evidencia (Opcional)</Text>
                   <View style={{ flex: 1, flexDirection: "row" }} >
-                    <TouchableOpacity style={[InterfazError.includes('G,') ? { borderColor: "red", borderWidth: 1 } : { borderColor: "black", borderWidth: 0 }, { flex: 4, backgroundColor: "#104971", borderRadius: 5, padding: 10, marginBottom: 10 }]} onPress={() => { setCamaraActiva(true) }}>
-                      <Text style={{ color: "white", textAlign: "center" }}> Seleccionar Imagenes </Text>
+                    <TouchableOpacity style={[InterfazError.includes('G,') ? { borderColor: "red", borderWidth: 1 } : { borderColor: "black", borderWidth: 0 }, { flex: 4, backgroundColor: "#104971", borderRadius: 5, padding: 10, marginBottom: 10 }]} onPress = { obtenerPermisosCamara }>
+                      <Text style={{ color: "white", textAlign: "center" }}> Capturar Evidencia  </Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ flex: 1, borderRadius: 5, padding: 10, marginBottom: 10, marginLeft: 20, borderWidth: 1, borderColor: BlueColor }} onPress={existeEvidencia}>
                       <Icon name={PREVIEW[0]} tvParallaxProperties color={BlueColor} type={PREVIEW[1]}></Icon>
@@ -410,8 +330,8 @@ export default function ReporteC4(props: any) {
                   <Text style={{ color: "white", textAlign: "center" }}> Enviar </Text>
                 </TouchableOpacity>
               </View>
-            </ScrollView>
-        }
+          </ScrollView>
+        </KeyboardAvoidingView>
       </ImageBackground>
       <Message
         transparent={true}
@@ -419,12 +339,16 @@ export default function ReporteC4(props: any) {
         loadinColor={BlueColor}
         onConfirmarLoad={() => {
           setMonstrarMensaje(false);
-          if (mensaje.includes("La aplicación necesita permisos para acceder a la cámara"))
+          if (!permisoUbicacion)
+            Linking.openSettings();
+          if(!permisoCamara)
             Linking.openSettings();
         }}
         onCancelLoad={() => {
           setMonstrarMensaje(false);
-          if (mensaje.includes("La aplicación necesita permisos para acceder a la cámara"))
+          if (!permisoUbicacion)
+            Linking.openSettings();
+          if(!permisoCamara)
             Linking.openSettings();
         }}
         icon={iconoMensaje}

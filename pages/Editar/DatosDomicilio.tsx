@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, ViewBase, StatusBar, Platform } from 'react-native';
-import { Avatar, Icon } from 'react-native-elements';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Platform } from 'react-native';
 import Styles from '../../Styles/styles';
 import { Formik, useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -10,6 +9,8 @@ import Message from '../components/modal-message';
 import Loading from '../components/modal-loading';
 import { azulColor, successColor } from "../../Styles/Color";
 import { OK, DESCONOCIDO, ERROR } from '../../Styles/Iconos';
+import { AVATAR } from "../../utilities/Variables";
+import { Image } from "react-native-elements";
 
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function EditarDomicilio(props: any) {
@@ -98,14 +99,11 @@ export default function EditarDomicilio(props: any) {
             <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
-                    <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                        <Avatar
-                            avatarStyle={{}}
-                            rounded
-                            imageProps={{ resizeMode: "contain" }}
-                            size="xlarge"
-                            containerStyle={{ height: 120, width: 220 }}
-                            source={require("../../assets/banner.png")}
+                <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
+                    <Image 
+                        source = {AVATAR} 
+                        resizeMode = { "stretch" }  
+                        style = {{ height:80,width:220 }}
                         />
                     </View>
                     <Formik

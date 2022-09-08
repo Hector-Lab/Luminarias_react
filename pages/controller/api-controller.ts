@@ -33,9 +33,7 @@ const ErrorDatosContactos = new Error("¡Error al obtener los contatos!\nFavor d
 const ErrorActualizatContactos = new Error("¡Error al actualizar contactos!\nFavor de intentar más tarde");
 const ErrorActualizarPersonales = new Error("¡Error al actualizar personales!\nFavor de intentar más tarde");
 const ErrorActualizarCiudadano = new Error("¡Error al actualizar ciudadano!\nFavor de intentar más tarde")
-
-
-
+let abort = new AbortController();
 //INDEV: Nuevas funciones para la aplicacion de los baches
 export async function CatalogoSolicitud(){
     try{
@@ -74,7 +72,7 @@ export async function ObtenerMunicipios(){
 }
 export async function EnviarReportes( reporte:any ){
     try{
-    let data = {
+        let data = {
             Tema: reporte.Tema,
             Descripcion: reporte.Descripcion,
             gps: reporte.gps,
@@ -84,9 +82,7 @@ export async function EnviarReportes( reporte:any ){
             Cliente: CLIENTE,
             Evidencia: reporte.Evidencia,
         }; 
-        //console.log(data);
-        //return;
-        let rawData = await service.insertarReporte(data);
+        let rawData = await service.insertarReporte(data,abort);
         let jsonData = await rawData.json();
         console.log(jsonData);
         if(jsonData.code == 200){
@@ -224,6 +220,7 @@ export async function ActualizarCoordenadas( datos:any  ){
         }
         let result = await service.ActualizarPocision(Reporte);
         let jsonResult = await result.json();
+        console.log(jsonResult);
         return jsonResult.Estado;
     }catch( error ){
         console.log(error.message);
@@ -449,6 +446,9 @@ export async function ActualiarRegistroCiudadano( Contactos ){
         }catch( error ){
             throw verificarErrores(error);
         }
+}
+export async function  CancelarPeticion() {
+    abort.abort();
 }
 //NOTE: metodo interno
 function verificarErrores(error:Error) {

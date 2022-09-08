@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef, Component } from "react";
 import { ScrollView, View, SafeAreaView, ImageBackground,Text, FlatList, StatusBar, Platform, TouchableOpacity, ViewPropTypes } from "react-native";
 import Loading  from '../components/modal-loading';
-import { Avatar } from 'react-native-elements';
+import { Avatar, Image } from 'react-native-elements';
 import { azulColor } from "../../Styles/Color";
 import { ObtenerMisReportes } from '../controller/api-controller';
 import ItemReporte  from '../components/item-reportes';
 import ReporteDetalle from '../components/modal-detalles-reporte';
 import Message from  '../components/modal-message';
 import { DESCONOCIDO,ALERTMENU } from '../../Styles/Iconos';
+import { AVATAR } from "../../utilities/Variables";
  
 const colorEstado = {"ios":"dark-content","android":"light-content"};
 export default function HistorialReportes(props: any) {
@@ -68,14 +69,12 @@ export default function HistorialReportes(props: any) {
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <View style={{ flex: 2 }} >
                     <View style={{ flex: 2, borderRadius: 1, borderColor: "black", justifyContent: "center" }} >
-                        <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                            <Avatar
-                                avatarStyle={{}}
-                                rounded
-                                imageProps={{ resizeMode: "contain" }}
-                                size="xlarge"
-                                containerStyle={{ height: 120, width: 220 }}
-                                source={require("../../assets/banner.png")} />
+                    <View style={{ justifyContent: "center", alignItems: "center", padding:20 }} >
+                            <Image 
+                                source = {AVATAR} 
+                                resizeMode = { "stretch" }  
+                                style = {{ height:80,width:220 }}
+                            />
                         </View>
                     </View>
                 </View>

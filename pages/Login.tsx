@@ -7,9 +7,10 @@ import {
         ImageBackground, 
         StatusBar, 
         Platform,
-        Image
+        Image,
+        TouchableWithoutFeedback,
+        Keyboard,
     } from 'react-native';
-import { Avatar } from 'react-native-elements';
 import { azulColor, SuinpacRed } from "../Styles/Color";
 import Styles from '../Styles/styles';
 import { StorageBaches } from './controller/storage-controllerBaches';
@@ -22,11 +23,10 @@ import Message from './components/modal-message';
 import { USER_COG, WIFI_OFF, DESCONOCIDO, APPSETTINGS } from '../Styles/Iconos';
 import * as Location from 'expo-location';
 import Privacidad from './components/modal-privacidad';
-import { Camera } from 'expo-camera';
 import { FONDO, AVATAR } from '../utilities/Variables';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Log(props: any) {
-    const [cargando, setCargando] = useState(false);
+    const [cargando, setCargando] = useState(true);
     const [mensaje, setMensaje] = useState("");
     const [icono, setIcono] = useState(USER_COG[0]);
     const [fuenteIcono, setFuenteIcono] = useState(USER_COG[1]);
@@ -40,32 +40,35 @@ export default function Log(props: any) {
     }
     let validacion = Yup.object().shape({
         Curp: Yup.string().min(18).required('Requerido'),
-        Password: Yup.string().min(8).required('Requerido')
+        Password: Yup.string().min(4).required('Requerido')
     });
     //FIXME: verificar los permisos en app.json para ios
     useEffect(
         () => {
             (async () => {
-                //NOTE:  Preguntamos por los permisos de la app
-                /*let { granted } = await Location.requestForegroundPermissionsAsync();
-                //NOTE: Pedimos permisos de uso en el fondo
-                if (granted) {
-                    let { status } = await Location.requestBackgroundPermissionsAsync();
-                    if (status == "granted") {
-                        //NOTE: intentamos encender la localizacion del dispositivo
+                //NOTE: Codigo que deveria funcionar con ios y android
+                let estadoGF = await Location.getForegroundPermissionsAsync();
+                //NOTE: VErificamos que el de arriba tenga permisos, si no lo solicitamos
+                if( estadoGF.status != "granted" ){
+                    let { granted } =  await Location.requestForegroundPermissionsAsync();
+                    setCargando(false);
+                }
+                if(Platform.OS == "android"){
+                    //Solicitamos el permisos de rastreo para android
+                    let estadoGB = await Location.getBackgroundPermissionsAsync();
+                    if(estadoGB.status != "granted"){
+                        setCargando(false);
+                        let resultPB = await Location.requestBackgroundPermissionsAsync();
+                        await Location.hasServicesEnabledAsync().then(async (status) => {
+                            if (!status) {
+                                await Location.enableNetworkProviderAsync();
+                            }
+                        }).catch((error) => {
+                            console.log(error);
+                        });
                     }
                 }
-                await Location.hasServicesEnabledAsync().then(async (status) => {
-                    if (!status) {
-                        await Location.enableNetworkProviderAsync();
-                    }
-                }).catch((error) => {
-                    console.log(error);
-                });
-                //NOTE: pedimos permisos de la camara
-                let { status } = await Camera.requestCameraPermissionsAsync();*/
                 //Antes de todo esto se revisa si acepto los terminos y condiciones
-                console.log("Obteniendo session");
                 if (await storage.verificarDatosCiudadano()) {
                     setCargando(false);
                     props.navigation.dispatch(
@@ -131,8 +134,9 @@ export default function Log(props: any) {
                     validationSchema={validacion}
                     onSubmit={datos => iniciarSession(datos)}
                 >
-                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => {
-                        return <View style={{ flex: 1 }} >
+                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => { 
+                        return <TouchableWithoutFeedback style = {{flex:1}} onPress = { Keyboard.dismiss } accessible = { false } >
+                        <View style={{ flex: 1 }} >
                             <View style={{ flex: 2, padding:20 }} >
                                 <View style={{ flex: 2, borderColor: "black", justifyContent: "center" }} >
                                     <View style={{ justifyContent: "center", alignItems: "center" }}  >
@@ -157,14 +161,12 @@ export default function Log(props: any) {
                                 <Text style={Styles.TemaLabalCampo} >Contraseña</Text>
                                 <TextInput
                                     textContentType="password"
-                                    keyboardAppearance="dark"
                                     style={(errors.Password && touched.Password) ? Styles.TemaCampoError : Styles.TemaCampo}
                                     secureTextEntry={true}
                                     placeholder="*********"
                                     onChangeText={handleChange('Password')}
                                     value={values.Password}
                                 ></TextInput>
-
                                 <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 20 }]} onPress={handleSubmit} >
                                     <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Ingresar </Text>
                                 </TouchableOpacity>
@@ -172,9 +174,10 @@ export default function Log(props: any) {
                             </View>
                             <View style={{ flex: 3 }} ></View>
                             <View style={{ flex: 1, borderColor: "red", justifyContent: "center" }}>
-                                <Text style={{ textAlign: "center", color: SuinpacRed, fontWeight: "bold" }}> SUINPAC </Text>
+                                <Text style={{ textAlign: "center", color: SuinpacRed, fontWeight: "bold" }}> SUINPAC - GRP </Text>
                             </View>
                         </View>
+                        </TouchableWithoutFeedback>
                     }}
                 </Formik>
                 <Loading

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Platform } from 'react-native';
 import { Formik, useFormik } from 'formik';
-import { Avatar, Divider } from 'react-native-elements';
+import { Avatar, Divider, Image } from 'react-native-elements';
 import * as Yup from 'yup';
 import { StorageBaches } from '../controller/storage-controllerBaches';
 import { ObtenerDatosContacto, ActualizarDatosContactos } from '../controller/api-controller';
@@ -10,6 +10,7 @@ import Loading from '../components/modal-loading';
 import { azulColor, successColor } from "../../Styles/Color";
 import Message from '../components/modal-message';
 import { DESCONOCIDO, ERROR, OK } from '../../Styles/Iconos';
+import { AVATAR } from "../../utilities/Variables";
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 let storage = new StorageBaches();
 let valores = {
@@ -114,14 +115,11 @@ export default function EditarContacto(props: any) {
             <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
-                    <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                        <Avatar
-                            avatarStyle={{}}
-                            rounded
-                            imageProps={{ resizeMode: "contain" }}
-                            size="xlarge"
-                            containerStyle={{ height: 120, width: 220 }}
-                            source={require("../../assets/banner.png")}
+                    <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
+                        <Image 
+                            source = {AVATAR} 
+                            resizeMode = { "stretch" }  
+                            style = {{ height:80,width:220 }}
                         />
                     </View>
                     <Formik

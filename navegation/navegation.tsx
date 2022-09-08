@@ -84,7 +84,7 @@ function Nav() {
                         {props => <Perfil {...props} ></Perfil>}
                     </Stack.Screen>
                     <Stack.Screen name='EditarPersonales' options={({ navigation, route }) => ({
-                            headerTitle: "Datos Personales",
+                            headerTitle: "Datos personales",
                             headerTintColor: "rgba(0,0,0,1 )",
                             headerLeft: () => {
                                 return (
@@ -120,7 +120,7 @@ function Nav() {
                         {props => < EditarContacto {...props} ></ EditarContacto>}
                     </Stack.Screen>
                     <Stack.Screen name='AtencionReporte' options={({ navigation, route }) => ({
-                            headerTitle: "Reportar",
+                            headerTitle: "Atención Ciudadana",
                             headerTintColor: "rgba(0,0,0,1 )",
                             headerLeft: () => {
                                 return (
@@ -159,7 +159,7 @@ function Nav() {
                     </Stack.Screen>
                     <Stack.Screen name='Terceros'
                         options={({ navigation, route }) => ({
-                            headerTitle: "Reporte anonimo",
+                            headerTitle: "Reporte Anónimo",
                             headerTintColor: "rgba(0,0,0,1 )",
                             headerLeft: () => {
                                 return (

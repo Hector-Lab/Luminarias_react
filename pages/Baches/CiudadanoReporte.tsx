@@ -8,14 +8,14 @@ import {
   Linking,
   StatusBar,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from "react-native";
 import { useFormik } from 'formik';
 import Style from '../../Styles/styles';
 import * as Yup from 'yup';
 import { CordenadasActualesNumerico, ObtenerDireccionActual } from '../../utilities/utilities';
-import { Camera } from "expo-camera";
-import { CatalogoSolicitud, EnviarReportes } from "../controller/api-controller";
+import { CatalogoSolicitud, EnviarReportes,CancelarPeticion } from "../controller/api-controller";
 import { StorageBaches } from "../controller/storage-controllerBaches";
 import Loading from "../components/modal-loading";
 import Message from "../components/modal-message";
@@ -26,11 +26,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView } from "react-native-gesture-handler";
 import { Icon, Image  } from "react-native-elements";
 import { azulColor, SuinpacRed } from "../../Styles/Color";
-import Camara from '../components/Camara';
 import { obtenerBase64 } from '../../utilities/utilities';
 import ImageView from "react-native-image-viewing";
 import { FONDO,AVATAR } from '../../utilities/Variables';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 let validacion = Yup.object().shape({
   Referencia: Yup.string().required(),
@@ -39,7 +39,8 @@ let validacion = Yup.object().shape({
 
 export default function Reportar(props: any) {
   const storage = new StorageBaches();
-  const [cameraPermissions, setCameraPermision] = useState(false);
+  const [ cameraPermissions, setCameraPermision ] = useState(true);
+  const [ ubicacionPermiso, setUbicacionPermiso ] = useState(true);
   //NOTE: message title
   const [showMessage, setSHowMessage] = useState(false);
   const [mensaje, setMensaje] = useState(String);
@@ -53,10 +54,7 @@ export default function Reportar(props: any) {
   const [seleccionSolicitud, setSeleccionSolicitud] = useState(String);
   const [errorPicker, setErrorPicker] = useState(false);
   //NOTE: Controladores de la camara
-  const [camaraActiva, setCamaraActiva] = useState(false);
-  const [flashActivo, setFlashActivo] = useState(false);
   const [listaImagenes, setListaImagenes] = useState([]);
-  const [listaImagenesCodificadas, setListaImagenesCodificadas] = useState([]);
   const [direccion, setDireccion] = useState(String);
   const [coordenadas, setCoordenadas] = useState(String);
   //NOTE: controlador de la galerai
@@ -80,6 +78,8 @@ export default function Reportar(props: any) {
     onSubmit: (values) => {
       if (validarEspeciales()) {
         if(seleccionSolicitud == ""){
+          setCameraPermision(true);
+          setUbicacionPermiso(true);
           setMensaje("Favor de seleccionar el tema relacionado con el problema descrito");
           setIcono(ERROR[0]);
           setFuenteIcono(ERROR[1]);
@@ -99,24 +99,48 @@ export default function Reportar(props: any) {
     validationSchema: validacion
   });
   useEffect(() => {
+    (async () => {
+      //NOTE: veririficamos los permisos para obtener la localizacion de la app ( con soporte para ios )
+      let requestPerm = await Location.getForegroundPermissionsAsync();
+      setUbicacionPermiso(requestPerm.status == "granted");
+      if( requestPerm.status != "granted" ){
+        let { status } = await Location.requestForegroundPermissionsAsync(); //NOTE: en caso de que lleguen aqui son acceso
+        if( status == "denied"){  
+          setUbicacionPermiso(false);
+          lanzarMensaje("MAC - Z requiere el uso de su ubicación","Mensaje","info");
+          setCargando(false);
+        }else{
+          setUbicacionPermiso(true);
+        }
+      }
+    })();
+  }, []);
+  useEffect(() => {
     obtenerTemas();
     limpiarPantalla();
   }, []);
-  useEffect(() => {
-    //NOTE: obtenemos los datos que genero el componente camara
-    if (!camaraActiva) {
-      setCargando(true);
-      obtenerDatosCamara();
-    }
-  }, [camaraActiva]);
-  useEffect(() => {
-    //NOTE: Verificamos los permisos de la cara
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setCameraPermision(status === "granted");
-    })();
-  });
+  const obtenerPermisosCamara = async () => {
+    try{
+      let getCamera = await ImagePicker.getCameraPermissionsAsync();
+      setUbicacionPermiso(getCamera.status != "granted");
+      if(getCamera.status != "granted"){
+        let requestCamera = await ImagePicker.requestCameraPermissionsAsync();
+        if( requestCamera.status == "denied" ){
+          setCameraPermision(false);
+          return false;
+        }else{
+          return true;
+        }
+      }else{
+        return true;
+      }
 
+    }catch(error){
+      console.log(error.message);
+      lanzarMensaje("MAC - Z requiere permisos para usar la cámara","info","material");
+      return false;
+    }
+  }
   const obtenerTemas = async () => {
     //NOTE: Obtenemos los dato del storage si no los descargamos de internet
     if (await storage.CatalogoTemaActualizado()) {
@@ -150,6 +174,14 @@ export default function Reportar(props: any) {
   }
   const GuardarReporte = async (Reporte: { Referencia: string, Descripcion: string }) => {
     //NOTE: aqui procesamos las imagenes
+    setTimeout(() => {
+      setUbicacionPermiso(true);
+      setCameraPermision(true);
+      console.log("Cancelando peticion");
+      setCargando(false);
+      CancelarPeticion();
+      lanzarMensaje("Favor de revisar la conexión a internet\nError de conexión",WIFI_OFF[0],WIFI_OFF[1]);
+    },15000);
     let coordenadasActuales = null;
     let formatoDireccion = "";
     if ((coordenadas == "" || coordenadas == null) && direccion == "" || direccion == null) {
@@ -165,7 +197,7 @@ export default function Reportar(props: any) {
         listaCodificada.push(evidenciaUnoCodificada);
       }
       if( EvidenciaDos != "" ){
-        listaCodificada.push(setEvidenciaDosCodificada);
+        listaCodificada.push(evidenciaDosCodificada);
       }
       if( EvidenciaTres != "" ){
         listaCodificada.push(evidenciaTresCodificada);
@@ -178,9 +210,10 @@ export default function Reportar(props: any) {
         gps: (coordenadas == "" || coordenadas == null) ? JSON.stringify(coordenadasActuales) : coordenadas,
         direccion: (direccion == "" || direccion == null ? formatoDireccion : direccion),
         Referencia: Reporte.Referencia,
-        Evidencia: listaCodificada.length > 0 ? listaCodificada : null,
+        Evidencia: (listaCodificada.length > 0) ? listaCodificada : null,
       };
-      console.log(data);
+      setUbicacionPermiso(true);
+      setCameraPermision(true);
       await EnviarReportes(data)
         .then((result) => {
           lanzarMensaje("¡Reporte Enviado!", OK[0], OK[1]);
@@ -203,30 +236,29 @@ export default function Reportar(props: any) {
       setErrorPicker(true);
     }
   };
-  const solicitarPermisosCamara = async () => {
+  const solicitarPermisosCamara = async ( index:number ) => {
     //NOTE: pedir Persmisos antes de lanzar la camara
-    let permisos = await ImagePicker.requestCameraPermissionsAsync();
-    let image = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing:false,allowsMultipleSelection:false,base64:true
+    let image = await ImagePicker.launchCameraAsync({
+      presentationStyle:0,
+      allowsEditing:false,
+      allowsMultipleSelection:false,
+      base64:true,
     });
-    /*try {
-      let { status } = await Camera.requestCameraPermissionsAsync();
-      if (status === "granted") {
-        setCameraPermision(true);
-        //NOTE: Activamos la camara
-        setCamaraActiva(true);
-      } else {
-        //NOTE: lanzamos un un mensaje de permisos 
-        setIcono(CAMERA[0]);
-        setFuenteIcono(CAMERA[1]);
-        setMensaje("La aplicación necesita permisos para acceder a la cámara");
-        setSHowMessage(true);
-        setCamaraActiva(false);
-        setCameraPermision(false);
+    
+    if( !image.cancelled ){
+      if(index == 1){
+        setEvidenciaUno(image.uri);
+        setEvidenciaUnoCodificada( "data:image/jpeg;base64," + image.base64);
+      }else if( index == 2 ) {
+        setEvidenciaDos(image.uri);
+        setEvidenciaDosCodificada( "data:image/jpeg;base64," + image.base64);
+
+      }else if( index == 3 ){
+        setEvidenciaTres( image.uri );
+        setEvidenciaTresCodificada( "data:image/jpeg;base64," + image.base64);
       }
-    } catch (error) {
-      console.log(error);
-    }*/
+      setListaImagenes((listaImagenes) => [...listaImagenes, image]);
+    }
   };
   const existeEvidencia = async () => {
     if (listaImagenes.length > 0) {
@@ -333,20 +365,31 @@ export default function Reportar(props: any) {
         break;
     }
   }
-  const mostrarGaleria = (index: number, stadoHook: any) => {
-    if (stadoHook != "") {
-      setMostrarGaleria( true );
-      setIndiceGaleria(listaImagenes.findIndex(((element) =>  element.uri == stadoHook )));
-    } else {
-      setIndiceCapturaImagen(index);
-      solicitarPermisosCamara();
+  const mostrarGaleria = async (index: number, stadoHook: any) => {
+    ///NOTE: verificamos permisos
+    if(! await obtenerPermisosCamara() ){
+      lanzarMensaje("MAC - Z requiere permisos para usar la cámara","info","material");
+    }else{
+      if (stadoHook != "") {
+        setMostrarGaleria( true );
+        setIndiceGaleria(listaImagenes.findIndex(((element) =>  element.uri == stadoHook )));
+      } else {
+        setIndiceCapturaImagen(index);
+        solicitarPermisosCamara(index);
+      }
     }
   }
   return (
     <SafeAreaView style={{ flex: 1, flexDirection: "row" }} >
       <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
+      
       <ImageBackground source={FONDO} style={{ flex: 1 }} >
             <View style={{ flex: 1 }} >
+              <KeyboardAvoidingView 
+                style = {{flex:1}}
+                behavior = { Platform.OS == "ios" ? "height" : "height" }
+
+                >
               <ScrollView style={{ flexGrow: 1 }} >
                 <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
                   <Image 
@@ -355,9 +398,10 @@ export default function Reportar(props: any) {
                     style = {{ height:80,width:220 }}
                   />
                 </View>
+                <Text style={[Style.TemaLabalCampo]} > Reportar {formik.isValid} </Text>
                 <DropDownPicker
                   language="ES"
-                  containerStyle={{ borderRadius: 10, padding: 20 }}
+                  containerStyle={{ borderRadius: 10, padding: 20, paddingTop:0 }}
                   style={{ borderColor: errorPicker ? "red" : "black" }}
                   items={catalogoSolicitud}
                   setOpen={setPikcerAbierto}
@@ -374,7 +418,7 @@ export default function Reportar(props: any) {
                   placeholder={"Seleccione Tema"}
                 />
                 <View>
-                  <Text style={Style.TemaLabalCampo} > Referencea {formik.isValid} </Text>
+                  <Text style={Style.TemaLabalCampo} > Referencia {formik.isValid} </Text>
                   <TextInput
                     style={(formik.errors.Referencia && formik.touched.Referencia) ? Style.TemaCampoError : Style.TemaCampo}
                     placeholder="Entre calles..."
@@ -392,7 +436,7 @@ export default function Reportar(props: any) {
                     value={formik.values.Descripcion}
                   ></TextInput>
                   <View>
-                    <View style={{ flexDirection: "row", alignSelf: "center", marginTop:10 }}>
+                    <View style={{ flexDirection: "row", alignSelf: "center", marginTop:40 }}>
                       <TouchableOpacity onPress={() => { eliminarImagen(1) }} style={{ height: 27, width: 27 }} disabled={!(EvidenciaUno != "")} ><Icon name="close" tvParallaxProperties style={{ borderWidth: 1, position: "relative", borderRadius: 15, backgroundColor: "white" }} color={SuinpacRed}></Icon></TouchableOpacity>
                       <TouchableOpacity style={{ marginLeft: -27, zIndex: -1, marginRight: 20, borderColor: "white" }} onPress={() => { mostrarGaleria(1, EvidenciaUno) }}>
                         <Image
@@ -417,16 +461,16 @@ export default function Reportar(props: any) {
                           source={(EvidenciaTres != "") ? { uri: EvidenciaTres } : require("../../assets/preview.jpeg")}
                           PlaceholderContent={<ActivityIndicator />}
                           style={{ height: 180, width: 90, borderRadius: 5, borderWidth: 1 }}
-                          resizeMode={(EvidenciaTres != "") ? "cover" : "contain"}
-                        />
+                          resizeMode={(EvidenciaTres != "") ? "cover" : "contain"} />
                       </TouchableOpacity>
                     </View>
                   </View>
                 </View>
+                <TouchableOpacity style={{ marginLeft: 20, marginRight: 20, backgroundColor: azulColor, borderRadius: 10, marginTop:50 }} onPress={formik.handleSubmit} >
+                  <Text style={{ color: "white", textAlign: "center", padding: 15 }}> Reportar </Text>
+                </TouchableOpacity>
               </ScrollView>
-              <TouchableOpacity style={{ marginLeft: 20, marginRight: 20, backgroundColor: azulColor, borderRadius: 10, marginBottom: 10 }} onPress={formik.handleSubmit} >
-                <Text style={{ color: "white", textAlign: "center", padding: 15 }}> Reportar </Text>
-              </TouchableOpacity>
+              </KeyboardAvoidingView>
             </View>
         <Message
           color={azulColor}
@@ -442,9 +486,13 @@ export default function Reportar(props: any) {
           {
             () => {
               setSHowMessage(false);
-              if (!cameraPermissions) {
-                console.log("Abriendo setting");
+              if ( !ubicacionPermiso ) {
                 Linking.openSettings();
+                console.log("Permisos de ubicacion");
+              }
+              if( !cameraPermissions ){
+                Linking.openSettings();
+                console.log("permisos de camara");
               }
             }
           }

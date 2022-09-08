@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
-import { Avatar } from 'react-native-elements';
+import { Avatar, Image } from 'react-native-elements';
 import Styles from '../../Styles/styles';
 import { Formik, useFormik, useFormikContext, validateYupSchema } from 'formik';
 import * as Yup from 'yup';
@@ -10,6 +10,7 @@ import { StorageBaches } from '../controller/storage-controllerBaches';
 import { actualiarDatosPersonales } from '../controller/api-controller';
 import Loading from "../components/modal-loading";
 import { DESCONOCIDO, ERROR, OK } from "../../Styles/Iconos";
+import { AVATAR } from "../../utilities/Variables";
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 
 export default function Personales(props: any) {
@@ -66,8 +67,8 @@ export default function Personales(props: any) {
     }
     let values = {}
     const ActualizarDatos = async (value: { Nombre: String, ApellidoP: String, ApellidoM: String, CURP: String, Email: String, Telefono: String, Password: String }) => {
-        setPassValido(!(value.Password != "" && value.Password.length < 8));
-        if (!(value.Password != "" && value.Password.length < 8)) {
+        setPassValido(!(value.Password != "" && value.Password.length < 4));
+        if (!(value.Password != "" && value.Password.length < 4)) {
             //NOTE: Enviamos los datos a la api para su actualizacion
             await actualiarDatosPersonales(value)
                 .then((result) => {
@@ -99,14 +100,11 @@ export default function Personales(props: any) {
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} >
                     <ScrollView style={{ flexGrow: 1 }} >
-                        <View style={{ justifyContent: "center", alignItems: "center" }}  >
-                            <Avatar
-                                avatarStyle={{}}
-                                rounded
-                                imageProps={{ resizeMode: "contain" }}
-                                size="xlarge"
-                                containerStyle={{ height: 120, width: 220 }}
-                                source={require("../../assets/banner.png")}
+                        <View style={{ justifyContent: "center", alignItems: "center", padding:20 }} >
+                            <Image 
+                                source = {AVATAR} 
+                                resizeMode = { "stretch" }  
+                                style = {{ height:80,width:220 }}
                             />
                         </View>
                         <Formik
@@ -155,7 +153,7 @@ export default function Personales(props: any) {
                                         placeholder="Ejemplo: Juan Perez"
                                         onChangeText={formik.handleChange("Telefono")}
                                         value={formik.values.Telefono} />
-                                    <Text style={Styles.TemaLabalCampo} >Contraseña {!(passValida && formik.touched.Password) ? <Text style={{ color: "red" }} > Minimo 8 caracteres </Text> : <></>} </Text>
+                                    <Text style={Styles.TemaLabalCampo} >Contraseña {!(passValida && formik.touched.Password) ? <Text style={{ color: "red" }} > { "Mínimo 4 caracteres" } </Text> : <></>} </Text>
                                     <TextInput
                                         style={(formik.errors.Password && formik.touched.Password) ? Styles.TemaCampoError : Styles.TemaCampo}
                                         placeholder="Contraseña"

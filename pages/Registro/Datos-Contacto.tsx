@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Image } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import Styles from '../../Styles/styles';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -28,7 +28,6 @@ let validacion = Yup.object().shape({
     UnoTelefono: Yup.string().required(),
     UnoDireccion: Yup.string().required(),
     UnoEmail: Yup.string().required(),
-
     DosNombre: Yup.string().required(),
     DosTelefono: Yup.string().required(),
     DosDireccion: Yup.string().required(),
@@ -81,115 +80,120 @@ export default function Perfil(props: any) {
         <SafeAreaView style={{ flex: 1 }} >
             <StatusBar animated={true} barStyle = {"dark-content"}/>
             <ImageBackground source={ FONDO } style={{ flex: 1 }} >
-                <ScrollView style={{ flexGrow: 1 }} >
-                    <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
-                        <Image 
-                            source = {AVATAR} 
-                            resizeMode = { "stretch" }  
-                            style = {{ height:80,width:220 }}
-                        />
-                    </View>
-                    <View style={{ flexDirection: "row", marginBottom: 10 }} >
-                        <Text style={{ textAlign: "left", flex: 1, marginLeft: 16, fontWeight: "bold" }} > Paso 3 de 3 </Text>
-                        <Text style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} > Contactos de Emergencia </Text>
-                    </View>
-                    <Formik
-                        initialValues={valores}
-                        onSubmit={valores => { finalizarRegistro( valores ); }}
-                        validationSchema={validacion}
-                    >
-                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => {
-                            //NOTE: Verificacion del primer bloque
-                            let errorBloqueUno = ((errors.UnoNombre && touched.UnoNombre) || (errors.UnoTelefono && touched.UnoTelefono) || (errors.UnoDireccion && touched.UnoDireccion) || (errors.UnoEmail && touched.UnoEmail));
-                            let errorBloqueDos = ((errors.DosNombre && touched.DosNombre) || (errors.DosTelefono && touched.DosTelefono) || (errors.DosDireccion && touched.DosDireccion) || (errors.DosEmail && touched.DosEmail));
-                            return (
-                                <View>
-                                    <Text style={{ color: "black", marginLeft: 20 }} > Primer Contacto {(errorBloqueUno ? <Text style={{ color: "red", fontWeight: "bold" }} > Campos no validos </Text> : <></>)}  </Text>
-                                    <View style={{ borderWidth: 1, borderRadius: 5, borderColor: "black", marginLeft: 20, marginRight: 20, borderStyle: "dashed" }} >
-                                        <Text style={Styles.TemaLabalCampo} >Nombre</Text>
-                                        <TextInput
-                                            keyboardType="default"
-                                            textContentType="name"
-                                            style={(errors.UnoNombre && touched.UnoNombre) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Juan Perez Perez"
-                                            onChangeText={handleChange('UnoNombre')}
-                                            value={values.UnoNombre} />
+                <KeyboardAvoidingView 
+                    behavior = {Platform.OS == "ios" ? "height" :"height"}
+                    style = {{ flex: 1 }}
+                    keyboardVerticalOffset = {( Platform.OS == "ios" ? 70 :1 )} >
+                    <ScrollView style={{ flexGrow: 1 }} >
+                        <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
+                            <Image 
+                                source = {AVATAR} 
+                                resizeMode = { "stretch" }  
+                                style = {{ height:80,width:220 }}
+                            />
+                        </View>
+                        <View style={{ flexDirection: "row", marginBottom: 10 }} >
+                            <Text style={{ textAlign: "left", flex: 1, marginLeft: 16, fontWeight: "bold" }} > Paso 3 de 3 </Text>
+                            <Text style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} > Contactos de Emergencia </Text>
+                        </View>
+                        <Formik
+                            initialValues={valores}
+                            onSubmit={valores => { finalizarRegistro( valores ); }}
+                            validationSchema={validacion}
+                        >
+                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => {
+                                //NOTE: Verificacion del primer bloque
+                                let errorBloqueUno = ((errors.UnoNombre && touched.UnoNombre) || (errors.UnoTelefono && touched.UnoTelefono) || (errors.UnoDireccion && touched.UnoDireccion) || (errors.UnoEmail && touched.UnoEmail));
+                                let errorBloqueDos = ((errors.DosNombre && touched.DosNombre) || (errors.DosTelefono && touched.DosTelefono) || (errors.DosDireccion && touched.DosDireccion) || (errors.DosEmail && touched.DosEmail));
+                                return (
+                                    <View>
+                                        <Text style={{ color: "black", marginLeft: 20 }} > Primer Contacto {(errorBloqueUno ? <Text style={{ color: "red", fontWeight: "bold" }} > Campos no validos </Text> : <></>)}  </Text>
+                                        <View style={{ borderWidth: 1, borderRadius: 5, borderColor: "black", marginLeft: 20, marginRight: 20, borderStyle: "dashed" }} >
+                                            <Text style={Styles.TemaLabalCampo} >Nombre</Text>
+                                            <TextInput
+                                                keyboardType="default"
+                                                textContentType="name"
+                                                style={(errors.UnoNombre && touched.UnoNombre) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                                placeholder="Ejemplo: Juan Perez Perez"
+                                                onChangeText={handleChange('UnoNombre')}
+                                                value={values.UnoNombre} />
 
-                                        <Text style={Styles.TemaLabalCampo} >Telefono</Text>
-                                        <TextInput
-                                            keyboardType="phone-pad"
-                                            textContentType="telephoneNumber"
-                                            style={(errors.UnoTelefono && touched.UnoTelefono) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Avenida Violetas"
-                                            onChangeText={handleChange('UnoTelefono')}
-                                            value={values.UnoTelefono} />
+                                            <Text style={Styles.TemaLabalCampo} >Telefono</Text>
+                                            <TextInput
+                                                keyboardType="phone-pad"
+                                                textContentType="telephoneNumber"
+                                                style={(errors.UnoTelefono && touched.UnoTelefono) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                                placeholder="Ejemplo: Avenida Violetas"
+                                                onChangeText={handleChange('UnoTelefono')}
+                                                value={values.UnoTelefono} />
 
-                                        <Text style={Styles.TemaLabalCampo} >Dirección</Text>
-                                        <TextInput
-                                            keyboardType="default"
-                                            textContentType="fullStreetAddress"
-                                            style={(errors.UnoDireccion && touched.UnoDireccion) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: 20"
-                                            onChangeText={handleChange('UnoDireccion')}
-                                            value={values.UnoDireccion} />
+                                            <Text style={Styles.TemaLabalCampo} >Dirección</Text>
+                                            <TextInput
+                                                keyboardType="default"
+                                                textContentType="fullStreetAddress"
+                                                style={(errors.UnoDireccion && touched.UnoDireccion) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                                placeholder="Ejemplo: 20"
+                                                onChangeText={handleChange('UnoDireccion')}
+                                                value={values.UnoDireccion} />
 
-                                        <Text style={Styles.TemaLabalCampo} >Correo Electronico</Text>
-                                        <TextInput
-                                            keyboardType="email-address"
-                                            textContentType="emailAddress"
-                                            style={(errors.UnoEmail && touched.UnoEmail) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: ccuatrotest@gmail.com"
-                                            onChangeText={handleChange('UnoEmail')}
-                                            value={values.UnoEmail} />
-                                    </View>
-                                    <Text style={{ color: "black", marginLeft: 20, marginTop: 20 }} > Segundo Contacto {errorBloqueDos ? <Text style={{ color: "red", fontWeight: "bold" }}> Campos no validos </Text> : <></>} </Text>
-                                    <View style={{ borderWidth: 1, borderRadius: 5, borderColor: "black", marginLeft: 20, marginRight: 20, borderStyle: "dashed" }} >
-                                        <Text style={Styles.TemaLabalCampo} >Nombre</Text>
-                                        <TextInput
-                                            keyboardType="default"
-                                            textContentType="name"
-                                            style={(errors.DosNombre && touched.DosNombre) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Juan Perez Perez"
-                                            onChangeText={handleChange('DosNombre')}
-                                            value={values.DosNombre} />
+                                            <Text style={Styles.TemaLabalCampo} >Correo Electronico</Text>
+                                            <TextInput
+                                                keyboardType="email-address"
+                                                textContentType="emailAddress"
+                                                style={(errors.UnoEmail && touched.UnoEmail) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                                placeholder="Ejemplo: ccuatrotest@gmail.com"
+                                                onChangeText={handleChange('UnoEmail')}
+                                                value={values.UnoEmail} />
+                                        </View>
+                                        <Text style={{ color: "black", marginLeft: 20, marginTop: 20 }} > Segundo Contacto {errorBloqueDos ? <Text style={{ color: "red", fontWeight: "bold" }}> Campos no validos </Text> : <></>} </Text>
+                                        <View style={{ borderWidth: 1, borderRadius: 5, borderColor: "black", marginLeft: 20, marginRight: 20, borderStyle: "dashed" }} >
+                                            <Text style={Styles.TemaLabalCampo} >Nombre</Text>
+                                            <TextInput
+                                                keyboardType="default"
+                                                textContentType="name"
+                                                style={(errors.DosNombre && touched.DosNombre) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                                placeholder="Ejemplo: Juan Perez Perez"
+                                                onChangeText={handleChange('DosNombre')}
+                                                value={values.DosNombre} />
 
-                                        <Text style={Styles.TemaLabalCampo} >Telefono</Text>
-                                        <TextInput
-                                            keyboardType="phone-pad"
-                                            textContentType="telephoneNumber"
-                                            style={(errors.DosTelefono && touched.DosTelefono) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: 55 12 34 56 78"
-                                            onChangeText={handleChange('DosTelefono')}
-                                            value={values.DosTelefono} />
+                                            <Text style={Styles.TemaLabalCampo} >Telefono</Text>
+                                            <TextInput
+                                                keyboardType="phone-pad"
+                                                textContentType="telephoneNumber"
+                                                style={(errors.DosTelefono && touched.DosTelefono) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                                placeholder="Ejemplo: 55 12 34 56 78"
+                                                onChangeText={handleChange('DosTelefono')}
+                                                value={values.DosTelefono} />
 
-                                        <Text style={Styles.TemaLabalCampo} >Direccion</Text>
-                                        <TextInput
-                                            keyboardType="default"
-                                            textContentType="fullStreetAddress"
-                                            style={(errors.DosDireccion && touched.DosDireccion) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: Olivos primero de marzo 20"
-                                            onChangeText={handleChange('DosDireccion')}
-                                            value={values.DosDireccion} />
+                                            <Text style={Styles.TemaLabalCampo} >Direccion</Text>
+                                            <TextInput
+                                                keyboardType="default"
+                                                textContentType="fullStreetAddress"
+                                                style={(errors.DosDireccion && touched.DosDireccion) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                                placeholder="Ejemplo: Olivos primero de marzo 20"
+                                                onChangeText={handleChange('DosDireccion')}
+                                                value={values.DosDireccion} />
 
-                                        <Text style={Styles.TemaLabalCampo} > Correo Electronico </Text>
-                                        <TextInput
-                                            keyboardType="email-address"
-                                            textContentType="emailAddress"
-                                            style={(errors.DosEmail && touched.DosEmail) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                            placeholder="Ejemplo: ccuatrotest@gmail.com"
-                                            onChangeText={handleChange('DosEmail')}
-                                            value={values.DosEmail} />
-                                    </View>
-                                    <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 20, marginBottom: 20 }]} onPress={handleSubmit}  >
-                                        <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Finalizar </Text>
-                                    </TouchableOpacity>
-                                </View>)
-                        }}
-                    </Formik>
-                </ScrollView>
+                                            <Text style={Styles.TemaLabalCampo} > Correo Electronico </Text>
+                                            <TextInput
+                                                keyboardType="email-address"
+                                                textContentType="emailAddress"
+                                                style={(errors.DosEmail && touched.DosEmail) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                                placeholder="Ejemplo: ccuatrotest@gmail.com"
+                                                onChangeText={handleChange('DosEmail')}
+                                                value={values.DosEmail} />
+                                        </View>
+                                        <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 20, marginBottom: 20 }]} onPress={handleSubmit}  >
+                                            <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Finalizar </Text>
+                                        </TouchableOpacity>
+                                    </View>)
+                            }}
+                        </Formik>
+                    </ScrollView>
+                </KeyboardAvoidingView>
                 <Loading
                     transparent={ true }
-                    loading={ false}
+                    loading={ cargando }
                     loadinColor={ azulColor }
                     onCancelLoad={ ()=>{} }
                     tittle={" Mensaje "}

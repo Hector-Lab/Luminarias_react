@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "C4",
-    "slug": "ccuatroios",
+    "name": "MAC - Z",
+    "slug": "suinpaccuatro",
     "version": "1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/Splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,17 +21,18 @@
       "config": {
         "googleMapsApiKey": "AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"
       },
-      "bundleIdentifier": "com.ccuatroios.ccuatroios",
+      "bundleIdentifier": "com.suinpaccuatro.suinpac",
       "infoPlist":{
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
         "NSLocationUsageDescription":"La aplicación requiere accesos a su ubicación para su funcionamiento",
         "NSLocationWhenInUseUsageDescription":"La aplicación requiere accesos a su ubicación para su funcionamiento",
         "NSLocationAlwaysUsageDescription":"La aplicación requiere accesos a su ubicación para su funcionamiento",
         "NSMicrophoneUsageDescription":"La aplicación requiere accesos a la camara del dispositivo para su funcionamiento",
         "NSPhotoLibraryUsageDescription":"La aplicación requiere accesos a la camara del dispositivo para su funcionamiento",
-        "NSCameraUsageDescription":"La aplicación requiere accesos a la camara del dispositivo para su funcionamiento",
-        "UIBackgroundModes": [
-          "location"
-        ] 
+        "NSCameraUsageDescription":"La aplicación requiere accesos a la camara del dispositivo para su funcionamiento", 
       }
     },
     "android": {
@@ -42,7 +43,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "permissions": ["ACCESS_COARSE_LOCATION","ACCESS_FINE_LOCATION","CAMERA","VIBRATE"],
-      "package": "com.ccuatroios.ccuatroios",
+      "package": "com.suinpaccuatro.suinpac",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDcgPGyzVh0IxxOpOmyvJJFI6C9ClNUnqw"

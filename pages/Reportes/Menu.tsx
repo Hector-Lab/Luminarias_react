@@ -26,9 +26,27 @@ export default function MenuReportes(props: any) {
     const colorEstado = { "ios": "dark-content", "android": "light-content" };
     useEffect(() => {
         (async () => {
-            let { status } = await Location.requestBackgroundPermissionsAsync();
-            setPermisos(status !== 'granted');
-            await Location.enableNetworkProviderAsync()
+            //NOTE: vericamos los permisos para ios 
+            let permisosIF = await Location.getForegroundPermissionsAsync();
+            if( permisosIF.status == "granted" ){
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                //NOTE: aqui enviamos al link de ios
+            }
+            //NOTE: verificamos si es android
+            if( Platform.OS == "android" ){
+                //Solicitamos el permisos de rastreo para android
+                let estadoGB = await Location.getBackgroundPermissionsAsync();
+                if(estadoGB.status != "granted"){
+                    let resultPB = await Location.requestBackgroundPermissionsAsync();
+                    await Location.hasServicesEnabledAsync().then(async (status) => {
+                        if (!status) {
+                            await Location.enableNetworkProviderAsync();
+                        }
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+                }
+            }
         })();
     }, []);
     const ReporteTerceros = () => {
@@ -76,7 +94,7 @@ export default function MenuReportes(props: any) {
                 {/*INDEV: */}
                 <View style={[Styles.ContenedorElemento, { borderColor: "green" }]} >
                     <MenuItem
-                        TextoArriba='Atencion'
+                        TextoArriba='Atenci&oacute;n'
                         TextoAbajo='Ciudadana'
                         colorBoton='#003356'
                         colorSombraBoton='rgba(158, 150, 150, .3)'
@@ -88,7 +106,7 @@ export default function MenuReportes(props: any) {
                 </View>
                 <View style={[Styles.ContenedorElemento, { borderColor: "cyan" }]} >
                     <MenuItem
-                        TextoArriba='Boton'
+                        TextoArriba='Bot&oacute;n'
                         TextoAbajo='Rosa'
                         colorBoton='#e6acdd'
                         marginBotton={13}
@@ -101,7 +119,7 @@ export default function MenuReportes(props: any) {
                 <View style={[Styles.ContenedorElemento, { borderColor: "black" }]} >
                     <MenuItem
                         TextoArriba='Reporte'
-                        TextoAbajo='Anonimo'
+                        TextoAbajo='An&oacute;nimo'
                         colorBoton='#39b54a'
                         marginBotton={12}
                         marginLeft={5}

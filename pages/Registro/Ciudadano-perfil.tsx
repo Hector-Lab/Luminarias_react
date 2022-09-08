@@ -80,7 +80,7 @@ export default function Contactos(props: any) {
                             renderPlaceholderContent = {<ActivityIndicator size="large" color={BlueColor} style={{ flex: 1 }} />}
                         />
                         <View>
-                            <TouchableOpacity onPress = { EditarFotoCiudadano } style={[Styles.btnGeneral, { marginTop: 10, backgroundColor: azulColorDisabled }]} disabled={false} >
+                            <TouchableOpacity onPress = { EditarFotoCiudadano } style={[Styles.btnGeneral, { marginTop: 10, backgroundColor: azulColorDisabled }]} disabled={true} >
                                 <Text style={[Styles.btnTexto, { marginLeft: 10, marginRight: 10, color: "lightgray" }]} > Editar </Text>
                             </TouchableOpacity>
                         </View>

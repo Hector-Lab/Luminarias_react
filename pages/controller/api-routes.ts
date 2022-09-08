@@ -22,7 +22,7 @@ export class APIServices {
             },
         });
     }
-    insertarReporte( data:any ){
+    insertarReporte( data:any, abort:AbortController ){
         let jsonData = JSON.stringify(data);
         return fetch(`https://api.servicioenlinea.mx/api-movil/GuardarReporte`,{
             method:"POST",
@@ -30,8 +30,9 @@ export class APIServices {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body:jsonData
-        })
+            body:jsonData,
+            signal:abort.signal
+        });
     }
     obtenerreportesCiudadano ( data:any ){
         let jsonData = JSON.stringify(data);
