@@ -68,6 +68,12 @@ export class StorageBaches {
     async obtenerIdReporteRosa() {
         return await AsyncStorage.getItem(root + "ReporteRosa");
     }
+    async guardarDireccionFoto(url:string){
+        await AsyncStorage.setItem(root + "Foto",url);
+    }
+    async obtenerDireccionFoto(){
+        return await AsyncStorage.getItem(root + "Foto");
+    }
     //NOTE: Bloque de datos del preregistor
     async datosPersonalesPreRegistro(Personales: string) {
         return await AsyncStorage.setItem(root + "PersonalesPreregistro", Personales);

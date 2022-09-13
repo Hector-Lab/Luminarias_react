@@ -1,4 +1,5 @@
 import { readAsStringAsync } from "expo-file-system";
+import { object } from "yup/lib/locale";
 
 export class APIServices {
     
@@ -188,5 +189,15 @@ export class APIServices {
             body:jsonData
         });
     }
-    
+    actualizarFoto( data:object ){
+        let jsonData =  JSON.stringify(data);
+        return fetch(`https://api.servicioenlinea.mx/api-movil/AtencionCliente/ActualizaFoto`,{
+            method:"POST",
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body:jsonData
+        });
+    }
 }

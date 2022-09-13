@@ -4,6 +4,8 @@ import { APIServices } from '../controller/api-routes';
 import { StorageBaches } from '../controller/storage-controllerBaches';
 import { verificarcurp } from  '../../utilities/utilities';
 import { CLIENTE } from '../../utilities/Variables';
+import { iconColorBlue } from '../../Styles/Color';
+import { string } from 'yup/lib/locale';
 
 const service = new APIServices();
 const storageBaches = new StorageBaches();
@@ -449,6 +451,30 @@ export async function ActualiarRegistroCiudadano( Contactos ){
 }
 export async function  CancelarPeticion() {
     abort.abort();
+}
+export async function actualizarFoto(foto:String) {
+    try{
+        let idCiudadano = await storageBaches.obtenerIdCiudadano();
+        let datos = {
+            Cliente:String(CLIENTE),
+            Ciudadano:parseInt(idCiudadano),
+            Foto: foto
+        }
+        let respuesta = await service.actualizarFoto(datos);
+        let jsonResult = await respuesta.json();
+        console.log(jsonResult);
+        if(jsonResult.code == 200){
+            storageBaches.guardarDireccionFoto(jsonResult.Mensaje);
+            return jsonResult.Mensaje;
+        }else if( jsonResult.code == 203 ){
+            console.log(jsonResult.Error);
+            throw Error223ReporteC4;
+        }else if(jsonResult.code ==  403 ){
+            throw ErrorActualizarCiudadano;
+        }
+    }catch(err){
+        throw verificarErrores(err);
+    }
 }
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
