@@ -26,7 +26,7 @@ import Privacidad from './components/modal-privacidad';
 import { FONDO, AVATAR } from '../utilities/Variables';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Log(props: any) {
-    const [cargando, setCargando] = useState(true);
+    const [cargando, setCargando] = useState(false);
     const [mensaje, setMensaje] = useState("");
     const [icono, setIcono] = useState(USER_COG[0]);
     const [fuenteIcono, setFuenteIcono] = useState(USER_COG[1]);
@@ -69,6 +69,7 @@ export default function Log(props: any) {
                     }
                 }
                 //Antes de todo esto se revisa si acepto los terminos y condiciones
+                console.log(await storage.verificarDatosCiudadano());
                 if (await storage.verificarDatosCiudadano()) {
                     setCargando(false);
                     props.navigation.dispatch(
@@ -78,8 +79,9 @@ export default function Log(props: any) {
                         })
                     );
                 } else {
-                    console.log("session no valida");
                     setCargando(false);
+                    console.log("session no valida");
+                    
                 }
             })();
         }, []);
