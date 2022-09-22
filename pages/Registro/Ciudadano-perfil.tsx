@@ -9,7 +9,7 @@ import Loading from "../components/modal-loading";
 import { azulColor, azulColorDisabled, SuinpacRed } from "../../Styles/Color";
 import { BlueColor } from "../../Styles/BachesColor";
 import * as ImagePicker from 'expo-image-picker';
-import { actualizarFoto } from '../controller/api-controller';
+import { actualizarFoto, obterFotoPerilAPI } from '../controller/api-controller';
 import { ERROR, OK } from '../../Styles/Iconos';
 import Message from '../components/modal-message';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
@@ -33,6 +33,7 @@ export default function Contactos(props: any) {
     const CerrarSession = async () => {
         setCargando(true)
         setCerrando(true);
+        storage.cerrarSsesion();
         setTimeout(async () => {
             await storage.cerrarSsesion()
                 .then(() => {
@@ -49,8 +50,7 @@ export default function Contactos(props: any) {
     }
     const obtenerDatosCiudadano = async () => {
         let datos = await storage.ObtenerPerfilCiudadano();
-        
-        setFotoPerfil((await storage.obtenerDireccionFoto() != null ) ? ("http://suinpac.com/" + await storage.obtenerDireccionFoto()) : "" );
+        setFotoPerfil((await storage.obtenerDireccionFoto() != null ) ? ("http://suinpac.com/" + await storage.obtenerDireccionFoto()) : await obterFotoPerilAPI() );
         setNombre(datos[0]);
         setEmail(datos[1]);
     }

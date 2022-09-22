@@ -34,7 +34,9 @@ const ErrorActualizarDomiclio = new Error("¡Error al actulizar el domicilio!\nF
 const ErrorDatosContactos = new Error("¡Error al obtener los contatos!\nFavor de intentar más tarde");
 const ErrorActualizatContactos = new Error("¡Error al actualizar contactos!\nFavor de intentar más tarde");
 const ErrorActualizarPersonales = new Error("¡Error al actualizar personales!\nFavor de intentar más tarde");
-const ErrorActualizarCiudadano = new Error("¡Error al actualizar ciudadano!\nFavor de intentar más tarde")
+const ErrorActualizarCiudadano = new Error("¡Error al actualizar ciudadano!\nFavor de intentar más tarde");
+const ErrorGetFotoPerfil = new Error("¡Error al obtener la foto del ciudadano!\nFavor de intentar más tarde");
+const ErrorEnviarRespuesta =  new Error("¡Error al enviar la respuesta!\nFavor de intentar más tarde");
 let abort = new AbortController();
 //INDEV: Nuevas funciones para la aplicacion de los baches
 export async function CatalogoSolicitud(){
@@ -475,6 +477,65 @@ export async function actualizarFoto(foto:String) {
     }catch(err){
         throw verificarErrores(err);
     }
+}
+export async function obterFotoPerilAPI(){
+    try{
+        let datos = {
+            'Cliente':CLIENTE,
+            'Ciudadano': parseInt(await storageBaches.obtenerIdCiudadano())
+        }
+        let result = await service.cargarFoto(datos);
+        let direccionFoto = await result.json();
+        if(direccionFoto.code == 200 ){
+            storageBaches.guardarDireccionFoto(direccionFoto.Ruta);
+            return direccionFoto.Ruta;
+        }else if(direccionFoto.code == 203){
+            throw ErrorGetFotoPerfil;
+        }else {
+            return ErrorDesconocido;
+        }
+    }catch(error){
+        console.log(error.message);
+        throw verificarErrores(error);
+    }
+}
+export async function ObtenerListaObservaciones( idReporte:number ){
+    try{        
+        let datos = {
+            Cliente: CLIENTE,
+            Reporte: idReporte
+        };
+        let result = await service.ObtenerObservaciones(datos);
+        let respuestaAPI = await result.json();
+        if(respuestaAPI.code == 200){
+            return respuestaAPI.Mensaje;
+        }else if( respuestaAPI.code == 203 ){
+            console.log(respuestaAPI.Mensaje);
+        }
+    }catch( error ){
+        throw verificarErrores(error);
+    }
+}
+export async function enviarRepuestaObservacion( idObservacion:number, respuesta: string ){
+    try{
+        let datos = {
+            Cliente: CLIENTE,
+            idObservacion: idObservacion,
+            Respuesta:respuesta
+        }
+        let result = await service.EnviarRepuesta(datos);
+        let jsonResult = await result.json();
+        console.log(jsonResult.code == 403);
+        if(jsonResult.code == 200){
+            return "OK";
+        }else if( jsonResult.code == 203 ){
+            throw ErrorEnviarRespuesta;
+        }else if( jsonResult.code == 403 ){
+            throw Error223ReporteC4;
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    } 
 }
 //NOTE: metodo interno
 function verificarErrores(error:Error) {

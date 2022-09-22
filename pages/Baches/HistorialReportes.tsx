@@ -115,7 +115,7 @@ export default function HistorialReporte(props: any) {
       estatusColor = PrimaryColor;
 
     return <View style = {{padding:2}} >
-            <Pressable onPress={ ()=>{ verReporte(item)  } } >
+            <Pressable onPress={ ()=>{ verReporte(item) } } >
               <ListItem
               hasTVPreferredFocus
               tvParallaxProperties

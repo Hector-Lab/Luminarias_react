@@ -12,6 +12,7 @@ import { BlueColor } from '../../Styles/BachesColor';
 import { PERSONPIN, DESCONOCIDO } from '../../Styles/Iconos';
 import { AVATAR,FONDO } from '../../utilities/Variables';
 
+
 export default function MenuReportes(props: any) {
     //Solicitamos los permisos del telefono
     const [permisos, setPermisos] = useState(Boolean);
