@@ -11,6 +11,7 @@ import { azulClaro, azulColor, SuinpacRed } from '../../Styles/Color';
 import { BlueColor } from '../../Styles/BachesColor';
 import { PERSONPIN, DESCONOCIDO } from '../../Styles/Iconos';
 import { AVATAR,FONDO } from '../../utilities/Variables';
+import { StorageBaches } from '../controller/storage-controllerBaches';
 
 export default function MenuReportes(props: any) {
     //Solicitamos los permisos del telefono
@@ -77,6 +78,9 @@ export default function MenuReportes(props: any) {
     const AtencionCiudadana = () => {
         props.navigation.navigate("AtencionReporte");
     }
+    const HistorialReportes = () => {
+        props.navigation.navigate("HistorialReportes");
+    }
 
     return (
         <SafeAreaView style={{ flex: 1 }} >
@@ -128,7 +132,11 @@ export default function MenuReportes(props: any) {
                         fondo={require('../../assets/Botones/btnTeerceros.png')}
                     />
                 </View>
+                <TouchableOpacity style={[Styles.btnSeguirReportes, {borderWidth:1}, { marginTop: 15, marginBottom: -3 }]} onPress={HistorialReportes} >
+                    <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Segumiento de Mis Reportes </Text>
+                </TouchableOpacity>
                 <View style={{ flex: 2, borderRadius: 1, borderColor: "black" }} ></View>
+                
             </ImageBackground>
             <Message
                 tittle={tituloMensaje}

@@ -193,7 +193,7 @@ const Styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  ContenedorElemento: {flex:4, justifyContent:"center" },
+  ContenedorElemento: {flex:6, justifyContent:"center" },
   TemaCampo:{
     borderWidth: 0.5,
     padding: 5,
@@ -213,6 +213,13 @@ const Styles = StyleSheet.create({
     borderRadius:5,
     backgroundColor:azulColor,
     padding:8,
+    marginLeft:20,
+    marginRight:20,
+  },
+  btnSeguirReportes: {
+    borderRadius:5,
+    backgroundColor:azulColor,
+    padding:10,
     marginLeft:20,
     marginRight:20,
   },
