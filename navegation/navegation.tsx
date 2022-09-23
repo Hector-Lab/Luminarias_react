@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { Icon, ThemeConsumer } from 'react-native-elements';
-import { StatusBar, Text, Touchable } from 'react-native';
+import { Icon  } from 'react-native-elements';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import Home from '../pages/Login';
-import BachesHome from '../pages/Baches/home';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ReporteC4 from '../pages/Baches/ReporteC4';
 import MenuReportes from '../pages/Reportes/Menu';
@@ -20,11 +19,11 @@ import AtencionReporte from '../pages/Baches/CiudadanoReporte';
 import HistorialReportes from '../pages/Reportes/Historial-Reportes';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { PROFILE, RETURN } from '../Styles/Iconos';
-import { azulColor, SuinpacRed } from '../Styles/Color';
-import Styles from '../Styles/styles';
+import { azulColor } from '../Styles/Color';
+import { StorageBaches } from '../pages/controller/storage-controllerBaches';
 
 const Stack = createStackNavigator();
-
+const storage = new StorageBaches();
 function Nav() {
     return (
         <SafeAreaView style={{ flex: 1 }} >
@@ -76,7 +75,9 @@ function Nav() {
                             headerTintColor: "rgba(0,0,0,1 )",
                             headerLeft: () => {
                                 return (
-                                    <TouchableOpacity style ={{marginLeft:20, shadowOpacity:.5 ,shadowColor:azulColor}} onPress = { ()=>{ navigation.navigate("Menu")}} >
+                                    <TouchableOpacity style ={{marginLeft:20, shadowOpacity:.5 ,shadowColor:azulColor}} onPress = { async ()=>{ 
+                                        navigation.navigate( "Menu")
+                                    }}>
                                         <Icon size = { 30 } color = { azulColor } name={RETURN[0]} type={RETURN[1]} tvParallaxProperties ></Icon>
                                     </TouchableOpacity>);
                             }
@@ -136,7 +137,10 @@ function Nav() {
                             headerTintColor: "rgba(0,0,0,1 )",
                             headerLeft: () => {
                                 return (
-                                    <TouchableOpacity style ={{marginLeft:20, shadowOpacity:.5 ,shadowColor:azulColor}} onPress = { ()=>{ navigation.navigate("Perfil")}} >
+                                    <TouchableOpacity style ={{marginLeft:20, shadowOpacity:.5 ,shadowColor:azulColor}} onPress = { async ()=>{ 
+                                        let tipoRegreso =  await storage.obtenerRegresoHistorial();
+                                        navigation.navigate(tipoRegreso == "1" ? "Menu" : "Perfil" )
+                                    }} >
                                         <Icon size = { 30 } color = { azulColor } name={RETURN[0]} type={RETURN[1]} tvParallaxProperties ></Icon>
                                     </TouchableOpacity>);
                             }

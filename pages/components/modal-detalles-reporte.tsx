@@ -124,7 +124,7 @@ export default class ReporteDetalle extends React.Component<{
                                     <Text style={{ flex: 3 }} > {this.props.Reporte.FechaAtendida == null ? "Sin Asignar" : this.props.Reporte.FechaTupla} </Text>
                                 </View>
                                 <View style={{ flexDirection: "row", marginTop: 10 }}>
-                                    <Text style={{ flex: 2 }} > Fecha Atención: </Text>
+                                    <Text style={{ flex: 2 }} > Fecha Solución: </Text>
                                     <Text style={{ flex: 3 }} > {this.props.Reporte.FechaSolucion == null ? "Sin Asignar" : this.props.Reporte.FechaSolucion} </Text>
                                 </View>
                                 {

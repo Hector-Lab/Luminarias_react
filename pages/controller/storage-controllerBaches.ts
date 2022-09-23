@@ -131,5 +131,11 @@ export class StorageBaches {
     async eliminarElemento( index:string ) {
         await AsyncStorage.removeItem( root+index );
     }
+    async asignarRegresoHistorial( tipoMenu:string ){
+        await AsyncStorage.setItem( root+"tipoMenu",tipoMenu );
+    }
+    async obtenerRegresoHistorial( ){
+        return AsyncStorage.getItem( root+"tipoMenu" );
+    }
 }
 

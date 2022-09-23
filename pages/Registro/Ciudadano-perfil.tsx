@@ -64,6 +64,7 @@ export default function Contactos(props: any) {
         props.navigation.navigate("EditarContacto");
     }
     const HistorialReportes = () => {
+        storage.asignarRegresoHistorial("0"); //NOTE:  Menu->Historial<-Menu
         props.navigation.navigate("HistorialReportes");
     }
     const Menu = () => {

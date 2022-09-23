@@ -26,6 +26,7 @@ export default function MenuReportes(props: any) {
     const [mensajeIconFuente, setMensajeIconFuente] = useState(String);
 
     const colorEstado = { "ios": "dark-content", "android": "light-content" };
+    const storage = new StorageBaches();
     useEffect(() => {
         (async () => {
             //NOTE: vericamos los permisos para ios 
@@ -80,6 +81,7 @@ export default function MenuReportes(props: any) {
         props.navigation.navigate("AtencionReporte");
     }
     const HistorialReportes = () => {
+        storage.asignarRegresoHistorial("1"); //NOTE: 1 Menu->Perfil->Historial<-perfil<-Menu   
         props.navigation.navigate("HistorialReportes");
     }
 
