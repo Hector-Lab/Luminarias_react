@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Platform, KeyboardAvoidingView } from 'react-native';
 import { Formik, useFormik } from 'formik';
 import { Avatar, Divider, Image } from 'react-native-elements';
 import * as Yup from 'yup';
@@ -115,6 +115,9 @@ export default function EditarContacto(props: any) {
             <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
                 <ScrollView style={{ flexGrow: 1 }} >
+                <KeyboardAvoidingView 
+                    behavior = { Platform.OS == "ios" ? "position" : "padding" }
+                    keyboardVerticalOffset = { Platform.OS == "ios" ? 70 : 0 } >
                     <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
                         <Image 
                             source = {AVATAR} 
@@ -200,6 +203,7 @@ export default function EditarContacto(props: any) {
                                 </View>)
                         }}
                     </Formik>
+                    </KeyboardAvoidingView>
                 </ScrollView>
                 <Loading
                     transparent={true}

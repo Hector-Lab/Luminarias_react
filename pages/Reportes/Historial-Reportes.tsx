@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, Component } from "react";
-import { Modal, View, SafeAreaView, ImageBackground,Text, FlatList, StatusBar, Platform, TouchableOpacity, TextInput, KeyboardAvoidingView  } from "react-native";
+import { Keyboard,Modal, View, SafeAreaView, ImageBackground,Text, FlatList, StatusBar, Platform, TouchableOpacity, TextInput, KeyboardAvoidingView, TouchableWithoutFeedback  } from "react-native";
 import Loading  from '../components/modal-loading';
 import { Image, Card } from 'react-native-elements';
 import { azulColor, SuinpacRed } from "../../Styles/Color";
@@ -11,7 +11,6 @@ import { DESCONOCIDO,ALERTMENU, INFO, CLOSE } from '../../Styles/Iconos';
 import { AVATAR } from "../../utilities/Variables";
 import { ObtenerListaObservaciones, enviarRepuestaObservacion } from '../controller/api-controller';
 import { OK } from '../../Styles/Iconos';
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { Icon } from "react-native-elements/dist/icons/Icon";
  
 const colorEstado = {"ios":"dark-content","android":"light-content"};
@@ -147,29 +146,32 @@ export default function HistorialReportes(props: any) {
                 </TouchableOpacity>
             </ImageBackground>
             <Modal visible= { modalRespuesta} transparent = { true } >
-                <KeyboardAvoidingView >
                     <View style = {{flex:1, justifyContent:"center"}}>
-                        <Card containerStyle = {{ elevation:10, borderRadius:5 }} >
-                                <Card.Title>Reponder Observación</Card.Title>
-                            <Card.Divider></Card.Divider>
-                                <TextInput 
-                                    style = {[{borderWidth:1, borderRadius:3},(Platform.OS == "ios" ? { height:100 }:{ textAlignVertical:"top" })]} 
-                                    placeholder = "Escriba la respuesta a la observació de su reporte" 
-                                    multiline = { true } 
-                                    numberOfLines = { 8 }
-                                    onChangeText = { setRespuestaObservacion }
-                                    />
-                            <View style = {{flexDirection:"row", marginTop:10}} >
-                                <TouchableOpacity onPress = { enviarReporte  } style = {{backgroundColor:azulColor, borderRadius:7, flex:1, marginRight:5 }} >
-                                    <Text style = {{ color:"white", textAlign:"center", fontWeight:"bold", padding:7 }} > Enviar </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress = { ()=>{ setModalRepuesta(false); setMostrarDetalle(true) } } style = {{backgroundColor:SuinpacRed, borderRadius:7, flex:1, marginLeft:5 }} >
-                                    <Text style = {{ color:"white", textAlign:"center", fontWeight:"bold", padding:7 }} > Cerrar </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </Card>
+                        <KeyboardAvoidingView behavior = { Platform.OS == "ios" ? "padding" : "height" } 
+                            keyboardVerticalOffset = { Platform.OS == "ios" ? 70 : 0 }>
+                            <TouchableWithoutFeedback onPress = { Keyboard.dismiss } >
+                                <Card containerStyle = {{ elevation:10, borderRadius:5 }} >
+                                        <Card.Title>Reponder Observación</Card.Title>
+                                    <Card.Divider></Card.Divider>
+                                        <TextInput 
+                                            style = {[{borderWidth:1, borderRadius:3},(Platform.OS == "ios" ? { height:100 }:{ textAlignVertical:"top" })]} 
+                                            placeholder = "Escriba la respuesta a la observació de su reporte" 
+                                            multiline = { true } 
+                                            numberOfLines = { 8 }
+                                            onChangeText = { setRespuestaObservacion }
+                                            />
+                                    <View style = {{flexDirection:"row", marginTop:10}} >
+                                        <TouchableOpacity onPress = { enviarReporte  } style = {{backgroundColor:azulColor, borderRadius:7, flex:1, marginRight:5 }} >
+                                            <Text style = {{ color:"white", textAlign:"center", fontWeight:"bold", padding:7 }} > Enviar </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress = { ()=>{ setModalRepuesta(false); setMostrarDetalle(true) } } style = {{backgroundColor:SuinpacRed, borderRadius:7, flex:1, marginLeft:5 }} >
+                                            <Text style = {{ color:"white", textAlign:"center", fontWeight:"bold", padding:7 }} > Cerrar </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </Card>
+                            </TouchableWithoutFeedback>
+                        </KeyboardAvoidingView>
                     </View>
-                </KeyboardAvoidingView>
             </Modal>
             <Loading 
                 transparent = { true }
