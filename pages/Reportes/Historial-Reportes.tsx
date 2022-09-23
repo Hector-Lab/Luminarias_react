@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef, Component } from "react";
-import { ScrollView, View, SafeAreaView, ImageBackground,Text, FlatList, StatusBar, Platform, TouchableOpacity, ViewPropTypes } from "react-native";
+import { Keyboard,Modal, View, SafeAreaView, ImageBackground,Text, FlatList, StatusBar, Platform, TouchableOpacity, TextInput, KeyboardAvoidingView, TouchableWithoutFeedback  } from "react-native";
 import Loading  from '../components/modal-loading';
-import { Avatar, Image } from 'react-native-elements';
-import { azulColor } from "../../Styles/Color";
+import { Image, Card } from 'react-native-elements';
+import { azulColor, SuinpacRed } from "../../Styles/Color";
 import { ObtenerMisReportes } from '../controller/api-controller';
 import ItemReporte  from '../components/item-reportes';
 import ReporteDetalle from '../components/modal-detalles-reporte';
 import Message from  '../components/modal-message';
-import { DESCONOCIDO,ALERTMENU } from '../../Styles/Iconos';
+import { DESCONOCIDO,ALERTMENU, INFO, CLOSE } from '../../Styles/Iconos';
 import { AVATAR } from "../../utilities/Variables";
+import { ObtenerListaObservaciones, enviarRepuestaObservacion } from '../controller/api-controller';
+import { OK } from '../../Styles/Iconos';
+import { Icon } from "react-native-elements/dist/icons/Icon";
  
 const colorEstado = {"ios":"dark-content","android":"light-content"};
 export default function HistorialReportes(props: any) {
@@ -20,17 +23,18 @@ export default function HistorialReportes(props: any) {
     //NOTE: estados del modal cargado
     const [ cargando, setCargando ] = useState( false );
     const [ listaReporte, setListaReporte ] = useState([]);
-    const [ indiceReporte, setIndiceReporte ] = useState(0);
     const [ mostrarDetalle, setMostrarDetalle ] = useState( false );
     const [ reporte, setReporte ] = useState( Object );
     const [ mostrarEvidencias, setMostrarEvidencias ] = useState( false ); 
-    
+    const [ listaObservaciones, setListaObservaciones ] = useState(null);
+    const [ modalRespuesta, setModalRepuesta ] = useState(false);
+    const [ respuestaObservacion, setRespuestaObservacion ] = useState(String);
+    const [ idSelecionRespuesta, setIdSelecionRespuesta ] = useState(String);
     useEffect(()=>{
         setCargando(true);
         obtenerListaReportes();
     },[]);
     const obtenerListaReportes = async () =>{
-
         await ObtenerMisReportes()
         .then(( data )=>{
             setListaReporte(data);
@@ -56,13 +60,61 @@ export default function HistorialReportes(props: any) {
                 Area = { item.Descripci_on }
                 FechaAlta = { item.FechaTupla } 
                 Estado = { item.Estatus }
-                OnPressItem = { ()=>{ setReporte(item == "" ? null : item ); setMostrarDetalle(true); console.log(item); } }
+                OnPressItem = { ()=>{ mostrarReporte(item) } }
             />
         );
     }
     const regresar = () =>{
-        props.navigation.pop(); //navigate("Perfil");
+        props.navigation.pop();
     }
+    const mostrarReporte = async ( item:any ) => {
+        setCargando(true);
+        await ObtenerListaObservaciones(item.id)
+        .then((listaObservaciones)=>{
+            //NOTE: Cargando las observaciones del reportes
+            setListaObservaciones(listaObservaciones);
+        })
+        .catch(( error:Error )=>{
+            console.log( error.message );
+        })
+        setCargando(false);
+        setReporte( item ); 
+        setMostrarDetalle(true);
+    }
+    const enviarReporte = async () =>{
+        setModalRepuesta(false);
+        setMostrarEvidencias(false);
+        setMostrarDetalle(true);
+        setRespuestaObservacion("");
+        //NOTE: forma no recomendable de enviar respuestas
+        let idObservacion = -1;
+        let idReporte = -1;
+        listaObservaciones.map(( observacion, index )=>{
+            if(observacion.FechaRespuesta == null){
+                idObservacion = observacion.id;
+                idReporte = observacion.idReporte
+            }
+        });
+        await enviarRepuestaObservacion(idObservacion,respuestaObservacion)
+        .then( async ( result )=>{
+            lanzarMensaje("Respuesta enviada",OK[0],OK[1]);
+                //NOTE: volvemos a cargar los datos del reporte
+                await ObtenerListaObservaciones(idReporte)
+                .then((listaObservaciones)=>{
+                    //NOTE: Cargando las observaciones del reportes
+                    setModalRepuesta(false);
+                    setListaObservaciones(listaObservaciones);
+                })
+                .catch(( error:Error )=>{
+                    console.log( error.message );
+                })
+        })
+        .catch(( error:Error )=>{
+            setModalRepuesta(false);
+            lanzarMensaje(error.message,INFO[0],INFO[1]);
+        })
+    }
+    
     return (
         <SafeAreaView style={{ flex: 1 }} >
             <StatusBar animated={true} barStyle = {colorEstado[Platform.OS]}/>
@@ -93,6 +145,34 @@ export default function HistorialReportes(props: any) {
                     <Text style = {{ padding:10, textAlign:"center",color:"white", fontWeight:"bold",  }} > Regresar </Text>
                 </TouchableOpacity>
             </ImageBackground>
+            <Modal visible= { modalRespuesta} transparent = { true } >
+                    <View style = {{flex:1, justifyContent:"center"}}>
+                        <KeyboardAvoidingView behavior = { Platform.OS == "ios" ? "padding" : "height" } 
+                            keyboardVerticalOffset = { Platform.OS == "ios" ? 70 : 0 }>
+                            <TouchableWithoutFeedback onPress = { Keyboard.dismiss } >
+                                <Card containerStyle = {{ elevation:10, borderRadius:5 }} >
+                                        <Card.Title>Reponder Observación</Card.Title>
+                                    <Card.Divider></Card.Divider>
+                                        <TextInput 
+                                            style = {[{borderWidth:1, borderRadius:3},(Platform.OS == "ios" ? { height:100 }:{ textAlignVertical:"top" })]} 
+                                            placeholder = "Escriba la respuesta a la observació de su reporte" 
+                                            multiline = { true } 
+                                            numberOfLines = { 8 }
+                                            onChangeText = { setRespuestaObservacion }
+                                            />
+                                    <View style = {{flexDirection:"row", marginTop:10}} >
+                                        <TouchableOpacity onPress = { enviarReporte  } style = {{backgroundColor:azulColor, borderRadius:7, flex:1, marginRight:5 }} >
+                                            <Text style = {{ color:"white", textAlign:"center", fontWeight:"bold", padding:7 }} > Enviar </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress = { ()=>{ setModalRepuesta(false); setMostrarDetalle(true) } } style = {{backgroundColor:SuinpacRed, borderRadius:7, flex:1, marginLeft:5 }} >
+                                            <Text style = {{ color:"white", textAlign:"center", fontWeight:"bold", padding:7 }} > Cerrar </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </Card>
+                            </TouchableWithoutFeedback>
+                        </KeyboardAvoidingView>
+                    </View>
+            </Modal>
             <Loading 
                 transparent = { true }
                 loadinColor = { azulColor }
@@ -107,7 +187,11 @@ export default function HistorialReportes(props: any) {
                 Plataform = {  Platform.OS }
                 onClose = {() => { setMostrarDetalle( !mostrarDetalle ) }}
                 onMostrarEvidencia = {()=>{ setMostrarEvidencias( !mostrarEvidencias ) }}
+                onMostrarRespuesta = { ()=>{ setModalRepuesta(!modalRespuesta) } }
                 mostrarEvidencia = { mostrarEvidencias }
+                Observaciones = { listaObservaciones }
+                mostrarRepuesta = { modalRespuesta }
+                onEnviarReporte = { enviarReporte }
             />
             <Message
                 buttonText = { "Aceptar" }

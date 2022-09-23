@@ -98,7 +98,8 @@ export default function Personales(props: any) {
         <SafeAreaView style={{ flex: 1 }}>
             <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
-                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} >
+                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "position" : "height"} 
+                    keyboardVerticalOffset = {( Platform.OS == "ios" ? 75 :1 )} >
                     <ScrollView style={{ flexGrow: 1 }} >
                         <View style={{ justifyContent: "center", alignItems: "center", padding:20 }} >
                             <Image 

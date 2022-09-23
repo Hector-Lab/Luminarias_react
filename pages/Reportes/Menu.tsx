@@ -13,6 +13,7 @@ import { PERSONPIN, DESCONOCIDO } from '../../Styles/Iconos';
 import { AVATAR,FONDO } from '../../utilities/Variables';
 import { StorageBaches } from '../controller/storage-controllerBaches';
 
+
 export default function MenuReportes(props: any) {
     //Solicitamos los permisos del telefono
     const [permisos, setPermisos] = useState(Boolean);

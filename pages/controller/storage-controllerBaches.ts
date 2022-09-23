@@ -96,7 +96,7 @@ export class StorageBaches {
         return ( await AsyncStorage.getItem(root + "DatosPersonales") != null && await AsyncStorage.getItem(root+"idCiudadano") != null );
     }
     async cerrarSsesion(){
-        await AsyncStorage.multiRemove([root + "DatosPersonales",root + "DatosDomicilio",root + "DatosContacto"]);
+        await AsyncStorage.multiRemove([root + "DatosPersonales",root + "DatosDomicilio",root + "DatosContacto",root+"Foto"]);
     }
     async ObtenerPerfilCiudadano(){
         let jsonCiudadano = await AsyncStorage.getItem(root + "DatosPersonales");

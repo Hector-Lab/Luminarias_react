@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import { SafeAreaView, ScrollView, Text, ImageBackground, View, TextInput, TouchableOpacity, StatusBar, Platform, KeyboardAvoidingView } from 'react-native';
 import Styles from '../../Styles/styles';
 import { Formik, useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -98,58 +98,63 @@ export default function EditarDomicilio(props: any) {
         <SafeAreaView style={{ flex: 1 }} >
             <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={require('../../assets/Fondo.jpeg')} style={{ flex: 1 }} >
-                <ScrollView style={{ flexGrow: 1 }} >
-                <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
-                    <Image 
-                        source = {AVATAR} 
-                        resizeMode = { "stretch" }  
-                        style = {{ height:80,width:220 }}
-                        />
-                    </View>
-                    <Formik
-                        initialValues={valores}
-                        onSubmit={datos => GuardarDatosLocal(datos)}
-                        validationSchema={validacion}
-                    >
-                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => {
-                            return <View>
-                                <Text style={Styles.TemaLabalCampo} >Localidad</Text>
-                                <TextInput
-                                    style={(formik.errors.Localidad && formik.touched.Localidad) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                    placeholder="Ejemplo: Juan Perez"
-                                    onChangeText={formik.handleChange('Localidad')}
-                                    value={formik.values.Localidad} />
-                                <Text style={Styles.TemaLabalCampo} >Calle</Text>
-                                <TextInput
-                                    style={(formik.errors.Calle && formik.touched.Calle) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                    placeholder="Ejemplo: Avenida Violetas"
-                                    onChangeText={formik.handleChange('Calle')}
-                                    value={formik.values.Calle} />
-                                <Text style={Styles.TemaLabalCampo} >Numero {(formik.errors.Numero && formik.touched.Numero && formik.values.Numero != "") ? <Text style={{ color: "red" }} > No valido </Text> : <></>} </Text>
-                                <TextInput
-                                    style={(formik.errors.Numero && formik.touched.Numero) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                    placeholder="Ejemplo: 20"
-                                    onChangeText={formik.handleChange('Numero')}
-                                    value={formik.values.Numero} />
-                                <Text style={Styles.TemaLabalCampo} >Colonia</Text>
-                                <TextInput
-                                    style={(formik.errors.Colonia && formik.touched.Colonia) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                    placeholder="Ejemplo: Colinas del Lago"
-                                    onChangeText={formik.handleChange('Colonia')}
-                                    value={formik.values.Colonia} />
-                                <Text style={Styles.TemaLabalCampo} >Codigo Postal {(formik.errors.CodigoPostal && formik.touched.CodigoPostal && formik.values.CodigoPostal != "") ? <Text style={{ color: "red" }} > No valido </Text> : <></>} </Text>
-                                <TextInput
-                                    style={(formik.errors.CodigoPostal && formik.touched.CodigoPostal) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                    placeholder="Ejemplo: 54716"
-                                    onChangeText={formik.handleChange('CodigoPostal')}
-                                    value={formik.values.CodigoPostal} />
-                            </View>
-                        }}
-                    </Formik>
-                    <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 10, flex: 1, marginRight: 25 , marginLeft:25 , backgroundColor: azulColor }]} onPress={formik.handleSubmit}  >
-                        <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Guardar </Text>
-                    </TouchableOpacity>
-                </ScrollView>
+                <KeyboardAvoidingView 
+                    behavior = { "padding" }
+                    style = {{ flex:1 }}
+                    keyboardVerticalOffset = { Platform.OS == "ios" ? 70 : 0 }>
+                    <ScrollView style={{ flexGrow: 1 }} >
+                    <View style={{ justifyContent: "center", alignItems: "center", padding:20 }}  >
+                        <Image 
+                            source = {AVATAR} 
+                            resizeMode = { "stretch" }  
+                            style = {{ height:80,width:220 }}
+                            />
+                        </View>
+                        <Formik
+                            initialValues={valores}
+                            onSubmit={datos => GuardarDatosLocal(datos)}
+                            validationSchema={validacion}
+                        >
+                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => {
+                                return <View>
+                                    <Text style={Styles.TemaLabalCampo} >Localidad</Text>
+                                    <TextInput
+                                        style={(formik.errors.Localidad && formik.touched.Localidad) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                        placeholder="Ejemplo: Juan Perez"
+                                        onChangeText={formik.handleChange('Localidad')}
+                                        value={formik.values.Localidad} />
+                                    <Text style={Styles.TemaLabalCampo} >Calle</Text>
+                                    <TextInput
+                                        style={(formik.errors.Calle && formik.touched.Calle) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                        placeholder="Ejemplo: Avenida Violetas"
+                                        onChangeText={formik.handleChange('Calle')}
+                                        value={formik.values.Calle} />
+                                    <Text style={Styles.TemaLabalCampo} >Numero {(formik.errors.Numero && formik.touched.Numero && formik.values.Numero != "") ? <Text style={{ color: "red" }} > No valido </Text> : <></>} </Text>
+                                    <TextInput
+                                        style={(formik.errors.Numero && formik.touched.Numero) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                        placeholder="Ejemplo: 20"
+                                        onChangeText={formik.handleChange('Numero')}
+                                        value={formik.values.Numero} />
+                                    <Text style={Styles.TemaLabalCampo} >Colonia</Text>
+                                    <TextInput
+                                        style={(formik.errors.Colonia && formik.touched.Colonia) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                        placeholder="Ejemplo: Colinas del Lago"
+                                        onChangeText={formik.handleChange('Colonia')}
+                                        value={formik.values.Colonia} />
+                                    <Text style={Styles.TemaLabalCampo} >Codigo Postal {(formik.errors.CodigoPostal && formik.touched.CodigoPostal && formik.values.CodigoPostal != "") ? <Text style={{ color: "red" }} > No valido </Text> : <></>} </Text>
+                                    <TextInput
+                                        style={(formik.errors.CodigoPostal && formik.touched.CodigoPostal) ? Styles.TemaCampoError : Styles.TemaCampo}
+                                        placeholder="Ejemplo: 54716"
+                                        onChangeText={formik.handleChange('CodigoPostal')}
+                                        value={formik.values.CodigoPostal} />
+                                </View>
+                            }}
+                        </Formik>
+                        <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 10, flex: 1, marginRight: 25 , marginLeft:25 , backgroundColor: azulColor }]} onPress={formik.handleSubmit}  >
+                            <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Guardar </Text>
+                        </TouchableOpacity>
+                    </ScrollView>
+                </KeyboardAvoidingView>
                 <Loading
                     loadinColor={azulColor}
                     loading={cargando}
