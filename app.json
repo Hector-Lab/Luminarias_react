@@ -42,7 +42,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "permissions": ["ACCESS_COARSE_LOCATION","ACCESS_FINE_LOCATION","CAMERA","VIBRATE"],
+      "permissions": ["ACCESS_COARSE_LOCATION","ACCESS_FINE_LOCATION","CAMERA","VIBRATE","READ_EXTERNAL_STORAGE","WRITE_EXTERNAL_STORAGE"],
       "package": "com.suinpaccuatro.suinpac",
       "config": {
         "googleMaps": {

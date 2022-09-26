@@ -46,30 +46,6 @@ export default function Log(props: any) {
     useEffect(
         () => {
             (async () => {
-                //NOTE: Codigo que deveria funcionar con ios y android
-                let estadoGF = await Location.getForegroundPermissionsAsync();
-                //NOTE: VErificamos que el de arriba tenga permisos, si no lo solicitamos
-                if( estadoGF.status != "granted" ){
-                    let { granted } =  await Location.requestForegroundPermissionsAsync();
-                    setCargando(false);
-                }
-                if(Platform.OS == "android"){
-                    //Solicitamos el permisos de rastreo para android
-                    let estadoGB = await Location.getBackgroundPermissionsAsync();
-                    if(estadoGB.status != "granted"){
-                        setCargando(false);
-                        let resultPB = await Location.requestBackgroundPermissionsAsync();
-                        await Location.hasServicesEnabledAsync().then(async (status) => {
-                            if (!status) {
-                                await Location.enableNetworkProviderAsync();
-                            }
-                        }).catch((error) => {
-                            console.log(error);
-                        });
-                    }
-                }
-                //Antes de todo esto se revisa si acepto los terminos y condiciones
-                console.log(await storage.verificarDatosCiudadano());
                 if (await storage.verificarDatosCiudadano()) {
                     setCargando(false);
                     props.navigation.dispatch(
@@ -80,8 +56,29 @@ export default function Log(props: any) {
                     );
                 } else {
                     setCargando(false);
-                    console.log("session no valida");
-                    
+                    //NOTE: Codigo que deveria funcionar con ios y android
+                    let estadoGF = await Location.getForegroundPermissionsAsync();
+                    //NOTE: VErificamos que el de arriba tenga permisos, si no lo solicitamos
+                    if( estadoGF.status != "granted" ){
+                        let { granted } =  await Location.requestForegroundPermissionsAsync();
+                        setCargando(false);
+                    }
+                    if(Platform.OS == "android"){
+                        //Solicitamos el permisos de rastreo para android
+                        let estadoGB = await Location.getBackgroundPermissionsAsync();
+                        if(estadoGB.status != "granted"){
+                            setCargando(false);
+                            let resultPB = await Location.requestBackgroundPermissionsAsync();
+                            await Location.hasServicesEnabledAsync().then(async (status) => {
+                                if (!status) {
+                                    await Location.enableNetworkProviderAsync();
+                                }
+                            }).catch((error) => {
+                                lanzarMensaje(error.message,"Mensaje","info","material");
+                            });
+                        }
+                    }
+   
                 }
             })();
         }, []);
