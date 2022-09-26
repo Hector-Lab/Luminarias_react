@@ -139,7 +139,7 @@ export default function Contactos(props: any) {
                         <Text> {email} </Text>
                         <View style={[Styles.itemPerfil, { marginTop: 100 }]} >
                             <TouchableOpacity style={{ flex: 1, flexDirection: "row" }} onPress={HistorialReportes} >
-                                <Text style={{ textAlign: "left", flex: 10, fontWeight: "bold" }} > Historial Reportes </Text>
+                                <Text style={{ textAlign: "left", flex: 10, fontWeight: "bold" }} > Seguimiento de Mis Reportes </Text>
                                 <Icon name="arrow-forward-ios" type="material" tvParallaxProperties style={{ textAlign: "left", flex: 2, fontWeight: "bold" }} />
                             </TouchableOpacity>
                         </View> 

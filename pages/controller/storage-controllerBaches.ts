@@ -93,10 +93,10 @@ export class StorageBaches {
         await AsyncStorage.setItem(root + "DatosContacto", Contactos);
     }
     async verificarDatosCiudadano() { 
-        return ( await AsyncStorage.getItem(root + "DatosPersonales") != null && await AsyncStorage.getItem(root+"idCiudadano") != null );
+        return ( await AsyncStorage.getItem(root+"idCiudadano") != null );
     }
     async cerrarSsesion(){
-        await AsyncStorage.multiRemove([root + "DatosPersonales",root + "DatosDomicilio",root + "DatosContacto",root+"Foto"]);
+        await AsyncStorage.multiRemove([root + "DatosPersonales",root + "DatosDomicilio",root + "DatosContacto",root+"Foto",root+"idCiudadano"]);
     }
     async ObtenerPerfilCiudadano(){
         let jsonCiudadano = await AsyncStorage.getItem(root + "DatosPersonales");
