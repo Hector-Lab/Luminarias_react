@@ -136,7 +136,7 @@ export default function MenuReportes(props: any) {
                     />
                 </View>
                 <TouchableOpacity style={[Styles.btnSeguirReportes, {borderWidth:1}, { marginTop: 15, marginBottom: -3 }]} onPress={HistorialReportes} >
-                    <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Segumiento de Mis Reportes </Text>
+                    <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Seguimiento de Mis Reportes </Text>
                 </TouchableOpacity>
                 <View style={{ flex: 2, borderRadius: 1, borderColor: "black" }} ></View>
                 

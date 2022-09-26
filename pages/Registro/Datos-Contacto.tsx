@@ -123,7 +123,7 @@ export default function Perfil(props: any) {
                                                 keyboardType="phone-pad"
                                                 textContentType="telephoneNumber"
                                                 style={(errors.UnoTelefono && touched.UnoTelefono) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                                placeholder="Ejemplo: Avenida Violetas"
+                                                placeholder="Ejemplo: 7472122321"
                                                 onChangeText={handleChange('UnoTelefono')}
                                                 value={values.UnoTelefono} />
 
@@ -132,7 +132,7 @@ export default function Perfil(props: any) {
                                                 keyboardType="default"
                                                 textContentType="fullStreetAddress"
                                                 style={(errors.UnoDireccion && touched.UnoDireccion) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                                placeholder="Ejemplo: 20"
+                                                placeholder="Ejemplo: Av. Insurgentes"
                                                 onChangeText={handleChange('UnoDireccion')}
                                                 value={values.UnoDireccion} />
 

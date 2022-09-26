@@ -162,7 +162,7 @@ export default function Contactos(props: any) {
                             </TouchableOpacity>
                         </View>
                         <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 50 }]} onPress={CerrarSession} >
-                            <Text style={[Styles.btnTexto, { textAlign: "center" }]}  > Cerrar Sesion </Text>
+                            <Text style={[Styles.btnTexto, { textAlign: "center" }]}  > Cerrar Sesión </Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>

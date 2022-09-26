@@ -4,7 +4,7 @@ import { ScrollView } from "react-native-gesture-handler";
 export default function CustomMapBaches(props: any) {
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} >
-            <Text> Pantalla vacia </Text>
+            <Text> Pantalla vacía </Text>
         </ScrollView>
     );
 }
