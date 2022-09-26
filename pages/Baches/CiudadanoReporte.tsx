@@ -69,6 +69,8 @@ export default function Reportar(props: any) {
   const [evidenciaTresCodificada, setEvidenciaTresCodificada] = useState(String);
   //Manejadir de imagenes
   const [indiceCapturaImagen, setIndiceCapturaImagen] = useState(0);
+  //Manejador de cancelacion
+  const [ cancelar, setCancelar ] = useState(false);
 
   let formik = useFormik({
     initialValues: {
@@ -175,20 +177,28 @@ export default function Reportar(props: any) {
   const GuardarReporte = async (Reporte: { Referencia: string, Descripcion: string }) => {
     //NOTE: aqui procesamos las imagenes
     setTimeout(() => {
-      setUbicacionPermiso(true);
-      setCameraPermision(true);
-      console.log("Cancelando peticion");
-      setCargando(false);
-      CancelarPeticion();
-      lanzarMensaje("Favor de revisar la conexión a internet\nError de conexión",WIFI_OFF[0],WIFI_OFF[1]);
-    },15000);
+      if(cancelar){
+        setUbicacionPermiso(true);
+        setCameraPermision(true);      
+        setCargando(false);
+        CancelarPeticion();
+        lanzarMensaje("Favor de revisar la conexión a internet\nError de conexión",WIFI_OFF[0],WIFI_OFF[1]);
+      }
+    },25000);
     let coordenadasActuales = null;
-    let formatoDireccion = "";
+    let formatoDireccion = {};
     if ((coordenadas == "" || coordenadas == null) && direccion == "" || direccion == null) {
       //INDEV: obtenemos las coordenadas y la direccion
       coordenadasActuales = await CordenadasActualesNumerico();
       let direccionActia = JSON.parse(await ObtenerDireccionActual(coordenadasActuales));
-      formatoDireccion = ` Estado: ${direccionActia.region}\nCiudad: ${direccionActia.city}\nColonia: ${direccionActia.district}\nCalle: ${direccionActia.street}\nCódigo Postal: ${direccionActia.postalCode}`;
+      formatoDireccion  = {
+        "Estado":direccionActia.region,
+        "Ciudad":direccionActia.city,
+        "Colonia":direccionActia.district,
+        "Calle":direccionActia.street,
+        "Postal":direccionActia.postalCode
+      };
+      /*` Estado: ${direccionActia.region}\nCiudad: ${direccionActia.city}\nColonia: ${direccionActia.district}\nCalle: ${direccionActia.street}\nCódigo Postal: ${direccionActia.postalCode}`;*/
     }
     //NOTE: convertimos los datos de la lista en
     let listaCodificada = new Array();;
@@ -208,7 +218,7 @@ export default function Reportar(props: any) {
         Tema: seleccionSolicitud,
         Descripcion: Reporte.Descripcion,
         gps: (coordenadas == "" || coordenadas == null) ? JSON.stringify(coordenadasActuales) : coordenadas,
-        direccion: (direccion == "" || direccion == null ? formatoDireccion : direccion),
+        direccion: (direccion == "" || direccion == null ? JSON.stringify(formatoDireccion) : direccion),
         Referencia: Reporte.Referencia,
         Evidencia: (listaCodificada.length > 0) ? listaCodificada : null,
       };
@@ -216,11 +226,13 @@ export default function Reportar(props: any) {
       setCameraPermision(true);
       await EnviarReportes(data)
         .then((result) => {
+          setCancelar(false);
           lanzarMensaje("¡Reporte Enviado!", OK[0], OK[1]);
           limpiarPantalla();
         })
         .catch((error) => {
           //NOTE: manejador de erroes
+          setCancelar(true);
           let mensaje = error.message;
           if (mensaje.includes("interner")) {
             //NOTE: mensaje sin internet
@@ -239,7 +251,7 @@ export default function Reportar(props: any) {
   const solicitarPermisosCamara = async ( index:number ) => {
     //NOTE: pedir Persmisos antes de lanzar la camara
     let image = await ImagePicker.launchCameraAsync({
-      presentationStyle:0,
+      presentationStyle:ImagePicker.UIImagePickerPresentationStyle.AUTOMATIC,
       allowsEditing:false,
       allowsMultipleSelection:false,
       base64:true,

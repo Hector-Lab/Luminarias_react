@@ -151,7 +151,7 @@ export default function HistorialReportes(props: any) {
                             keyboardVerticalOffset = { Platform.OS == "ios" ? 70 : 0 }>
                             <TouchableWithoutFeedback onPress = { Keyboard.dismiss } >
                                 <Card containerStyle = {{ elevation:10, borderRadius:5 }} >
-                                        <Card.Title>Reponder Observación</Card.Title>
+                                        <Card.Title>Responder Observación</Card.Title>
                                     <Card.Divider></Card.Divider>
                                         <TextInput 
                                             style = {[{borderWidth:1, borderRadius:3},(Platform.OS == "ios" ? { height:100 }:{ textAlignVertical:"top" })]} 

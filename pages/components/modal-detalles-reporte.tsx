@@ -40,6 +40,7 @@ export default class ReporteDetalle extends React.Component<{
         let colorEstado = { 1: "#6c757d", 2: "#17a2b8", 3: "#28a745", 4: "#dc3545" };
         let Rutas = [];
         let coordenasas = null;
+        let formatoDireccion = "";
         //INDEV: Generamos la lista de observaciones
         if (this.props.Reporte.Ubicaci_onGPS != undefined) {
             coordenasas = JSON.parse(this.props.Reporte.Ubicaci_onGPS);
@@ -54,6 +55,10 @@ export default class ReporteDetalle extends React.Component<{
                 Rutas.push(objetoImagen);
             })
         }
+        if(this.props.Reporte.Ubicaci_onEscrita != null) {
+            let jsonDire = JSON.parse(this.props.Reporte.Ubicaci_onEscrita);
+            formatoDireccion = `Estado: ${jsonDire.Estado}\n Ciudad :${jsonDire.Ciudad}\n Colonia: ${jsonDire.Colonia}\n Código Postal: ${jsonDire.Postal}`;
+        }
         const ReporteVacio = () => {
             return <View style={{ borderWidth: 1, marginTop: this.props.Plataform == "ios" ? 20 : 0 }} >
                 <Text> Vacio </Text>
@@ -64,7 +69,7 @@ export default class ReporteDetalle extends React.Component<{
                 return (
                     <View style = {{marginBottom:10}} key = {observacion.id}  >
                         <View style = {{marginLeft:10, flexDirection:"row",alignItems:"flex-end",marginTop:5 }} >
-                            <Text><Text style = {{flex:3, textAlign:"left", fontWeight:'bold'  }} >Fecha y Hora: </Text>{ observacion.FechaTupla }</Text>
+                            <Text><Text style = {{flex:3, textAlign:"left"  }} >Fecha y Hora: </Text>{ observacion.FechaTupla }</Text>
                             {
                                 (observacion.FechaRespuesta == null) ? 
                                 (<TouchableOpacity style = {{ flex:1, alignItems: "center", backgroundColor: azulColor + (observacion.FechaRespuesta != null ? "84":"ff"), padding:5, borderRadius:5, marginRight:10}} onPress = {()=>{ this.props.onClose(); this.props.onMostrarRespuesta() }} >
@@ -149,7 +154,7 @@ export default class ReporteDetalle extends React.Component<{
                                 <View style={{ flexDirection: "column", marginTop: 10 }}>
                                     <Text style={{ flex: 1, textAlign: "center", marginBottom: 5 }} > Dirección: </Text>
                                     <ScrollView style={[estilosElemento.scrollText, { height: 100 }]} >
-                                        <Text style={[estilosElemento.textArea, { height: 150 }]} > {String(this.props.Reporte.Ubicaci_onEscrita).replace("\t", "")} </Text>
+                                        <Text style={[estilosElemento.textArea, { height: 150 }]} > { formatoDireccion } </Text>
                                     </ScrollView>
                                 </View>
                                 <View style={{ marginTop: 20, marginLeft: 10, marginRight: 10, borderWidth: 1 }} >
