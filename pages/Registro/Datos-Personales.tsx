@@ -119,7 +119,7 @@ export default function Personales(props: any) {
                                         keyboardType="default"
                                         autoCapitalize="characters"
                                         style={(errors.CURP && touched.CURP) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                        placeholder="XXXXXXXXXXXXXXXXXX"
+                                        placeholder="XAXX010101000"
                                         onChangeText={handleChange('CURP')}
                                         value={values.CURP} />
                                     <Text style={Styles.TemaLabalCampo} >Correo Electrónico</Text>
@@ -127,7 +127,7 @@ export default function Personales(props: any) {
                                         textContentType="emailAddress"
                                         keyboardType="email-address"
                                         style={(errors.Email && touched.Email) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                        placeholder="Ejemplo: ccuatrotest@gmail.com"
+                                        placeholder="Ejemplo: Mi_correo@email.com"
                                         onChangeText={handleChange('Email')}
                                         value={values.Email} />
                                     <Text style={Styles.TemaLabalCampo} >Telefono</Text>
@@ -148,7 +148,7 @@ export default function Personales(props: any) {
                                         value={values.Password} />
                                     <View style={{ flexDirection: "column" }} >
                                     </View>
-                                    <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 20 }]} onPress={handleSubmit}>
+                                    <TouchableOpacity style={[Styles.btnGeneral, { marginTop: 11 }]} onPress={handleSubmit}>
                                         <Text style={[Styles.btnTexto, { textAlign: "center" }]} > Siguiente Paso </Text>
                                     </TouchableOpacity>
                                 </View>

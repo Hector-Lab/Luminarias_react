@@ -20,7 +20,7 @@ export default function Registro(props: any) {
                 />
                 <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Telefono</Text>
                 <TextInput
-                    placeholder=""
+                    placeholder="Ejemplo: 7472123212"
                     //maxLength={ 50 }
                     keyboardType="number-pad"
                     autoCapitalize = {"characters"}
@@ -28,7 +28,7 @@ export default function Registro(props: any) {
                 />
                 <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Direccion</Text>
                 <TextInput
-                    placeholder=""
+                    placeholder="Ejemplo: Av. Insurgentes #5"
                     //maxLength={ 50 }
                     keyboardType="number-pad"
                     autoCapitalize = {"characters"}
@@ -36,7 +36,7 @@ export default function Registro(props: any) {
                 />
                 <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Email</Text>
                 <TextInput
-                    placeholder=""
+                    placeholder="Ejemplo: Mi_correo@email.com"
                     //maxLength={ 50 }
                     keyboardType="number-pad"
                     autoCapitalize = {"characters"}
@@ -55,7 +55,7 @@ export default function Registro(props: any) {
                        
                    <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Nombre</Text>
                    <TextInput
-                       placeholder="Nombre: Juan"
+                       placeholder="Ejemplo: Juan"
                        //maxLength={ 50 }
                        keyboardType="number-pad"
                        autoCapitalize = {"characters"}
@@ -63,7 +63,7 @@ export default function Registro(props: any) {
                    />
                    <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Apellido Paterno</Text>
                    <TextInput
-                       placeholder="Nombre: Perez"
+                       placeholder="Ejemplo: Perez"
                        //maxLength={ 50 }
                        keyboardType="number-pad"
                        autoCapitalize = {"characters"}
@@ -71,7 +71,7 @@ export default function Registro(props: any) {
                    />
                    <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Apellido Materno</Text>
                    <TextInput
-                       placeholder="Nombre: Perez"
+                       placeholder="Ejemplo: Juarez"
                        //maxLength={ 50 }
                        keyboardType="number-pad"
                        autoCapitalize = {"characters"}
@@ -79,7 +79,7 @@ export default function Registro(props: any) {
                    /> 
                    <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>CURP</Text>
                    <TextInput
-                       placeholder="Nombre: Perez"
+                       placeholder="Ejemplo: XAXX010101000"
                        //maxLength={ 50 }
                        keyboardType="number-pad"
                        autoCapitalize = {"characters"}
@@ -87,7 +87,7 @@ export default function Registro(props: any) {
                    />                
                    <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Telefono</Text>
                    <TextInput
-                       placeholder="Nombre: Perez"
+                       placeholder="Ejemplo: 7472123221"
                        //maxLength={ 50 }
                        keyboardType="number-pad"
                        autoCapitalize = {"characters"}
@@ -95,7 +95,7 @@ export default function Registro(props: any) {
                    />
                    <Text style= {{marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color:"black", fontWeight:"bold", justifyContent: "center", alignItems: "center"}}>Email</Text>
                    <TextInput
-                       placeholder="Nombre: Perez"
+                       placeholder="Ejemplo: Mi_correo@email.com"
                        //maxLength={ 50 }
                        keyboardType="number-pad"
                        autoCapitalize = {"characters"}

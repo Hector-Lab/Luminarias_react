@@ -155,7 +155,7 @@ export default function Log(props: any) {
                                 <TextInput
                                     autoCapitalize="characters"
                                     style={(errors.Curp && touched.Curp) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                    placeholder="Ejemplo: Juan Perez"
+                                    placeholder="Ejemplo: XAXX010101000"
                                     onChangeText={handleChange('Curp')}
                                     value={values.Curp}
                                 ></TextInput>

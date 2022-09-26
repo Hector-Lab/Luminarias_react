@@ -155,7 +155,7 @@ export default function HistorialReportes(props: any) {
                                     <Card.Divider></Card.Divider>
                                         <TextInput 
                                             style = {[{borderWidth:1, borderRadius:3},(Platform.OS == "ios" ? { height:100 }:{ textAlignVertical:"top" })]} 
-                                            placeholder = "Escriba la respuesta a la observació de su reporte" 
+                                            placeholder = "Escriba la respuesta a la observación de su reporte" 
                                             multiline = { true } 
                                             numberOfLines = { 8 }
                                             onChangeText = { setRespuestaObservacion }

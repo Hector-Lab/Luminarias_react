@@ -60,13 +60,13 @@ export default function Domicilio(props: any) {
                                     <Text style = {Styles.TemaLabalCampo} >Localidad</Text>
                                     <TextInput 
                                         style = { ( errors.Localidad && touched.Localidad ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                        placeholder = "Ejemplo: Ciatitlan Izcalli"
+                                        placeholder = "Ejemplo: Zihuatanejo de Azueta"
                                         onChangeText={handleChange('Localidad')}
                                         value = {values.Localidad} />
                                     <Text style = {Styles.TemaLabalCampo} >Calle</Text>
                                     <TextInput 
                                         style = { ( errors.Calle && touched.Calle ) ? Styles.TemaCampoError : Styles.TemaCampo } 
-                                        placeholder = "Ejemplo: Avenida Violetas"
+                                        placeholder = "Ejemplo: Av. Insurgentes #5"
                                         onChangeText={handleChange('Calle')}
                                         value = {values.Calle} />
                                     <Text style = {Styles.TemaLabalCampo} >Numero {( errors.Numero && touched.Numero && values.Numero != "" ) ? <Text style = {{ color:"red" }} > No valido </Text>: <></>} </Text>

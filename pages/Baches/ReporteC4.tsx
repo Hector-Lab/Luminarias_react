@@ -274,7 +274,7 @@ export default function ReporteC4(props: any) {
                   <Text style={{ marginBottom: 5, marginTop: 10, marginLeft: 15, marginRight: 15, color: "black", fontWeight: "bold", justifyContent: "center", alignItems: "center" }}>Problema</Text>
                   <TextInput
                     numberOfLines={5}
-                    placeholder="Sea Breve en su Descripción"
+                    placeholder="Sea breve en su descripción"
                     //maxLength={ 50 }
                     keyboardType="default"
                     value={Problema}

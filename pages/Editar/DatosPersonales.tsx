@@ -116,7 +116,7 @@ export default function Personales(props: any) {
                                     <Text style={Styles.TemaLabalCampo} >Nombre</Text>
                                     <TextInput
                                         style={(formik.errors.Nombre && formik.touched.Nombre) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                        placeholder="Ejemplo: Juan Perez"
+                                        placeholder="Ejemplo: Juan"
                                         onChangeText={formik.handleChange("Nombre")}
                                         value={formik.values.Nombre}
                                     />
@@ -124,14 +124,14 @@ export default function Personales(props: any) {
                                     <Text style={Styles.TemaLabalCampo} >Apellido Paterno</Text>
                                     <TextInput
                                         style={(formik.errors.ApellidoP && formik.touched.ApellidoP) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                        placeholder="Ejemplo: Juan Perez"
+                                        placeholder="Ejemplo: Perez"
                                         onChangeText={formik.handleChange("ApellidoP")}
                                         value={formik.values.ApellidoP} />
 
                                     <Text style={Styles.TemaLabalCampo} >Apellido Materno</Text>
                                     <TextInput
                                         style={(formik.errors.ApellidoM && formik.touched.ApellidoM) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                        placeholder="Ejemplo: Juan Perez"
+                                        placeholder="Ejemplo: Juárez"
                                         onChangeText={formik.handleChange("ApellidoM")}
                                         value={formik.values.ApellidoM} />
 
@@ -139,19 +139,19 @@ export default function Personales(props: any) {
                                     <TextInput
                                         editable={false}
                                         style={(formik.errors.CURP && formik.touched.CURP) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                        placeholder="Ejemplo: Juan Perez"
+                                        placeholder="Ejemplo: XAXX010101000"
                                         onChangeText={formik.handleChange("CURP")}
                                         value={formik.values.CURP} />
                                     <Text style={Styles.TemaLabalCampo} >Correo Electrónico</Text>
                                     <TextInput
                                         style={(formik.errors.Email && formik.touched.Email) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                        placeholder="Ejemplo: Juan Perez"
+                                        placeholder="Ejemplo: Mi_Correo@email.com"
                                         onChangeText={formik.handleChange("Email")}
                                         value={formik.values.Email} />
                                     <Text style={Styles.TemaLabalCampo} >Telefono</Text>
                                     <TextInput
                                         style={(formik.errors.Telefono && formik.touched.Telefono) ? Styles.TemaCampoError : Styles.TemaCampo}
-                                        placeholder="Ejemplo: Juan Perez"
+                                        placeholder="Ejemplo: 7472122321"
                                         onChangeText={formik.handleChange("Telefono")}
                                         value={formik.values.Telefono} />
                                     <Text style={Styles.TemaLabalCampo} >Contraseña {!(passValida && formik.touched.Password) ? <Text style={{ color: "red" }} > { "Mínimo 4 caracteres" } </Text> : <></>} </Text>
