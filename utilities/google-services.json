@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "256841821925",
+    "project_id": "suinpaccuatro",
+    "storage_bucket": "suinpaccuatro.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256841821925:android:4236e7ab367a34bd18ae0c",
+        "android_client_info": {
+          "package_name": "com.suinpaccuatro.suinpac"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256841821925-1dtsdjlmbtqke7g08e5epi4omhmf4tj4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuQgY9HX2WPUt6kCdMo5ahdtMPXW9tH7g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256841821925-1dtsdjlmbtqke7g08e5epi4omhmf4tj4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

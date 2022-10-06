@@ -36,6 +36,7 @@
       }
     },
     "android": {
+      "googleServicesFile":"./utilities/google-services.json",
       "versionCode": 1,
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
