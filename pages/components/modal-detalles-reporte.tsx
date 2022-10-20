@@ -1,10 +1,10 @@
-import React, { Component, useEffect, useState } from "react";
-import { View, StyleSheet, Text, ImageBackground, TouchableOpacity, Touchable, Modal, StatusBar, Pressable, ActivityIndicator, Image } from "react-native";
-import { Icon, Card, registerCustomIconType } from 'react-native-elements';
+import React from "react";
+import { View, StyleSheet, Text, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
+import { Icon } from 'react-native-elements';
 import { ScrollView } from "react-native-gesture-handler";
 import MapView, { Marker } from "react-native-maps";
-import { BlueColor, cardColor } from "../../Styles/BachesColor";
-import { azulColor, textoAtencion } from '../../Styles/Color';
+import { BlueColor} from "../../Styles/BachesColor";
+import { azulColor } from '../../Styles/Color';
 import { CLOSE } from '../../Styles/Iconos';
 import ImageView from "react-native-image-viewing";
 
@@ -19,6 +19,8 @@ export default class ReporteDetalle extends React.Component<{
         FechaTupla: string,
         FechaAtendida: string,
         FechaSolucion: string,
+        FechaRechazada:string,
+        MotivoRechazo:string,
         Descripci_on: string,
         Referencia: string,
         Ubicaci_onEscrita: string,
@@ -124,14 +126,28 @@ export default class ReporteDetalle extends React.Component<{
                                     <Text style={{ flex: 2 }} > Fecha Reporte: </Text>
                                     <Text style={{ flex: 3 }} > {this.props.Reporte.FechaTupla} </Text>
                                 </View>
-                                <View style={{ flexDirection: "row", marginTop: 10 }}>
-                                    <Text style={{ flex: 2 }} > Fecha Atención: </Text>
-                                    <Text style={{ flex: 3 }} > {this.props.Reporte.FechaAtendida == null ? "Sin Asignar" : this.props.Reporte.FechaTupla} </Text>
-                                </View>
-                                <View style={{ flexDirection: "row", marginTop: 10 }}>
-                                    <Text style={{ flex: 2 }} > Fecha Solución: </Text>
-                                    <Text style={{ flex: 3 }} > {this.props.Reporte.FechaSolucion == null ? "Sin Asignar" : this.props.Reporte.FechaSolucion} </Text>
-                                </View>
+                                {
+                                    this.props.Reporte.Estatus != "4" ? 
+                                    <>
+                                        <View style={{ flexDirection: "row", marginTop: 10 }}>
+                                            <Text style={{ flex: 2 }} > Fecha Atención: </Text>
+                                            <Text style={{ flex: 3 }} > {this.props.Reporte.FechaAtendida == null ? "Sin Asignar" : this.props.Reporte.FechaTupla} </Text>
+                                        </View>
+                                        <View style={{ flexDirection: "row", marginTop: 10 }}>
+                                            <Text style={{ flex: 2 }} > Fecha Solución: </Text>
+                                            <Text style={{ flex: 3 }} > {this.props.Reporte.FechaSolucion == null ? "Sin Asignar" : this.props.Reporte.FechaSolucion} </Text>
+                                        </View>
+                                    </> : 
+                                    <>
+                                        <View style={{ flexDirection: "column", marginTop: 10 }}>
+                                            <Text style={{ flex: 1, textAlign: "center", marginBottom: 5, fontWeight:"bold", color:"red" }} > Motivo de rechazo: </Text>
+                                            <ScrollView style={[estilosElemento.scrollText, { height: 100 }]} >
+                                                <Text style={[estilosElemento.textArea, { height: 150, color:"red", fontWeight:"bold" }]} > {this.props.Reporte.MotivoRechazo} </Text>
+                                            </ScrollView>
+                                        </View>
+                                    </>
+                                    
+                                }
                                 {
                                     (this.props.Observaciones != null && this.props.Observaciones.length > 0) ? (<Text style={{ textAlign: "center", fontWeight: "bold", marginTop: 20 }} >Observaciones a tu reporte</Text>) : <></>
                                 }

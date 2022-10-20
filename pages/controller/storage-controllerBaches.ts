@@ -137,5 +137,15 @@ export class StorageBaches {
     async obtenerRegresoHistorial( ){
         return AsyncStorage.getItem( root+"tipoMenu" );
     }
+    async guadarTokenDispositivo( token:string ){
+        await AsyncStorage.setItem(root+"Token",token);
+    }
+    async tokenDispositivoValido(){
+        let token = await AsyncStorage.getItem(root+"Token");
+        return ( token != null && token != "" );
+    }
+    async obtenerTokenDispositivo(){
+        return await AsyncStorage.getItem(root+"Token");
+    }
 }
 

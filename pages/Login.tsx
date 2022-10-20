@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { 
         View, 
         TouchableOpacity, 
@@ -24,6 +24,9 @@ import { USER_COG, WIFI_OFF, DESCONOCIDO, APPSETTINGS } from '../Styles/Iconos';
 import * as Location from 'expo-location';
 import Privacidad from './components/modal-privacidad';
 import { FONDO, AVATAR } from '../utilities/Variables';
+import { enviarTokenSuinpac } from './controller/api-controller';
+import * as Notificacion from 'expo-notifications';
+import * as Device from 'expo-device';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 export default function Log(props: any) {
     const [cargando, setCargando] = useState(false);
@@ -33,6 +36,11 @@ export default function Log(props: any) {
     const [titulo, setTitilo] = useState('Mensaje');
     const [mostrarMensaje, setMostrarMensaje] = useState(false);
     const [mostrarPrivacidad, setMostrarPrivacidad] = useState(false);
+    //NOTE: para menejo de las notificaciones
+    const [ FMCToken, setFMCToken ] = useState();
+    const [ notificacion, setNotificacion ] = useState(false);
+    const listenerNotificacion = useRef();
+    const respuestaNoticicacion = useRef();
     let storage = new StorageBaches();
     let valores = {
         Curp: '',
@@ -42,7 +50,14 @@ export default function Log(props: any) {
         Curp: Yup.string().min(18).required('Requerido'),
         Password: Yup.string().min(4).required('Requerido')
     });
-    //FIXME: verificar los permisos en app.json para ios
+    Notificacion.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+        }),
+      });
+    //FIXED: verificar los permisos en app.json para ios
     useEffect(
         () => {
             (async () => {
@@ -82,6 +97,35 @@ export default function Log(props: any) {
                 }
             })();
         }, []);
+    
+    useEffect(()=>{
+        //NOTE: aqui registramos el dispositivo en FCM
+            registrarParaNotificaciones();
+        listenerNotificacion.current = Notificacion.addNotificationReceivedListener(nft => {setNotificacion(true)});
+        respuestaNoticicacion.current = Notificacion.addNotificationResponseReceivedListener(response => {});
+    },[]);
+
+    const registrarParaNotificaciones = async () =>{
+        if(! await storage.tokenDispositivoValido() ){
+            if (Platform.OS === 'android') {
+                await Notificacion.setNotificationChannelAsync('default', {
+                  name: 'default',
+                  importance: Notificacion.AndroidImportance.MAX,
+                  vibrationPattern: [0, 250, 250, 250],
+                  lightColor: '#FF231F7C',
+                });
+              }
+            //Obtenemos los permisos de notificaciones
+            if(Device.isDevice){
+                let result =  await Notificacion.getPermissionsAsync();
+                let request = Notificacion.requestPermissionsAsync();
+                if(result.status == "granted"){
+                    let token = (await Notificacion.getExpoPushTokenAsync()).data;
+                    await enviarTokenSuinpac( token,Platform.OS ).then((data)=>{}).catch(( error )=>{});
+                }
+            }
+        }
+    }
     const RegistrarUsuario = () => {
         //NOTE: nos vamos al formaulario de registro
         props.navigation.navigate("Personales");
@@ -125,6 +169,7 @@ export default function Log(props: any) {
         setMostrarPrivacidad(false);
     }
     return (
+        
         <View style={{ flex: 1 }} >
             <StatusBar animated={true} barStyle={colorEstado[Platform.OS]} />
             <ImageBackground source={ FONDO } style={{ flex: 1 }} >

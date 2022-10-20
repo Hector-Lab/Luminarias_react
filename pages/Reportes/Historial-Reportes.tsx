@@ -68,6 +68,7 @@ export default function HistorialReportes(props: any) {
         props.navigation.pop();
     }
     const mostrarReporte = async ( item:any ) => {
+        console.log(item);
         setCargando(true);
         await ObtenerListaObservaciones(item.id)
         .then((listaObservaciones)=>{

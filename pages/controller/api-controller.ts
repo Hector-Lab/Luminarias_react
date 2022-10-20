@@ -1,12 +1,7 @@
-import { ServerContainer, TabRouter } from '@react-navigation/native';
-import { RefreshControlComponent } from 'react-native';
 import { APIServices } from '../controller/api-routes';
 import { StorageBaches } from '../controller/storage-controllerBaches';
-import { verificarcurp } from  '../../utilities/utilities';
 import { CLIENTE } from '../../utilities/Variables';
-import { iconColorBlue } from '../../Styles/Color';
-import { string } from 'yup/lib/locale';
-
+import { version } from '../../package.json';
 const service = new APIServices();
 const storageBaches = new StorageBaches();
 const networkError = new Error("!Sin acceso a internet¡");
@@ -537,6 +532,28 @@ export async function enviarRepuestaObservacion( idObservacion:number, respuesta
         throw verificarErrores(error);
     } 
 }
+export async function enviarTokenSuinpac( token:string, plataforma:string ){
+    try {
+        let datos = {
+            Version:version,
+            Plataforma: plataforma,
+            Ciudadano: parseInt(await storageBaches.obtenerIdCiudadano()),
+            Token: token,
+            Cliente: CLIENTE
+        }
+        let rawRepuesta = await service.GuadarToken(datos);
+        let respuesta = await rawRepuesta.json();
+        console.log(respuesta);
+        if( respuesta.Code == 200 ){
+            await storageBaches.guadarTokenDispositivo(token);
+            return true;
+        }else{
+            return false;
+        }
+    }catch(error){
+        throw verificarErrores(error);
+    }
+}
 //NOTE: metodo interno
 function verificarErrores(error:Error) {
     let message = error.message;
@@ -550,4 +567,3 @@ function verificarErrores(error:Error) {
     return error;
 
 }
-

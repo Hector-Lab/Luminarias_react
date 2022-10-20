@@ -28,11 +28,13 @@ import { azulColor, iconColorBlue, SuinpacRed, torchButton } from "../../Styles/
 import ImageView from "react-native-image-viewing";
 import { GuardarReporteC4 } from "../controller/api-controller";
 import { CLIENTE,AVATAR,FONDO } from '../../utilities/Variables';
+import { StorageBaches } from '../controller/storage-controllerBaches';
 import * as ImagePicker from 'expo-image-picker';
 import Style from '../../Styles/styles';
 const colorEstado = { "ios": "dark-content", "android": "light-content" };
 
 export default function ReporteC4(props: any) {
+  const storage = new StorageBaches();
   const [Nombre, setNombre] = useState(String);
   const [Telefono, setTelefono] = useState(String);
   const [Problema, setProblema] = useState(String);
@@ -170,7 +172,8 @@ export default function ReporteC4(props: any) {
       'Problema': Problema,
       'Evidencia': encodeFotos,
       'Locacion': JSON.stringify(Locacion.coords),
-      'Direccion': JSON.stringify(direccion)
+      'Direccion': JSON.stringify(direccion),
+      'Token': await storage.obtenerTokenDispositivo()
     }
     await GuardarReporteC4(datosReposte).
       then((MensajeGuardado) => {
